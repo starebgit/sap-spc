@@ -47,11 +47,6 @@ namespace SapSpcWinForms
             new TimeSpan(22,0,0)
         };
 
-        private void BeriMeritveSettingsMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            _berMer = beriMeritveSettingsToolStripMenuItem.Checked ? 0 : 1;
-        }
-
         private void WireUpEvents()
         {
             machinesList.SelectedIndexChanged += MachinesList_SelectedIndexChanged;
@@ -1676,39 +1671,6 @@ namespace SapSpcWinForms
 
         private void SAPButton_Click(object sender, EventArgs e)
         {
-            // CONFIRM SAP SYSTEM (E4P vs E4Q) BEFORE WRITING
-            try
-            {
-                var dest = SapSession.GetDestination();
-                var a = dest.SystemAttributes;
-
-                // Example text: "E4P (client 101, sysnr 10) @ sape4p.blanc-fischer.com"
-                var sysText = $"{a.SystemID} (client {a.Client}, sysnr {a.SystemNumber})";
-
-                var dr = MessageBox.Show(
-                    this,
-                    $"Prepis v SAP?\n\nAre you sure you're signed into system:\n\n{sysText}",
-                    "SAP zapis - potrditev sistema",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button2
-                );
-
-                if (dr != DialogResult.Yes)
-                    return;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    this,
-                    "Ne morem prebrati SAP sistema iz trenutne prijave.\n\n" + ex.Message,
-                    "SAP zapis",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
-                return;
-            }
-
             if (!ValidateAllCharacteristicsEntered(out var validationError))
             {
                 MessageBox.Show(validationError, "SAP zapis",
@@ -1805,6 +1767,12 @@ namespace SapSpcWinForms
                     MessageBoxButtons.OK,
                     ok ? MessageBoxIcon.Information : MessageBoxIcon.Error
                 );
+
+                if (ok)
+                {
+                    ZapisSemaforOnSapClick();
+                    RefreshAfterSuccessfulSapWrite();
+                }
             }
             catch (Exception ex)
             {
@@ -1814,6 +1782,37 @@ namespace SapSpcWinForms
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private void ZapisSemaforOnSapClick()
+        {
+            if (!_currentStPost.HasValue || machinesList.SelectedIndex < 0)
+                return;
+
+            int idx = machinesList.SelectedIndex + 1; // 1-based like Delphi
+            if (!_machineIdByIndex.TryGetValue(idx, out var machineId))
+                return;
+
+            _astanjeByIndex[idx] = 1;
+            _acasByIndex[idx] = DateTime.Now.TimeOfDay;
+
+            try
+            {
+                StrojnaDbRepository.ZapisSemafor(_currentStPost.Value, machineId);
+            }
+            catch
+            {
+                // keep SAP flow non-blocking like Delphi
+            }
+        }
+
+        private void RefreshAfterSuccessfulSapWrite()
+        {
+            var selectedCode = codesList.SelectedItem?.ToString();
+            if (!string.IsNullOrWhiteSpace(selectedCode))
+                LoadKonplanAndPopulateGrids(selectedCode);
+
+            ObnoviSemafor();
         }
 
         // ===== SAP DTOs + builder =====

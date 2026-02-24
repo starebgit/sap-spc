@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Linq;
 using System.Windows.Forms;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms.Data
 {
@@ -252,6 +253,65 @@ namespace SapSpcWinForms.Data
                     int traj = r["mertraj"] == DBNull.Value ? DefaultIntervalTrajMinutes  : Convert.ToInt32(r["mertraj"]);
                     return (diff, traj);
                 }
+            }
+        }
+
+        public static void ZapisSemafor(int stpost, int idstroja)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            using (var cmd = conn.CreateCommand())
+            {
+                conn.Open();
+
+                var pair = AppUtils.GetIzmDatDelphiLike(DateTime.Now);
+                var dat = pair.dat;
+                var izm = pair.izm;
+
+                cmd.Parameters.Clear();
+                cmd.CommandText =
+                    "SELECT TOP 1 ident FROM GenDnevi " +
+                    "WHERE datum = ? AND izmena = ? AND stpost = ?";
+                cmd.Parameters.AddWithValue("@p1", dat.Date);
+                cmd.Parameters.AddWithValue("@p2", izm);
+                cmd.Parameters.AddWithValue("@p3", stpost);
+
+                var idsObj = cmd.ExecuteScalar();
+                int ids = (idsObj == null || idsObj == DBNull.Value) ? 0 : Convert.ToInt32(idsObj);
+
+                if (ids == 0)
+                {
+                    cmd.Parameters.Clear();
+                    cmd.CommandText =
+                        "INSERT INTO Gendnevi (stpost, datum, izmena) VALUES (?, ?, ?)";
+                    cmd.Parameters.AddWithValue("@p1", stpost);
+                    cmd.Parameters.AddWithValue("@p2", dat.Date);
+                    cmd.Parameters.AddWithValue("@p3", izm);
+                    cmd.ExecuteNonQuery();
+
+                    cmd.Parameters.Clear();
+                    cmd.CommandText =
+                        "SELECT TOP 1 ident FROM GenDnevi " +
+                        "WHERE datum = ? AND izmena = ? AND stpost = ? ORDER BY ident DESC";
+                    cmd.Parameters.AddWithValue("@p1", dat.Date);
+                    cmd.Parameters.AddWithValue("@p2", izm);
+                    cmd.Parameters.AddWithValue("@p3", stpost);
+
+                    idsObj = cmd.ExecuteScalar();
+                    ids = (idsObj == null || idsObj == DBNull.Value) ? 0 : Convert.ToInt32(idsObj);
+                }
+
+                if (ids == 0)
+                    return;
+
+                cmd.Parameters.Clear();
+                cmd.CommandText =
+                    "INSERT INTO Gencasovni (stpost, ident, stroj, cas) VALUES (?, ?, ?, ?)";
+                cmd.Parameters.AddWithValue("@p1", stpost);
+                cmd.Parameters.AddWithValue("@p2", ids);
+                cmd.Parameters.AddWithValue("@p3", idstroja.ToString());
+                cmd.Parameters.AddWithValue("@p4", DateTime.Now);
+                cmd.ExecuteNonQuery();
             }
         }
 
