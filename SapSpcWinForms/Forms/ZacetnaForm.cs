@@ -32,6 +32,7 @@ namespace SapSpcWinForms
         private readonly Dictionary<int, int> _diffByIndex = new Dictionary<int, int>();             // pp^.diff minutes
         private readonly Dictionary<int, int> _trajByIndex = new Dictionary<int, int>();             // pp^.traj minutes
         private readonly Dictionary<int, int> _machineIdByIndex = new Dictionary<int, int>();        // pp^.ident (idstroja)
+        private readonly Dictionary<int, bool> _machineActiveByIndex = new Dictionary<int, bool>();  // Delphi strvkl[i]
         private const int DefaultIntervalDiffMinutes = StrojnaDbRepository.DefaultIntervalDiffMinutes;
         private const int DefaultIntervalTrajMinutes = StrojnaDbRepository.DefaultIntervalTrajMinutes;
 
@@ -140,6 +141,7 @@ namespace SapSpcWinForms
             _machineIdByIndex.Clear();
             _diffByIndex.Clear();
             _trajByIndex.Clear();
+            _machineActiveByIndex.Clear();
             _acasByIndex.Clear();
             _astanjeByIndex.Clear();
 
@@ -152,13 +154,11 @@ namespace SapSpcWinForms
 
                 foreach (var (idstroja, naziv) in machines)
                 {
-                    if (!SinaproRepository.PreveriStroj(idstroja)) // Delphi filter
-                        continue;
-
                     int index = machinesList.Items.Count + 1; // 1-based like Delphi
                     machinesList.Items.Add(naziv);
 
                     _machineIdByIndex[index] = idstroja;
+                    _machineActiveByIndex[index] = SinaproRepository.PreveriStroj(idstroja);
 
                     var (diff, traj) = ResolveIntervalForMachine(idstroja);
                     _diffByIndex[index] = diff;
@@ -1017,7 +1017,7 @@ namespace SapSpcWinForms
             int machineCount = machinesList.Items.Count;
             for (int i = 1; i <= machineCount; i++)
             {
-                bool strojAktiven = true; // TEMP (Delphi: strvkl[i])
+                bool strojAktiven = _machineActiveByIndex.TryGetValue(i, out var aktiven) && aktiven;
                 if (!strojAktiven)
                 {
                     _astanjeByIndex[i] = 9;
