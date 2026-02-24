@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3F655E7E-BD0B-424F-B3CA-66F770EA747F}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>SapSpcWinForms</RootNamespace>
+    <AssemblyName>SapSpcWinForms</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="sapnco, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\OneDrive - Blanc und Fischer Familienholding\Namizje\Misc files\SAP DLL download\sapnco31dotnet8P_6-70002627\sapnco.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco_utils, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\OneDrive - Blanc und Fischer Familienholding\Namizje\Misc files\SAP DLL download\sapnco31dotnet8P_6-70002627\sapnco_utils.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Forms\AdminPasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AdminPasswordForm.Designer.cs">
+      <DependentUpon>AdminPasswordForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Classes\DomainModels.cs" />
+    <Compile Include="Classes\MerilnoMestoState.cs" />
+    <Compile Include="Classes\SapEval.cs" />
+    <Compile Include="Classes\SapMer.cs" />
+    <Compile Include="Classes\SapWritePayload.cs" />
+    <Compile Include="Forms\DodatkiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DodatneKodeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GrafiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\KontrolniPlaniForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LegendaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LegendaForm.Designer.cs">
+      <DependentUpon>LegendaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MerilaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MerilnaMestaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MerilnaMestaForm.Designer.cs">
+      <DependentUpon>MerilnaMestaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\MerilneMetodeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\PrijavaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VpisOpombeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VpisOpombeForm.Designer.cs">
+      <DependentUpon>VpisOpombeForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\VpisUkrepDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VpisUkrepDialog.Designer.cs">
+      <DependentUpon>VpisUkrepDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Data\SinaproRepository.cs" />
+    <Compile Include="Data\StrojnaDbRepository.cs" />
+    <Compile Include="Services\AppUtils.cs" />
+    <Compile Include="Services\SapService.cs" />
+    <Compile Include="Services\SapPrijavaRepository.cs" />
+    <Compile Include="Services\SapSession.cs" />
+    <Compile Include="Forms\SemaforForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SemaforForm.Designer.cs">
+      <DependentUpon>SemaforForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SqlMeritveForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SqlMeritveForm.Designer.cs">
+      <DependentUpon>SqlMeritveForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\StrojiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UkrepiForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VpisKodeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\VpisStevDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ZacetnaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ZacetnaForm.Designer.cs">
+      <DependentUpon>ZacetnaForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ZacetnaForm.KanalDecimalke.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\ZacetnaForm.resx">
+      <DependentUpon>ZacetnaForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\ego.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
