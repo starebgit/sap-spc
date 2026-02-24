@@ -837,7 +837,7 @@ namespace SapSpcWinForms
                 int tip = ToInt(r["tip"]);
                 if (tip != 1) continue;
 
-                object[] row = new object[DODK + stcl];
+                object[] row = new object[KaraktiGrid.Columns.Count];
                 row[0] = r["pozicija"]?.ToString();
                 row[1] = r["naziv"]?.ToString();
                 row[2] = r["predpis"] == DBNull.Value ? "0" : r["predpis"]?.ToString();
@@ -854,9 +854,30 @@ namespace SapSpcWinForms
                           && r["oznaka"] != DBNull.Value
                           && string.Equals(r["oznaka"].ToString().Trim(), "X", StringComparison.OrdinalIgnoreCase));
                 row[8] = (r.Table.Columns.Contains("idplan") && r["idplan"] != DBNull.Value) ? r["idplan"].ToString() : "";
-                row[9] = ""; // Avr (unused for now)
-                row[10] = ToInt(r["stvz"]); // IMPORTANT: stash stvz here for Graf (we'll read it later)
-                row[11] = (r.Table.Columns.Contains("operacija") && r["operacija"] != DBNull.Value) ? r["operacija"].ToString() : "";
+                if (_berMer == 0)
+                {
+                    var karakt = (r["pozicija"]?.ToString() ?? "").Trim();
+                    var points = StrojnaDbRepository.FetchGrafPoints(kd, karakt);
+                    if (points.Count > 0)
+                    {
+                        AppUtils.ComputeStats(points.Select(p => p.Value).ToList(), out double avr, out double std);
+                        row[9] = avr;
+                        row[10] = std;
+                    }
+                    else
+                    {
+                        row[9] = "";
+                        row[10] = "";
+                    }
+                }
+                else
+                {
+                    row[9] = "";
+                    row[10] = "";
+                }
+
+                row[11] = ToInt(r["stvz"]);
+                row[12] = (r.Table.Columns.Contains("operacija") && r["operacija"] != DBNull.Value) ? r["operacija"].ToString() : "";
 
                 KaraktiGrid.Rows.Add(row);
             }
@@ -914,6 +935,7 @@ namespace SapSpcWinForms
             KaraktiGrid.Columns.Add(grafCol);
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preraèun", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Avr", HeaderText = "Avr", Width = 80, Visible = false });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Std", HeaderText = "Std", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVz", HeaderText = "StVz", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false });
 
@@ -945,7 +967,7 @@ namespace SapSpcWinForms
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StSlabih", HeaderText = "t. slabih", Width = 100 });
         }
 
-        private const int DODK = 11; // fixed columns 0..10 before Vzorec columns
+        private const int DODK = 11; // retained for Delphi parity naming
         private int ToInt(object x)
         {
             if (x == null || x == DBNull.Value) return 0;
@@ -1109,6 +1131,7 @@ namespace SapSpcWinForms
             KaraktiGrid.CurrentCellDirtyStateChanged += KaraktiGrid_CurrentCellDirtyStateChanged;
             KaraktiGrid.CellValueChanged += KaraktiGrid_CellValueChanged;
             KaraktiGrid.CellDoubleClick += KaraktiGrid_CellDoubleClick;
+            KaraktiGrid.CellFormatting += KaraktiGrid_CellFormatting;
         }
         private void KaraktiGrid_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
@@ -1138,6 +1161,44 @@ namespace SapSpcWinForms
                 .Cast<DataGridViewRow>()
                 .Any(r => r.Cells["Graf"].Value is bool b && b);
             GrafButton.Enabled = anyChecked;
+        }
+
+        private void KaraktiGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+                return;
+
+            var col = KaraktiGrid.Columns[e.ColumnIndex];
+            if (col == null || !col.Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            var row = KaraktiGrid.Rows[e.RowIndex];
+            if (!AppUtils.TryParseRequiredDouble(Convert.ToString(e.Value), out double xx))
+                return;
+            if (!AppUtils.TryParseRequiredDouble(Convert.ToString(row.Cells["SpMeja"].Value), out double sp))
+                return;
+            if (!AppUtils.TryParseRequiredDouble(Convert.ToString(row.Cells["ZgMeja"].Value), out double zg))
+                return;
+
+            e.CellStyle.BackColor = Color.White;
+
+            // Delphi parity: red for out-of-tolerance, yellow for 3-sigma warning only when Beri meritve is enabled.
+            if (xx < sp || xx > zg)
+            {
+                e.CellStyle.BackColor = Color.Red;
+                return;
+            }
+
+            if (_berMer == 0)
+            {
+                double avr = AppUtils.ParseDoubleLoose(row.Cells["Avr"].Value);
+                double std = AppUtils.ParseDoubleLoose(row.Cells["Std"].Value);
+                if (Math.Abs(avr - std) > 0.001)
+                {
+                    if (xx < (avr - 3 * std) || xx > (avr + 3 * std))
+                        e.CellStyle.BackColor = Color.Yellow;
+                }
+            }
         }
 
         private void GrafButton_Click(object sender, EventArgs e)
