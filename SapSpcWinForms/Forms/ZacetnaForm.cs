@@ -1976,8 +1976,6 @@ namespace SapSpcWinForms
 
         private void UpdateDodIzborVisibility(string kd)
         {
-            MessageBox.Show(ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString);
-
             _dodIzborListBox.Items.Clear();
             _selectedOrodje = "";
             _dodIzborListBox.ClearSelected();

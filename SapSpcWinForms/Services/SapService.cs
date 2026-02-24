@@ -524,7 +524,6 @@ namespace SapSpcWinForms
                     var f = md[i];
                     sb.AppendLine($"{i + 1,3}: {f.Name}  ({f.DataType}) len={f.NucLength}");
                 }
-                System.Windows.Forms.MessageBox.Show(sb.ToString(), "SAP DEBUG");
             }
 
             if (inspPointData == null) return (false, "Missing INSPPOINTDATA structure in BAPI_INSPOPER_RECORDRESULTS");
@@ -543,12 +542,6 @@ namespace SapSpcWinForms
             inspPointData.SetValue("CODE_GRP", "A/R");         // Delphi (21)
             inspPointData.SetValue("CODE",     (odl  ?? "").Trim());  // Delphi (22) len=4
             inspPointData.SetValue("REMARK",   (orod ?? "").Trim());  // Delphi (23)
-
-            // Show exactly what we're sending
-            System.Windows.Forms.MessageBox.Show(
-                DumpStructFields(inspPointData, "SEL_SET", "CODE_GRP", "CODE", "REMARK"),
-                "INSPPOINTDATA (UD fields)"
-            );
 
             var charResults   = SafeGetTable(fn, "CHAR_RESULTS");
             var singleResults = SafeGetTable(fn, "SINGLE_RESULTS");
@@ -672,22 +665,11 @@ namespace SapSpcWinForms
                 }
             }
 
-            // PRECISE CHECK: show table row counts before invoking BAPI
-            System.Windows.Forms.MessageBox.Show(
-                $"CHAR_RESULTS rows: {charResults.RowCount}\n" +
-                $"SINGLE_RESULTS rows: {singleResults.RowCount}\n" +
-                $"SAMPLE_RESULTS rows: {sampleResults.RowCount}",
-                "Before Invoke"
-            );
-
             // Wrap in NCo stateful context: record + commit
             SAP.Middleware.Connector.RfcSessionManager.BeginContext(dest);
             try
             {
                 fn.Invoke(dest);
-
-                // After invoke: dump SAP RETURN/RETURNTABLE
-                System.Windows.Forms.MessageBox.Show(DumpReturn(fn), "SAP RETURN");
 
                 // RETURN structure check (Delphi: RETURN.value[1] == 'E')
                 var ret = SafeGetStructure(fn, "RETURN");
