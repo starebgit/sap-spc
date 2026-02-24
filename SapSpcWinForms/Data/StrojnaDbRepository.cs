@@ -424,7 +424,6 @@ namespace SapSpcWinForms.Data
 
         public static List<string> GetDodatneOpredelitveNazivi(string koda)
         {
-            MessageBox.Show(koda);
 
             var list = new List<string>();
             var connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
@@ -440,7 +439,6 @@ namespace SapSpcWinForms.Data
                         list.Add((r[0]?.ToString() ?? "").Trim());
                 }
             }
-            MessageBox.Show(list.Count.ToString());
 
             return list;
         }
