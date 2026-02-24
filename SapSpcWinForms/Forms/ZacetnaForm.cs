@@ -32,6 +32,9 @@ namespace SapSpcWinForms
         private readonly Dictionary<int, int> _diffByIndex = new Dictionary<int, int>();             // pp^.diff minutes
         private readonly Dictionary<int, int> _trajByIndex = new Dictionary<int, int>();             // pp^.traj minutes
         private readonly Dictionary<int, int> _machineIdByIndex = new Dictionary<int, int>();        // pp^.ident (idstroja)
+        private readonly Dictionary<int, bool> _strojAktivenByIndex = new Dictionary<int, bool>();   // Delphi strvkl[1..N]
+        private const int DefaultIntervalDiffMinutes = StrojnaDbRepository.DefaultIntervalDiffMinutes;
+        private const int DefaultIntervalTrajMinutes = StrojnaDbRepository.DefaultIntervalTrajMinutes;
 
         private readonly TimeSpan[] _zacIzm = new[]
         {
@@ -136,6 +139,7 @@ namespace SapSpcWinForms
         {
             machinesList.Items.Clear();
             _machineIdByIndex.Clear();
+            _strojAktivenByIndex.Clear();
             _diffByIndex.Clear();
             _trajByIndex.Clear();
             _acasByIndex.Clear();
@@ -150,17 +154,15 @@ namespace SapSpcWinForms
 
                 foreach (var (idstroja, naziv) in machines)
                 {
-                    if (!SinaproRepository.PreveriStroj(idstroja)) // Delphi filter
-                        continue;
-
                     int index = machinesList.Items.Count + 1; // 1-based like Delphi
                     machinesList.Items.Add(naziv);
 
                     _machineIdByIndex[index] = idstroja;
+                    _strojAktivenByIndex[index] = SinaproRepository.PreveriStroj(idstroja);
 
-                    // TEMP defaults (until you port GetInterval fully for machine context if needed)
-                    _diffByIndex[index] = 60;
-                    _trajByIndex[index] = 0;
+                    var (diff, traj) = ResolveIntervalForMachine(idstroja);
+                    _diffByIndex[index] = diff;
+                    _trajByIndex[index] = traj;
                     _acasByIndex[index] = TimeSpan.Zero;
                     _astanjeByIndex[index] = 9;
                 }
@@ -168,6 +170,27 @@ namespace SapSpcWinForms
             catch (Exception ex)
             {
                 machinesList.Items.Add("Napaka: " + ex.Message);
+            }
+        }
+
+        private (int diff, int traj) ResolveIntervalForMachine(int machineId)
+        {
+            if (!_currentStPost.HasValue)
+                return (DefaultIntervalDiffMinutes, DefaultIntervalTrajMinutes);
+
+            try
+            {
+                var codes = SinaproRepository.GetSinaproKodaListForMachine(machineId);
+                var firstCode = codes?.FirstOrDefault(c => !string.IsNullOrWhiteSpace(c));
+                var cleanKoda = AppUtils.CleanKoda(firstCode);
+                if (string.IsNullOrWhiteSpace(cleanKoda))
+                    return (DefaultIntervalDiffMinutes, DefaultIntervalTrajMinutes);
+
+                return StrojnaDbRepository.GetIntervalFromKonsar(cleanKoda, _currentStPost.Value);
+            }
+            catch
+            {
+                return (DefaultIntervalDiffMinutes, DefaultIntervalTrajMinutes);
             }
         }
         private void LoadMerilnoMesto()
@@ -364,7 +387,7 @@ namespace SapSpcWinForms
             // Gate menus exactly like Delphi menupravice
             if (menuStrip != null)
             {
-                // Baza na serverju – keep top-level enabled, gate subitems
+                // Baza na serverju Â– keep top-level enabled, gate subitems
                 bazaNaServerjuToolStripMenuItem.Enabled = true;
                 merilnaMestaServerToolStripMenuItem.Enabled = _isAdmin; // Postaja
                 strojiServerToolStripMenuItem.Enabled = _isAdmin;       // Stroji
@@ -373,7 +396,7 @@ namespace SapSpcWinForms
                 kontrolniPlaniServerToolStripMenuItem.Enabled = _isAdmin; // Kontrolni plani
                 meritveServerToolStripMenuItem.Enabled = _isAdmin;        // Meritve
 
-                // Nastavitve, Operacije, Informacije – not gated here
+                // Nastavitve, Operacije, Informacije Â– not gated here
                 nastavitveToolStripMenuItem.Enabled = true;
                 operacijeToolStripMenuItem.Enabled = true;
                 informacijeToolStripMenuItem.Enabled = true;
@@ -480,12 +503,12 @@ namespace SapSpcWinForms
         // --------- NASTAVITVE ------------------------------------
         private void VpisStevKanalaMenuItem_Click(object sender, EventArgs e)
         {
-            _stKanal = VpisStevDialog.Vpis(this, "Vpis štev. kanala", "Številka merila", _stKanal, 1, 10);
+            _stKanal = VpisStevDialog.Vpis(this, "Vpis Âštev. kanala", "ÂŠtevilka merila", _stKanal, 1, 10);
         }
 
         private void DecimalkeMenuItem_Click(object sender, EventArgs e)
         {
-            _stDec = VpisStevDialog.Vpis(this, "Decimalke", "Število decimalk", _stDec, 0, 6);
+            _stDec = VpisStevDialog.Vpis(this, "Decimalke", "ÂŠtevilo decimalk", _stDec, 0, 6);
         }
 
         private void BeriMeritveSettingsMenuItem_Click(object sender, EventArgs e)
@@ -763,7 +786,7 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show("Koda nima kontrolne šarže v bazi (konsar).");
+                MessageBox.Show("Koda nima kontrolne ÂšarÂže v bazi (konsar).");
                 ClearCharacteristicGrids();
                 if (GrafButton != null) GrafButton.Enabled = false;
                 // clear context
@@ -776,7 +799,7 @@ namespace SapSpcWinForms
 
             if (dt.Rows.Count == 0)
             {
-                MessageBox.Show("Za izbrano šaržo ni kontrolnega plana v konplan.");
+                MessageBox.Show("Za izbrano ÂšarÂžo ni kontrolnega plana v konplan.");
                 ClearCharacteristicGrids();
                 if (GrafButton != null) GrafButton.Enabled = false;
                 // clear context
@@ -881,7 +904,7 @@ namespace SapSpcWinForms
                 ThreeState = false
             };
             KaraktiGrid.Columns.Add(grafCol);
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preraèun", Width = 80, Visible = false });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "PreraÃ¨un", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Avr", HeaderText = "Avr", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVz", HeaderText = "StVz", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false });
@@ -908,10 +931,10 @@ namespace SapSpcWinForms
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Pozicija", HeaderText = "Pozicija", Width = 100 });
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250 });
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false }); // ADD
-            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVzor", HeaderText = "Št. vzor.", Width = 100 });
+            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVzor", HeaderText = "ÂŠt. vzor.", Width = 100 });
             var vsiDobriCol = new DataGridViewCheckBoxColumn { Name = "VsiDobri", HeaderText = "Vsi dobri", Width = 100 };
             attriGrid.Columns.Add(vsiDobriCol);
-            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StSlabih", HeaderText = "Št. slabih", Width = 100 });
+            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StSlabih", HeaderText = "ÂŠt. slabih", Width = 100 });
         }
 
         private const int DODK = 11; // fixed columns 0..10 before Vzorec columns
@@ -994,14 +1017,14 @@ namespace SapSpcWinForms
             int machineCount = machinesList.Items.Count;
             for (int i = 1; i <= machineCount; i++)
             {
-                bool strojAktiven = true; // TEMP (Delphi: strvkl[i])
+                bool strojAktiven = _strojAktivenByIndex.TryGetValue(i, out var aktiven) && aktiven; // Delphi: strvkl[i]
                 if (!strojAktiven)
                 {
                     _astanjeByIndex[i] = 9;
                     continue;
                 }
-                int diff = _diffByIndex.TryGetValue(i, out var d) ? d : 60;
-                int traj = _trajByIndex.TryGetValue(i, out var t) ? t : 0;
+                int diff = _diffByIndex.TryGetValue(i, out var d) ? d : DefaultIntervalDiffMinutes;
+                int traj = _trajByIndex.TryGetValue(i, out var t) ? t : DefaultIntervalTrajMinutes;
                 if (novaiz)
                 {
                     _astanjeByIndex[i] = 2;
@@ -1038,7 +1061,7 @@ namespace SapSpcWinForms
             {
                 string naziv = machinesList.Items[i - 1]?.ToString() ?? "";
                 int status = _astanjeByIndex.TryGetValue(i, out var st) ? st : 9;
-                int diff = _diffByIndex.TryGetValue(i, out var d) ? d : 60;
+                int diff = _diffByIndex.TryGetValue(i, out var d) ? d : DefaultIntervalDiffMinutes;
                 var acas = _acasByIndex.TryGetValue(i, out var t) ? t : TimeSpan.Zero;
                 var baseDt = DateTime.Today.Add(acas);
                 list.Add(new SemaforForm.SemaforRow
@@ -1109,7 +1132,7 @@ namespace SapSpcWinForms
 
             if (checkedRows.Count == 0)
             {
-                MessageBox.Show("Najprej oznaèite vsaj eno karakteristiko (Graf).", "Graf", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Najprej oznaÃ¨ite vsaj eno karakteristiko (Graf).", "Graf", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -1184,7 +1207,7 @@ namespace SapSpcWinForms
                 if (btn != null)
                 {
                     btn.Enabled = false;
-                    btn.Text = "Test Input (èakam...)";
+                    btn.Text = "Test Input (Ã¨akam...)";
                 }
 
                 // Read one fresh frame after click (caliper sends when you press it)
@@ -1193,7 +1216,7 @@ namespace SapSpcWinForms
                 if (string.IsNullOrWhiteSpace(raw))
                 {
                     MessageBox.Show(this,
-                        "Timeout (30s) – ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na šublerju.",
+                        "Timeout (30s) Â– ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na Âšublerju.",
                         "Test Input",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
@@ -1253,7 +1276,7 @@ namespace SapSpcWinForms
                 return;
             }
 
-            // make sure we’re not stuck in edit mode
+            // make sure weÂ’re not stuck in edit mode
             grid.EndEdit();
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
@@ -1547,7 +1570,7 @@ namespace SapSpcWinForms
 
             rightPanel.SuspendLayout();
 
-            // Clear panel (controls are not disposed; they’ll be re-added)
+            // Clear panel (controls are not disposed; theyÂ’ll be re-added)
             rightPanel.Controls.Clear();
 
             // ---------- TOP HEADER (logo + text) ----------
@@ -1734,12 +1757,12 @@ namespace SapSpcWinForms
 
                 var sapCheckText =
                     $"SAP {(ok ? "OK" : "NAPAKA")}\n\n" +
-                    $"Kontrolna šarža (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
+                    $"Kontrolna ÂšarÂža (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
                     $"Operacija: {p.Operacija}\n" +
                     $"Merilno mesto: {_currentMestoOpis}\n" +
                     $"Merilec: {p.Merilec}\n\n" +
-                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporoèilo: " + msg + "\n\n"))}" +
-                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno šaržo -> pojdi na 'Rezultati / Zapis meritev'.";
+                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporoÃ¨ilo: " + msg + "\n\n"))}" +
+                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno ÂšarÂžo -> pojdi na 'Rezultati / Zapis meritev'.";
 
                 try { Clipboard.SetText(p.Sarza ?? ""); } catch { /* ignore */ }
 
@@ -1768,7 +1791,7 @@ namespace SapSpcWinForms
 
             if (!_currentStPost.HasValue) { error = "Ni merilnega mesta."; return false; }
             if (string.IsNullOrWhiteSpace(_currentKodaClean)) { error = "Ni izbrane kode."; return false; }
-            if (string.IsNullOrWhiteSpace(_currentSarza)) { error = "Ni sarže (konsar)."; return false; }
+            if (string.IsNullOrWhiteSpace(_currentSarza)) { error = "Ni sarÂže (konsar)."; return false; }
 
             // --- Delphi: opr from plan; default 0010 ---
             string opr = "0010";

@@ -10,6 +10,9 @@ namespace SapSpcWinForms.Data
 {
     public static class StrojnaDbRepository
     {
+        public const int DefaultIntervalDiffMinutes = 120;
+        public const int DefaultIntervalTrajMinutes = 15;
+
         // DB part for LoadMerilnoMesto
         public static (int? stpost, string opis) LoadMerilnoMestoDb(string compName)
         {
@@ -244,9 +247,9 @@ namespace SapSpcWinForms.Data
                 conn.Open();
                 using (var r = cmd.ExecuteReader())
                 {
-                    if (!r.Read()) return (60, 0);
-                    int diff = r["merdiff"] == DBNull.Value ? 60 : Convert.ToInt32(r["merdiff"]);
-                    int traj = r["mertraj"] == DBNull.Value ? 0  : Convert.ToInt32(r["mertraj"]);
+                    if (!r.Read()) return (DefaultIntervalDiffMinutes, DefaultIntervalTrajMinutes);
+                    int diff = r["merdiff"] == DBNull.Value ? DefaultIntervalDiffMinutes : Convert.ToInt32(r["merdiff"]);
+                    int traj = r["mertraj"] == DBNull.Value ? DefaultIntervalTrajMinutes  : Convert.ToInt32(r["mertraj"]);
                     return (diff, traj);
                 }
             }
@@ -321,7 +324,7 @@ namespace SapSpcWinForms.Data
         {
             using (var cmd = openConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT TOP 1 [èas] FROM tmlmeritve WHERE premer = ? ORDER BY [èas] DESC";
+                cmd.CommandText = "SELECT TOP 1 [Ã¨as] FROM tmlmeritve WHERE premer = ? ORDER BY [Ã¨as] DESC";
                 cmd.Parameters.AddWithValue("@p1", premer);
 
                 var v = cmd.ExecuteScalar();
