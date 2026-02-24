@@ -25,6 +25,9 @@ namespace SapSpcWinForms
         private int? _selectedMachineId = null;
         private string _selectedMachineName = null;
         private SemaforForm _semaforForm;
+        private readonly Timer _semaforRefreshTimer = new Timer();
+        private int _ponov = 1;
+        private bool _nemer = true;
         private string _currentSarza;
         private string _currentKodaClean;
         private readonly Dictionary<int, int> _astanjeByIndex = new Dictionary<int, int>();          // key: 1..N (machine order)
@@ -124,7 +127,13 @@ namespace SapSpcWinForms
                 GrafButton.Click += GrafButton_Click;
 
             WirePrenosStopalkaPrekiniButtons();
-            this.FormClosing += (s, e) => StopPrenosStopalka();
+            StartSemaforRefreshLoop();
+            ObnoviSemafor();
+            this.FormClosing += (s, e) =>
+            {
+                StopPrenosStopalka();
+                _semaforRefreshTimer.Stop();
+            };
         }
 
         private void OnMerilnoMestoStateChanged()
@@ -1010,6 +1019,27 @@ namespace SapSpcWinForms
             }
         }
 
+        private void StartSemaforRefreshLoop()
+        {
+            _semaforRefreshTimer.Interval = 1000;
+            _semaforRefreshTimer.Tick += SemaforRefreshTimer_Tick;
+            _semaforRefreshTimer.Start();
+        }
+
+        private void SemaforRefreshTimer_Tick(object sender, EventArgs e)
+        {
+            // Delphi Timer1Timer behavior:
+            // if ((ponov mod 10) = 1) and nemer then PostaviListStr;
+            // if (pos > 0) and nemer then Obnovi;
+            if ((_ponov % 10) == 1 && _nemer)
+                PopulateMachinesList();
+
+            if (_currentStPost.HasValue && _nemer)
+                ObnoviSemafor();
+
+            _ponov++;
+        }
+
         private void ObnoviSemafor()
         {
             if (!_currentStPost.HasValue) return;
@@ -1058,7 +1088,6 @@ namespace SapSpcWinForms
 
         private List<SemaforForm.SemaforRow> GetSemaforRows()
         {
-            ObnoviSemafor();
             var list = new List<SemaforForm.SemaforRow>();
             int n = machinesList.Items.Count;
             for (int i = 1; i <= n; i++)

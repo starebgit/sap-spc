@@ -44,31 +44,23 @@ namespace SapSpcWinForms
             Text = "Semafor";
             StartPosition = FormStartPosition.Manual;
 
-            // Remove docking from legendPanel and MachinesGrid
-            legendPanel.Dock = DockStyle.None;
+            // Delphi semafor has no built-in legend panel; keep only grid + close button
             MachinesGrid.Dock = DockStyle.None;
             CloseButton.Dock = DockStyle.Bottom;
             CloseButton.Height = 40;
 
-            // Place legendPanel at the top, then MachinesGrid below it
-            legendPanel.Top = 0;
-            legendPanel.Left = 0;
-            legendPanel.Width = ClientSize.Width;
-            legendPanel.Height = 90;
-
             MachinesGrid.Left = 0;
-            MachinesGrid.Top = legendPanel.Bottom;
+            MachinesGrid.Top = 0;
             MachinesGrid.Width = ClientSize.Width;
-            MachinesGrid.Height = Math.Max(0, ClientSize.Height - legendPanel.Height - CloseButton.Height);
+            MachinesGrid.Height = Math.Max(0, ClientSize.Height - CloseButton.Height);
 
-            // Make sure resizing keeps the layout
+            // Keep layout responsive to resize
             this.Resize += (s, e) =>
             {
-                legendPanel.Width = ClientSize.Width;
                 MachinesGrid.Left = 0;
-                MachinesGrid.Top = legendPanel.Bottom;
+                MachinesGrid.Top = 0;
                 MachinesGrid.Width = ClientSize.Width;
-                MachinesGrid.Height = Math.Max(0, ClientSize.Height - legendPanel.Height - CloseButton.Height);
+                MachinesGrid.Height = Math.Max(0, ClientSize.Height - CloseButton.Height);
             };
 
             MachinesGrid.ReadOnly = true;
@@ -150,7 +142,7 @@ namespace SapSpcWinForms
 
             MachinesGrid.Columns[0].Width = col0;
             MachinesGrid.Columns[1].Width = col1;
-            MachinesGrid.Columns[2].Width = col2; // keep ìInfoî fixed-ish like Delphi (you can swap if you want)
+            MachinesGrid.Columns[2].Width = col2; // keep ‚ÄúInfo‚Äù fixed-ish like Delphi (you can swap if you want)
 
             // Delphi: rowHeight = (monitorHeight-60)/dln, where dln = number of visible rows
             // Here: pick a reasonable row height first, then compute visible rows.
@@ -289,7 +281,7 @@ namespace SapSpcWinForms
             // and row.NextBaseTime is the base time (acas) as TimeOfDay.
             var tt = TimeSpan.FromMinutes(row.DiffMinutes) - now + row.NextBaseTime.TimeOfDay;
 
-            if (tt < TimeSpan.Zero) tt = tt.Negate(); // show positive duration like ìlate byî
+            if (tt < TimeSpan.Zero) tt = tt.Negate(); // show positive duration like ‚Äúlate by‚Äù
             // show hh:mm
             return $"{(int)tt.TotalHours:00}:{tt.Minutes:00}";
         }
