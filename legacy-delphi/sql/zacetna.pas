@@ -1,0 +1,1556 @@
+unit zacetna;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,Data.Win.ADODB,
+  Data.DB, deklar, Vcl.Grids, Vcl.Samples.Spin, Vcl.Menus, ComObj,semafdata, System.strUtils,metode, VpisUkrep, ukrepi, VpisOpom,sqlmeritve,grafi;
+
+  const
+    DODK = 11 ;
+    MSTROJ = 20 ;
+type
+  TFzacetna = class(TForm)
+    Panel1: TPanel;
+    Label2: TLabel;
+    List3: TListBox;
+    list4: TListBox;
+    Label3: TLabel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Karakti: TStringGrid;
+    Label4: TLabel;
+    list5: TListBox;
+    attri: TStringGrid;
+    SpinEdit1: TSpinEdit;
+    Button2: TButton;
+    SpinEdit2: TSpinEdit;
+    Label5: TLabel;
+    Label6: TLabel;
+    Button1: TButton;
+    Button3: TButton;
+    MainMenu1: TMainMenu;
+    Lokalnabaza1: TMenuItem;
+    Linijekode1: TMenuItem;
+    Kodaare1: TMenuItem;
+    arekarakteristike1: TMenuItem;
+    Button4: TButton;
+    Button5: TButton;
+    Meritve1: TMenuItem;
+    Button6: TButton;
+    Button7: TButton;
+    Panel4: TPanel;
+    Postaje1: TMenuItem;
+    Button8: TButton;
+    Timer1: TTimer;
+    Button9: TButton;
+    Postaje2: TMenuItem;
+    Stroji2: TMenuItem;
+    Kontrolniplani1: TMenuItem;
+    Linijestrunice1: TMenuItem;
+    list6: TListBox;
+    Button11: TButton;
+    CheckBox1: TCheckBox;
+    Button10: TButton;
+    Edit1: TEdit;
+    Panel5: TPanel;
+    Edit2: TEdit;
+    Button12: TButton;
+    Button13: TButton;
+    Button14: TButton;
+    Edit3: TEdit;
+    Button15: TButton;
+    Edit4: TEdit;
+    Button16: TButton;
+    Merilnemetode1: TMenuItem;
+    Ukrepi1: TMenuItem;
+    Meritve: TMenuItem;
+    Button17: TButton;
+    Label1: TLabel;
+    Panel6: TPanel;
+    Edit5: TEdit;
+    Label7: TLabel;
+    Edit6: TEdit;
+    Label8: TLabel;
+    Button18: TButton;
+    Button19: TButton;
+    Edit7: TEdit;
+    Label9: TLabel;
+    DodIzbor: TListBox;
+    Image1: TImage;
+    procedure FormActivate(Sender: TObject);
+    procedure List3Click(Sender: TObject);
+    procedure list4Click(Sender: TObject);
+    procedure list5Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
+    procedure Linijekode1Click(Sender: TObject);
+    procedure Kodaare1Click(Sender: TObject);
+    procedure arekarakteristike1Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Meritve1Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
+    procedure Postaje1Click(Sender: TObject);
+    procedure Stroji1Click(Sender: TObject);
+    procedure Button8Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure Button9Click(Sender: TObject);
+    procedure KaraktiDblClick(Sender: TObject);
+    procedure KaraktiDrawCell(Sender: TObject; ACol, ARow: Integer; Rect: TRect;
+      State: TGridDrawState);
+    procedure KaraktiClick(Sender: TObject);
+    procedure Kontrolniplani1Click(Sender: TObject);
+    procedure Linijestrunice1Click(Sender: TObject);
+    procedure Button11Click(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
+    procedure Button10Click(Sender: TObject);
+    procedure Edit2Change(Sender: TObject);
+    procedure Button12Click(Sender: TObject);
+    procedure Button13Click(Sender: TObject);
+    procedure Button14Click(Sender: TObject);
+    procedure Button15Click(Sender: TObject);
+    procedure Button16Click(Sender: TObject);
+    procedure Merilnemetode1Click(Sender: TObject);
+    procedure Ukrepi1Click(Sender: TObject);
+    procedure MeritveClick(Sender: TObject);
+    procedure Button17Click(Sender: TObject);
+    procedure Button18Click(Sender: TObject);
+    procedure Button19Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+
+  private
+    ListStr : Tlist ;
+    nkar1,nkar2 : Integer ;
+    stcl,stvp : integer ;
+    srz : string ;
+    orod : string ;
+
+    pos : Integer ;
+    frkMr : integer ;
+    izbStr : integer ;
+    strvkl : array[1..MSTROJ] of boolean ;
+    zacIzm : array[1..3] of TdateTime ;
+    stanje : integer ;
+    predm : integer ;
+    admin : boolean ;
+    Procedure isciKoda ;
+  //  procedure Pocisti1(list : Tlist) ;
+    procedure BrisiTabelo ;
+    function preveriData : boolean  ;
+    procedure ZapisSAP ;
+    Procedure nanovo ;
+    Procedure lokalkoda ;
+    function PreveriMer(jj,kk: integer) : boolean ;
+    Procedure Obnovi ;
+    function DolociSt(tx : TDateTime) : integer ;
+    Procedure fillkarakt(kd,srz : string);
+    procedure ZapisSemafor ;
+    Procedure setcheck(row : integer) ;
+    Procedure IzborStr ;
+    Procedure LokalnaBaza ;
+    Procedure izborLinije(izbStr: integer) ;
+    Procedure IzborKode(kd : string) ;
+    Procedure StartNit ;
+    procedure postaviListstr ;
+    Procedure Getstat(listr : Tlist; var avr,std : single) ;
+    Procedure deaktiviraj(odl : boolean) ;
+    procedure menupravice ;
+  public
+    lokalb : boolean ;
+    ListamaxMin : TstringList ;
+    psb : boolean ;
+    acas : array[1..MSTROJ] of TdateTime ;
+    astanje : array[1..MSTROJ] of integer ;
+  end;
+
+var
+  Fzacetna: TFzacetna;
+
+implementation
+
+{$R *.dfm}
+
+uses sap, ComPort, lokalBaza, lokalmeritve, postaje, stroji, sinapro, semafor,
+  SqlKode, prekini, pass, dodatKod;
+
+
+
+
+procedure TFzacetna.Button10Click(Sender: TObject);
+  var uk,rz : string ;
+begin
+   uk := edit1.Text ;
+   rz := FComPort.preberi3(uk) ;
+  // edit1.Text := rz ;
+end;
+
+procedure TFzacetna.Button11Click(Sender: TObject);
+var stk,row,col,std,rw,stm: Integer ;
+     mtd,cm : string ;
+     listk : Tlist ;
+     pp : ^Merkanal ;
+     ii : integer ;
+begin
+
+  StartNit ;
+
+
+
+ {  row := Karakti.Row ;
+   col := karakti.Col ;
+   cm := karakti.Cells[6,row] ;
+   if cm = '' then cm := 'COM3' else cm := 'COM' + cm ;
+   std := spinedit2.Value ;
+   stk := spinEdit1.value ;
+   mtd := Karakti.Cells[5,row] ;
+   if mtd = '' then exit ;
+
+   rw := row ;
+   stm := 1 ;
+   listk := Tlist.Create ;
+   while rw < karakti.RowCount-1 do
+   begin
+     inc(rw) ;
+     if mtd <> Karakti.Cells[5,rw]  then
+     begin
+       new(pp) ;
+       pp^.kanal := stk ;
+       pp^.stmeritev := stm ;
+       listk.add(pp) ;
+       stm := 0
+     end;
+     mtd := Karakti.Cells[5,rw] ;
+     stk := StrToInt(mtd) ;
+     inc(stm) ;
+   end;
+   new(pp) ;
+   pp^.kanal := stk ;
+   pp^.stmeritev := stm ;
+   listk.add(pp) ;
+
+   Button11.visible := false ;
+   FComPort.preberi2(row,col,std,cm,listk) ;
+   for ii := 0 to (listk.Count - 1) do
+   begin
+        pp := listk[ii];
+        Dispose(pp);
+   end;
+   listk.Free ;
+  Button11.visible := true ;   }
+end;
+
+Procedure Tfzacetna.StartNit ;
+begin
+  stopal := Tprekini.Create( True );
+  stopal.FreeOnTerminate := True;
+  stopal.Priority := tpLower ;
+  stopal.Resume;
+end;
+
+
+procedure TFzacetna.Button12Click(Sender: TObject);
+begin
+  edit2.Text := 'CL21042'
+end;
+
+procedure TFzacetna.Button13Click(Sender: TObject);
+  var cm : string ;
+begin
+  cm := karakti.Cells[6,1] ;
+  if cm = '' then cm := 'COM3' else cm := 'COM' + cm ;
+  FComPort.prekini(cm,true) ;
+  button11.Enabled := true ;
+  button5.Enabled := true ;
+end;
+
+procedure TFzacetna.Button14Click(Sender: TObject);
+  var cm : string ;
+begin
+  psb := false ;
+  cm := karakti.Cells[6,1] ;
+  if cm = '' then cm := 'COM3' else cm := 'COM' + cm ;
+  FcomPort.Prekini(cm,false) ;
+ // button14.Visible := false ;
+ // Karakti.row := Karakti.row + 2 ;
+end;
+
+procedure TFzacetna.Button15Click(Sender: TObject);
+  var cm : string ;
+begin
+  cm := karakti.Cells[6,1] ;
+  if cm = '' then cm := 'COM3' else cm := 'COM' + cm ;
+  FcomPort.pisi(cm) ;
+end;
+
+procedure TFzacetna.Button16Click(Sender: TObject);
+  var ii,jj : integer ;
+      ss,sx : string ;
+      listkd : TstringList ;
+begin
+  ii := list4.Items.count ;
+  if ii > 0 then ss := list4.Items[0] else ss := '' ;
+
+  listkd := TstringList.Create ;
+  Fsqlkode.GetlistaKod(ss,listkd) ;
+  list4.items := Listkd ;
+  listkd.free ;
+end;
+
+procedure TFzacetna.Button17Click(Sender: TObject);
+  var ii,jj : integer ;
+      kd : string ;
+      stkar : string ;
+      listr : tlist ;
+      nz : string ;
+      img,stvz : integer ;
+      sr,sp,zg : single ;
+      avr,std : single ;
+begin
+  ii := list4.ItemIndex ;
+  kd := list4.Items[ii] ;
+  img := 1 ;
+  for jj := 1 to karakti.RowCount -1 do
+  begin
+    if karakti.cells[7,jj] = 'X' then
+    begin
+      stkar := karakti.cells[0,jj] ;
+      listr := tlist.Create ;
+      FsqlMeritve.getlist(kd,stkar,listr);
+      nz := karakti.cells[1,jj] ;
+      sr := StrToFloat(karakti.cells[2,jj]) ;
+      sp := StrToFloat(karakti.cells[3,jj]) ;
+      zg := StrToFloat(karakti.cells[4,jj]) ;
+      stvz := 2 ;
+      if listr.Count > 0 then
+      begin
+        FsqlMeritve.Getstat(listr,avr,std)  ;
+        fGrafi.Izris(nz,img,stvz,sr,sp,zg,avr,std,listr) ;
+        inc(img) ;
+      end;
+      Cistigraf(listr) ;
+    end;
+  end;
+  fgrafi.Show ;
+end;
+
+
+procedure TFzacetna.Button18Click(Sender: TObject);
+begin
+  srz := '790000050292' ;
+  srz := '790000054916' ;
+  Fsap.Datsarza(srz) ;
+end;
+
+procedure TFzacetna.Button19Click(Sender: TObject);
+  var bb : boolean ;
+begin
+  if not admin then
+  begin
+    bb := Fpassw.getpas ;
+    if bb then
+    begin
+      admin := true ;
+      button19.Caption := 'Odjava admin' ;
+    end else showMessage('Geslo ni pravilno')
+  end else
+  begin
+    admin := false ;
+    button19.caption := 'Prijava admin'
+  end;
+  menupravice ;
+  Fsemafor.setborder(admin);
+end;
+
+procedure TFzacetna.menupravice ;
+begin
+  button3.Enabled := admin ;
+  postaje2.enabled := admin ;
+  stroji2.Enabled := admin ;
+  merilnemetode1.enabled :=  admin ;
+  ukrepi1.Enabled := admin ;
+  kontrolniplani1.Enabled := admin ;
+  meritve.enabled := admin ;
+end;
+
+Procedure Tfzacetna.Getstat(listr : Tlist; var avr,std : single) ;
+  var ii,nn : integer ;
+      sum : single ;
+      pp : ^rezultat ;
+begin
+  sum := 0 ;
+  nn := listr.count ;
+  for ii := 0 to nn-1 do
+  begin
+    pp := listr[ii] ;
+    sum := sum + pp^.vrednost ;
+  end;
+  avr := sum/nn ;
+  sum := 0 ;
+  for ii := 0 to nn-1 do
+  begin
+    pp := listr[ii] ;
+    sum := sum + sqr(pp^.vrednost-avr)  ;
+  end;
+  if nn > 1 then  std := sqrt(sum/(nn-1)) else std := 0 ;
+end;
+
+procedure TFzacetna.Button1Click(Sender: TObject);
+ var bb : boolean ;
+      i : integer ;
+begin
+  screen.Cursor := crHourGlass;
+  // for i := 1 to MSTROJ do strvkl[i] := Fsinapro.PreveriStroj(i) ;
+
+  ZapisSemafor ;
+  bb := Preveridata ;
+  if bb then
+  begin
+    try
+      ZapisSAP ;
+     // nanovo
+      brisitabelo ;
+      obnovi
+    except
+    end;
+  end;
+  screen.Cursor := crDefault;
+end;
+
+
+procedure TFzacetna.ZapisSemafor ;
+  var kds : TstringList ;
+      i,izb: Integer;
+      pp : ^zapis ;
+      idstr : integer ;
+begin
+  izb := izbStr+1 ;
+  if izb > 0 then
+  begin
+    pp := ListStr[izbstr] ;
+    idstr := pp^.ident ;
+    astanje[izb] := 1 ;
+    acas[izb] := time ;
+    FsemafData.Zapis(pos,idstr) ;
+  end;
+end;
+
+function TFzacetna.PreveriMer(jj,kk: integer) : boolean ;
+    var xx,sp,zg : single ;
+ begin
+   try
+     xx := StrToFloat(karakti.Cells[kk +DODK,jj]) ;
+     sp := StrToFloat(karakti.Cells[3,jj]) ;
+     zg := StrToFloat(karakti.Cells[4,jj]) ;
+     if (xx-sp > -0.0001) and (zg-xx > -0.0001) then result := true else result := false
+   except
+     result := false
+   end;
+ end ;
+
+procedure TFzacetna.Stroji1Click(Sender: TObject);
+begin
+  pos := Fpostaje.Getpost ;
+  Fstroji.pogled(admin,pos) ;
+end;
+
+procedure TFzacetna.Timer1Timer(Sender: TObject);
+begin
+  if pos > 0 then Obnovi
+end;
+
+procedure TFzacetna.Ukrepi1Click(Sender: TObject);
+begin
+  Fukrepi.prikaz ;
+end;
+
+Procedure TFzacetna.Obnovi ;
+   var dat,t1,tt: TdateTime ;
+       izm,ids,i,ii : Integer ;
+       xx : single ;
+       novaiz : boolean ;
+       bc : boolean ;
+       pp : ^zapis ;
+       sx : string ;
+begin
+  FSemafdata.GetIzmDat(dat,izm) ;
+  ids := FsemafData.PrevdatIzm(dat,izm,pos) ;
+  tt := time ;
+
+  xx := 24*60 ;
+  novaiz := false ;
+  for i := 1 to 3 do
+  begin
+    t1 :=  ZacIzm[i] - tt ;
+    if abs(t1*xx) < 1.5 then novaiz := true
+  end ;
+  if not assigned(ListStr) then  exit ;
+
+  for ii := 0 to liststr.Count-1 do
+  begin
+      // for i := 1 to MSTROJ do
+      // begin
+    i := ii +1 ;
+    pp := liststr[ii] ;
+    sx := intTostr(pp^.ident) ;
+    if strvkl[i] then
+    begin
+      if novaiz then
+      begin
+        astanje[i] := 2;
+        acas[i] := tt - frkMr/24  ;
+      end else
+      begin
+        t1 := 0 ;
+        if ids <> 0 then t1 := FSemafData.GetzapisCas(ids,pos,sx) ;
+        if t1 = 0 then
+        begin
+          if acas[i] = 0 then
+          begin
+             acas[i] := ZacIzm[izm] - frkMr/24 ;
+            {case izm of
+              1 : acas[i] := strToTime('04:00:00')  ;
+              2 : acas[i] := strToTime('12:00:00')  ;
+              3 : acas[i] := strToTime('20:00:00')  ;
+            end;  }
+            astanje[i] := dolociSt(acas[i])
+          end else astanje[i] := dolociSt(acas[i]) ;
+        end else
+        begin
+          acas[i] := t1  ;
+          astanje[i] := dolociSt(acas[i])
+        end;
+      end;
+    end else astanje[i] := 9
+  end;
+end;
+
+function TFzacetna.DolociSt(tx : TDateTime) : integer ;
+  var tt : TDateTime ;
+      dd,xx : single ;
+      ist : integer ;
+begin
+   tt := time ;
+   dd := tt - tx ;
+   ist := 1;
+   if dd*24 > frkMr then ist := 2 ;
+   if dd*24 > FrkMr + 0.5 then ist := 3 ;
+   result := ist ;
+end;
+
+procedure TFzacetna.Edit2Change(Sender: TObject);
+begin
+  IzborStr ;
+end;
+
+
+Procedure TFzacetna.IzborStr ;
+  var idnt : string ;
+      lin : Integer ;
+      struz : string ;
+      ii : integer ;
+      kd : string ;
+begin
+  idnt := edit2.text ;
+  if idnt = '#' then deaktiviraj(true) ;
+
+  if length(idnt) < 7 then  exit ;
+  idnt[6] := '-' ;
+  deaktiviraj(true) ;
+  lokalnabaza ;
+  FlokalBaza.Getstruz(idnt,lin,struz) ;
+  list3.ItemIndex := lin-1 ;
+  izbStr := List3.ItemIndex ;
+  Izborlinije(lin-1) ;
+  ii := list6.Items.IndexOf(struz) ;
+  List6.ItemIndex := ii ;
+  kd := List4.Items[0] ;
+  IzborKode(kd) ;
+  list4.ItemIndex := 0 ;
+  if lokalb then StartNit ;
+end;
+
+// priprava za zapis v SAP
+procedure TFzacetna.ZapisSAP ;
+   var ii,kk : integer ;
+       j,jj,stkar,vzz: Integer;
+       pv : ^karmer ;
+       karlist : Tlist ;
+       merl,odl : string ;
+       dd : TdateTime ;
+       evalList : Tlist ;
+       px : ^evaluac ;
+       vred : boolean ;
+       nazivp : string ;
+       opr,stk,kd : string ;
+       slb,stnp,id,iddod : integer ;
+
+  {procedure  cistiList1 ;
+    var i : integer ;
+  begin
+    if assigned(karlist) then
+    begin
+      for i := 0 to (karlist.Count - 1) do
+      begin
+        pv := karlist[i];
+        Dispose(pv);
+      end;
+      karlist.Free ;
+    end;
+  end;
+
+  procedure  cistiListE ;
+    var i : integer ;
+  begin
+    if assigned(evallist) then
+    begin
+      for i := 0 to (evallist.Count - 1) do
+      begin
+        px := evallist[i];
+        Dispose(px);
+      end;
+      evallist.Free ;
+    end;
+  end;  }
+
+begin
+  // vzz := StrToInt(karakti.Cells[3,1]) ;
+
+ //  opr := Fsap.BeriOperac(srz)  ;
+   if karakti.Cells[8,1] <> '' then
+   begin
+     id := StrToInt(karakti.Cells[8,1]) ;
+     opr := FsqlKode.Getoper(id) ;
+   end else opr := '0010' ;
+   iddod := dodIzbor.ItemIndex ;
+   if iddod >= 0 then nazivp := DodIzbor.items[iddod] else nazivp := 'Strojna' ;
+ //  merl := ListBox1.Items[ListBox1.ItemIndex] ;    // merilec
+   merl := label1.Caption ;
+   karlist := Tlist.Create ;
+   ii := 0 ;
+   odl := 'A' ;
+ //  stvz := 12 ;
+   evalList := TList.Create ;
+   for jj := 1 to nkar1 do
+   begin
+     new(px) ;
+     px^.imekar := karakti.Cells[1,jj];
+     px^.stkar := karakti.Cells[0,jj];
+     px^.ev := 'A' ;
+     px^.st := 0 ;
+
+     for kk := 1 to stcl do
+     begin
+       new(pv) ;
+       pv^.stevnp := 0 ;
+       pv^.stkar := karakti.Cells[0,jj];
+       pv^.stmer := ii+1 ;
+       pv^.skupi := 'X' ;
+       pv^.tip := '01';
+       pv^.stevilvz := kk ;
+       vred := preverimer(jj,kk-1) ;
+       if  vred then
+       begin
+         pv^.eval := 'A'
+       end else
+       begin
+         pv^.eval := 'R' ;
+         px^.ev := 'R' ;
+         px^.st := px^.st + 1 ;
+       end ;
+       pv^.merit :=  karakti.Cells[kk+DODK-1,jj] ;
+       karlist.Add(pv) ;
+       Inc(ii) ;
+     end ;
+   //  pv^.opom := 'OP ' + IntTostr(jj) ;
+     pv^.stevnp := 1 ;  // stevnp se tu uporablja za oznaèitev konca vzorca
+   //  if px^.ev = 'R' then  pv^.opom := FvpisUkrep.izbor(karakti.Cells[1,jj]) ;
+
+     evalList.add(px) ;
+   end ;
+
+   for jj := 1 to nkar2 do
+   begin
+     slb := StrToInt(attri.cells[4,jj]);
+     new(px) ;
+     px^.imekar := attri.Cells[1,jj];
+     if slb = 0 then px^.ev := 'A' else px^.ev := 'R';
+     px^.stkar := attri.cells[0,jj];
+     px^.st := slb ;
+     for kk := 1 to stvp do
+     begin
+       new(pv) ;
+       pv^.stkar := attri.cells[0,jj];
+       pv^.stmer := ii+1 ;
+       pv^.skupi := '' ;
+       pv^.tip := '02';
+       stnp := StrToInt(attri.cells[4,jj]) ;
+       pv^.stevnp := stnp ;
+      // pv^.opom := attri.cells[5,jj] ;
+       if stnp > 0 then pv^.eval :=  'R'  else pv^.eval := 'A';
+       inc(ii) ;
+       karlist.Add(pv) ;
+     end ;
+     new(pv) ;
+     evalList.add(px) ;
+   end;
+
+   FvpisOpom.Vpis(evalList) ;
+   for jj := 0 to evalList.Count-1 do
+   begin
+     px := evalList[jj] ;
+     if px^.op <> '' then
+     begin
+       stk := px^.stkar ;
+       for ii := 0 to karlist.Count-1 do
+       begin
+         pv := karlist[ii] ;
+         if (pv^.stkar = stk) and (pv^.tip = '01') and (pv^.stevnp = 1)  then  pv^.opom := px^.op ;
+         if (pv^.stkar = stk) and (pv^.tip = '02') then pv^.opom := px^.op
+       end;
+     end;
+   end;
+
+
+   dd := now ;
+   kd := list4.items[list4.ItemIndex] ;
+   if karlist.Count > 0 then Fsap.zapis(srz,opr,nazivp,merl,odl,orod,dd,karlist,evalList)  ;
+   if karlist.Count > 0 then Fsqlmeritve.zapis(kd,srz,karlist)  ;
+//   label5.Caption := IntToStr(stvz) ;
+   CistiListE(evallist) ;
+   CistiList1(karList) ;
+  // merex := false ;
+end;
+
+procedure TFzacetna.Button2Click(Sender: TObject);
+  var stk,row,col,std : Integer ;
+      mer : single ;
+      cm,mr : string ;
+      ii,ll : Integer ;
+
+begin
+   row := Karakti.Row ;
+   col := karakti.Col ;
+   if lokalb then cm := karakti.Cells[6,row] else cm := Fpostaje.getcom;
+   if cm = '' then cm := 'COM3' else cm := 'COM' + cm ;
+   //showMessage(cm) ;
+   stk :=  spinEdit1.value ;
+   if stk <= 8 then mer := FComPort.preberi(stk,cm)
+               else mr := FcomPort.odpri(cm) ;
+
+   std := spinedit2.Value ;
+   if stk <= 8 then karakti.Cells[col,row] := FloatTostrF(mer,ffFixed,10,std) ;
+   if stk = 9 then
+   begin
+     mr := trim(mr) ;
+     ll := length(mr) ;
+     ii := ll-2 ;
+     while mr[ii] <> ' ' do ii := ii-1 ;
+     mr := copy(mr,ii+1,ll-ii-2) ;
+     mr := replaceStr(mr,'.',',') ;
+     karakti.Cells[col,row] := mr ;
+   end ;
+   if stk = 10 then
+   begin
+     ii := PosEx(#10,mr) ;
+     if mr[1] <> 'S' then
+     begin
+       mr := copy(mr,ii+1,40) ;
+       ii := PosEx(#10,mr) ;
+     end ;
+     mr := copy(mr,1,ii-1) ;
+     ll := length(mr) ;
+     ii := ll ;
+     while not (mr[ii] in ['0'..'9']) do ii := ii-1 ;
+     ll := ii ;
+     while not (mr[ii] = ' ') do ii := ii-1 ;
+     mr := copy(mr,ii+1,ll-ii) ;
+     mr := replaceStr(mr,'.',',') ;
+     karakti.Cells[col,row] := mr ;
+   end;
+end;
+
+procedure TFzacetna.Button3Click(Sender: TObject);
+begin
+  pocisti1(listStr) ;
+  Application.Terminate ;
+end;
+
+procedure TFzacetna.Button4Click(Sender: TObject);
+begin
+   lokalnabaza ;
+end;
+
+Procedure Tfzacetna.LokalnaBaza ;
+  var list : Tlist ;
+      i : integer ;
+      pp : ^zapis ;
+begin
+   lokalb := true ;
+   button1.Enabled := false ;
+   button5.Enabled := true ;
+   pocisti1(liststr) ;
+   listStr := Tlist.Create ;
+   FlokalBaza.getlinije(listStr) ;
+   list3.Items.Clear ;
+   for i := 0 to liststr.count-1 do
+   begin
+     pp := liststr[i] ;
+     list3.items.add(pp^.naziv) ;
+   end;
+end;
+
+procedure TFzacetna.Button5Click(Sender: TObject);
+  var idm : integer ;
+      i,j,stv : Integer ;
+      poz,eval,opo,oro : string ;
+      xx : single ;
+      bb : boolean ;
+      nz,nazdod,krdod : string ;
+      izbdod,id : integer ;
+      pp : ^zapis ;
+      dodat : single ;
+      ids,ips : integer ;
+begin
+  pp := listStr[IzbStr] ;
+  nz := trim(pp^.naziv) ;
+  ips := system.pos('/',nz) ;
+  nz := copy(nz,1,ips) ;
+  id := pp^.ident ;
+  izbdod := List6.itemIndex ;
+
+  if izbdod >= 0 then
+  begin
+    nazdod := trim(List6.Items[izbdod]) ;
+    krdod := FlokalBaza.GetDodKr(id,nazdod) ;
+  end else krdod := '' ;
+  oro := nz +  krdod ;
+  if predm = 1 then idm := FlokalMeritve.ZapisSeznam(srz,oro,krdod)
+               else idm := FlokalMeritve.Iscimer(srz,krdod) ;
+  if idm = 0 then
+  begin
+    showmessage('Ne najdem meritve pred menjavo') ;
+    exit ;
+  end;
+  for i := 1 to karakti.RowCount-1 do
+  begin
+    poz := karakti.Cells[0,i] ;
+
+    for j := 1 to karakti.ColCount- DODK do
+    begin
+      xx := StrToFloat(karakti.Cells[j+DODK-1,i]) ;
+      bb := PreveriMer(i,j-1) ;
+      if bb then eval := 'A' else eval := 'R' ;
+      ids := StrToint(karakti.Cells[8,i]) ;
+      dodat := Flokalbaza.Getpreracun(ids) ;
+      xx := xx + dodat ;
+      FlokalMeritve.ZapisMer1(idm,j,poz,eval,xx) ;
+    end;
+  end;
+  for i := 1 to attri.RowCount-1 do
+  begin
+    poz := attri.Cells[0,i] ;
+    stv := StrToIntDef(attri.Cells[4,i],0) ;
+    if stv = 0 then eval := 'A' else eval := 'R' ;
+   // opo := attri.Cells[5,i] ;
+    FlokalMeritve.ZapisMer2(idm,stv,poz,eval,opo) ;
+  end;
+  nanovo ;
+end;
+
+
+procedure TFzacetna.Button6Click(Sender: TObject);
+  var excel : variant ;
+      i,j,row : word ;
+      xx : string ;
+begin
+ { excel := GetActiveOLEObject('Excel.application');
+  for i := 1 to 7 do
+    for j := 1 to 10 do
+    begin
+      karakti.Cells[j+DODK-1,i] := excel.cells[i,j]
+    end;     }
+  {  row := 2 ;
+    with TCheckBox.create(self) do
+    begin
+      name := 'chk' + IntTostr(row) ;
+      caption := '' ;
+      Parent := panel4 ;
+      left := attri.width - 60 ;
+      width := 30 ;
+      top := 24*row + 6 ;
+      onClick := CheckBox1Click
+    end;     }
+    i := StrToInt(edit1.Text) ;
+  // xx := edit1.Text ;
+    Showmessage(Char(i)) ;
+
+   { for i := 40 to 255 do
+    begin
+      edit1.Text := IntTostr(i) + '/' + Char(i) ;
+      edit1.refresh ;
+      sleep(1500) ;
+    end;   }
+
+
+end;
+
+
+Procedure Tfzacetna.setcheck(row : integer) ;
+begin
+    with TCheckBox.create(self) do
+    begin
+      name := 'chk' + IntTostr(row) ;
+      caption := '' ;
+      Parent := panel4 ;
+      left := attri.width - 720 ;
+      width := 30 ;
+      top := 25*row + 6 ;
+      onClick := CheckBox1Click
+    end;
+end;
+
+
+procedure TFzacetna.Button7Click(Sender: TObject);
+begin
+  FLokalMeritve.LokalSap ;
+  //ShowMessage('Prenos uspešno konèan') ;
+end;
+
+procedure TFzacetna.Button8Click(Sender: TObject);
+  var ii : integer ;
+      pp : ^zapis ;
+
+begin
+  lokalb := false ;
+  button5.Enabled := false ;
+  button1.Enabled := true ;
+  pos := Fpostaje.Getpost ;
+  if pos > 0 then
+  begin
+    FrkMr := 2 ;
+    pocisti1(liststr) ;
+    ListStr := tlist.Create ;
+    Fstroji.GetStroji(pos,ListStr) ;
+    list3.Items.Clear ;
+    for ii := 0 to listStr.count-1 do
+    begin
+       pp := listStr[ii] ;
+       list3.Items.add(pp^.naziv) ;
+       acas[ii] := 0 ;
+       strvkl[ii+1] := Fsinapro.PreveriStroj(pp^.ident) ;
+    end;
+  end ;
+end;
+
+
+
+procedure Tfzacetna.postaviListstr ;
+ var ii : integer ;
+      pp : ^zapis ;
+
+begin
+  pos := Fpostaje.Getpost ;
+  if pos > 0 then
+  begin
+    FrkMr := 2 ;
+    pocisti1(liststr) ;
+    ListStr := tlist.Create ;
+    Fstroji.GetStroji(pos,ListStr) ;
+    list3.Items.Clear ;
+    for ii := 0 to listStr.count-1 do
+    begin
+       pp := listStr[ii] ;
+       list3.Items.add(pp^.naziv) ;
+       acas[ii] := 0 ;
+       strvkl[ii+1] := Fsinapro.PreveriStroj(pp^.ident) ;
+    end;
+  end ;
+end;
+
+
+procedure TFzacetna.Button9Click(Sender: TObject);
+begin
+  if not assigned(liststr)  then  exit ;
+  obnovi ;
+  Fsemafor.frk := frkmr ;
+  Fsemafor.prikazi(admin,listStr)  ;
+end;
+
+procedure TFzacetna.CheckBox1Click(Sender: TObject);
+  var rw : Integer ;
+      nm : string ;
+begin
+  //showmESSAGE(TcheckBox(SENDER).NAME) ;
+  nm := TcheckBox(sender).name ;
+  rw := StrToInt(copy(nm,4,1)) ;
+  //rw := attri.Row ;
+  attri.cells[4,rw] := '0' ;
+end;
+
+function TFzacetna.preveriData : boolean  ;
+  var jj,kk : Integer ;
+      xx : single ;
+      bb : boolean ;
+begin
+  bb := true ;
+  for jj  := 1 to nkar1 do
+  begin
+    if not bb  then break ;
+    for kk := 1 to stcl do
+    begin
+      try
+        xx :=  StrToFloat(karakti.Cells[kk+DODK-1,jj]) ;
+      except
+        //ShowMessage('Podatki o meritvah niso vredu') ;
+        karakti.row := jj ;
+        karakti.col := kk+DODK-1 ;
+        ShowMessage('Podatki o meritvah niso vredu') ;
+        karakti.SetFocus ;
+        bb := false ;
+        break
+      end;
+    end;
+  end;
+  if bb then
+  begin
+    for jj := 1 to nkar2 do
+      if trim(attri.Cells[4,jj]) = '' then
+      begin
+        ShowMessage('Podatki o atrib. karakteristikah niso vpisani') ;
+        bb := false ;
+        break
+      end;
+  end;
+  result := bb ;
+end;
+
+
+Procedure TFzacetna.lokalkoda ;
+  var pp : ^zapis ;
+      ident : integer ;
+      lista : TstringList ;
+      deln,kd : string ;
+      jx,ll : integer ;
+begin
+   pp := Liststr[IzbStr] ;
+   orod := pp^.naziv ;
+   ident := pp^.ident ;
+   lista := Tstringlist.Create ;
+   FlokalBaza.getKode(ident,lista) ;
+   list4.Items := lista ;
+   Lista.free ;
+end ;
+
+procedure TFzacetna.Merilnemetode1Click(Sender: TObject);
+begin
+  Fmetode.prikaz(admin) ;
+end;
+
+procedure TFzacetna.Meritve1Click(Sender: TObject);
+begin
+  FLokalMeritve.prikaz ;
+end;
+
+procedure TFzacetna.MeritveClick(Sender: TObject);
+begin
+   FsqlMeritve.pregled(admin) ;
+end;
+
+Procedure TFzacetna.isciKoda ;
+  var ii : integer ;
+      pp : ^zapis ;
+      ident : integer ;
+      listak : TstringList ;
+      I,ipx: Integer;
+      kd,kdd : string ;
+      imm : string ;
+begin
+   label1.Hide ;
+   pp := Liststr[IzbStr] ;
+   orod := pp^.naziv ;
+   ident := pp^.ident ;
+   imm := Fsinapro.Getdelavec(ident) ;
+   if imm <> '' then
+   begin
+     label1.Visible := true ;
+     label1.Caption := 'Delavec ' + imm ;
+   end;
+   listak := TstringList.create ;
+   Fsinapro.Getkoda1(ident,listak) ;
+   for I := 0 to listak.Count-1 do
+   begin
+     kd := Listak[i] ;
+     kdd := replaceStr(kd,'-','') ;
+     kdd := trim(kdd) ;
+     ipx := system.pos('/',kdd) ;
+     kdd := Copy(kdd,1,ipx-1) ;
+     listak[i] := kdd ;
+   end;
+   list4.Items.Clear ;
+   list4.items := Listak ;
+   lIstak.free ;
+end;
+
+
+
+procedure TFzacetna.KaraktiClick(Sender: TObject);
+  var row,kn : integer ;
+      tx : string ;
+begin
+  row := karakti.Row ;
+  tx := karakti.Cells[5,row] ;
+  if length(tx) <= 2 then
+  try
+    kn := StrToInt(tx) ;
+    spinEdit1.Value := kn ;
+  except
+  end ;
+end;
+
+procedure TFzacetna.KaraktiDblClick(Sender: TObject);
+ var row : Integer ;
+      ss : string ;
+begin
+//  if karakti.Col = DODK-1 then
+  begin
+    row := karakti.Row ;
+    ss := Karakti.Cells[7,row] ;
+    if ss = '' then Karakti.Cells[7,row] := 'X'
+               else Karakti.Cells[7,row] := ''
+  end;
+end;
+
+procedure TFzacetna.KaraktiDrawCell(Sender: TObject; ACol, ARow: Integer;
+  Rect: TRect; State: TGridDrawState);
+  var xx,x1,x2 : single ;
+      c1,c2 : single  ;
+      bx,bb : integer ;
+begin
+  bx := 0 ;
+  try
+    xx := strToFloat(karakti.Cells[aCol,aRow]) ;
+    x1 := strToFloat(karakti.Cells[3,aRow]) ;
+    x2 := strToFloat(karakti.Cells[4,aRow]) ;
+    c1 := strToFloat(karakti.Cells[9,aRow]) ;
+    c2 := strToFloat(karakti.Cells[10,aRow]) ;
+    if (xx < x1) or (xx > x2) then bx := 1 ;
+    if (bx = 0) and (abs(c1-c2) > 0.001) then
+    begin
+      if (xx < c1-3*c2) or (xx > c1+3*c2) then bx := 2 ;
+    end ;
+  except
+    bx := 0
+  end;
+  if (acol >= DODK) and (aRow > 0) then bb := 1 else bb := 0 ;
+  bx := bx*bb;
+  if bx > 0 then
+  with (karakti) do
+  begin
+   // if bx = 1 then Canvas.font.Color:=clRed else Canvas.font.Color:= clOlive ;
+    if arow = 0 then Canvas.brush.Color:= karakti.fixedColor else
+    begin
+       //Canvas.brush.Color:=clWhite ;
+      if bx = 1 then Canvas.brush.Color:=clRed else Canvas.brush.Color:= clYellow ;
+    end;
+    Canvas.FillRect(Rect);
+    Canvas.TextRect(Rect,Rect.Left+3,Rect.Top+5,Cells[aCol,aRow]);
+  end;
+end;
+
+procedure TFzacetna.Kodaare1Click(Sender: TObject);
+begin
+  FlokalBaza.KodPrikaz ;
+end;
+
+procedure TFzacetna.Kontrolniplani1Click(Sender: TObject);
+begin
+   FSqlKode.Pokazi(admin)  ;
+end;
+
+procedure TFzacetna.FormActivate(Sender: TObject);
+  var i : integer ;
+begin
+  stanje := 1 ;
+  panel1.Color := $02D0FFA0 ;
+  //FillDelEnote ;
+  if screen.Width <= 1280 then panel3.Width := 950 ;
+//  panel3.Width := 1000 ;
+  panel2.Color := $02FFCCFF ;
+  karakti.FixedCols := DODK ;
+  karakti.Cells[0,0] := 'Pozicija' ;
+  karakti.Cells[1,0] := 'Naziv' ;
+  karakti.Cells[2,0] := 'Predpis' ;
+  karakti.Cells[3,0] := 'Sp. meja' ;
+  karakti.Cells[4,0] := 'Zg. meja' ;
+  karakti.Cells[5,0] := 'Merilo' ;
+  karakti.Cells[6,0] := 'COM' ;
+  karakti.Cells[7,0] := 'Graf' ;
+  karakti.Cells[8,0] := 'Preraèun' ;
+  karakti.colwidths[1] := 190 ;
+  karakti.colwidths[6] := 0 ;
+  karakti.colwidths[7] := 40 ;
+  karakti.colwidths[8] := 0 ;
+  karakti.colwidths[9] := 0 ;
+  karakti.colwidths[10] := 0 ;
+  attri.Cells[0,0] := 'Pozicija' ;
+  attri.Cells[1,0] := 'Naziv' ;
+  attri.Cells[2,0] := 'Št. vzor.' ;
+  attri.Cells[3,0] := 'Vsi dobri' ;
+  attri.Cells[4,0] := 'Št. slabih' ;
+//  attri.Cells[5,0] := 'Opombe' ;
+  attri.colwidths[1] := 240 ;
+//  attri.colwidths[5] := 460 ;
+
+  lokalb := Fpostaje.Getlokal ;
+  if not lokalb then
+  begin
+    edit3.visible := false ;
+    edit4.Visible := false ;
+    button14.Visible := false ;
+    button5.Visible := false ;
+    edit2.Visible := false ;
+    button4.Visible := false ;
+    postaviListStr ;
+    button3.Enabled := admin ;
+    menupravice ;
+  end else
+  begin
+    edit2.SetFocus ;
+    button1.Enabled := false ;
+    pos := 0 ;
+    button16.Visible := false ;
+    deaktiviraj(false) ;
+  end;
+  edit5.Brush.Color := clRed ;
+  edit6.Brush.Color := clYellow ;
+  panel6.Color := $02FFC0C0 ;
+  //ReportMemoryLeaksOnShutdown := true ;
+  ZacIzm[1] := StrToTime('6:00:00')  ;
+  ZacIzm[2] := StrToTime('14:00:00') ;
+  ZacIzm[3] := StrToTime('22:00:00') ;
+end;
+
+procedure TFzacetna.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+   Action := TCloseAction.caNone;
+end;
+
+procedure TFzacetna.FormCreate(Sender: TObject);
+   var bitmap : TBitmap ;
+begin
+   admin := true ;
+    try
+    Bitmap := TBitmap.Create;
+    Bitmap.LoadFromFile('ego.bmp');
+    Image1.Canvas.StretchDraw(Image1.canvas.ClipRect,bitmap) ;
+  finally
+
+    end;
+end;
+
+procedure TFzacetna.Linijekode1Click(Sender: TObject);
+begin
+  FlokalBaza.LinPrikaz ;
+end;
+
+
+procedure TFzacetna.Linijestrunice1Click(Sender: TObject);
+begin
+   FlokalBaza.StruzPrikaz ;
+end;
+
+procedure TFzacetna.List3Click(Sender: TObject);
+
+begin
+  izbStr := List3.ItemIndex ;
+  izborLinije(izbStr) ;
+
+end;
+
+
+Procedure Tfzacetna.izborLinije(izbStr: integer) ;
+var pp : ^zapis ;
+      ident : integer ;
+      lista : TstringList ;
+      deln,kd : string ;
+      jx,ll : integer ;
+begin
+  list6.Visible := false ;
+  if lokalb then
+  begin
+    pp := Liststr[IzbStr] ;
+    orod := pp^.naziv ;
+    ident := pp^.ident ;
+    if ident < 4 then predm := 1 else predm := 2 ;
+
+    lista := Tstringlist.Create ;
+    FlokalBaza.GetDod(ident,lista) ;
+    if lista.Count > 0  then
+    begin
+      list6.visible := true ;
+      list6.Items := lista ;
+    end  ;
+    Lista.Free ;
+    lista := Tstringlist.Create ;
+    FlokalBaza.getKode(ident,lista) ;
+    list4.Items := lista ;
+    Lista.free ;
+   // lokalKoda
+  end else IsciKoda ;
+  List5.Items.Clear ;
+  DodIzbor.visible := false ;
+  brisiTabelo ;
+end;
+
+
+procedure TFzacetna.arekarakteristike1Click(Sender: TObject);
+begin
+  Flokalbaza.SarPrikaz ;
+end;
+
+procedure TFzacetna.BrisiTabelo ;
+  var i,j : integer ;
+      chk : string ;
+      cmp : Tcomponent ;
+begin
+  for i := 1 to  karakti.rowcount-1 do
+    for j := 0 to karakti.Colcount-1 do karakti.cells[j,i] := '' ;
+  for i := 1 to  attri.rowcount-1 do
+  begin
+    for j := 0 to attri.Colcount-1 do attri.cells[j,i] := '' ;
+    chk := 'chk' + IntTostr(i) ;
+    cmp := findComponent(chk) ;
+    Tcheckbox(cmp).Free ;
+  end;
+  edit3.Text := '' ;
+  edit2.Text := '' ;
+  edit4.Text := '' ;
+  if lokalb then edit2.setfocus  ;
+end;
+
+procedure TFzacetna.list4Click(Sender: TObject);
+  var kd : string ;
+
+begin
+  kd := List4.Items[list4.ItemIndex] ;
+  IzborKode(kd) ;
+  if lokalb then startnit ;
+end;
+
+Procedure Tfzacetna.IzborKode(kd : string) ;
+  var listsrz : TstringList ;
+      listOro : TstringList ;
+begin
+  brisitabelo ;
+  list5.Items.Clear ;
+  list5.visible := false ;
+  label4.Visible := false ;
+  listsrz := TstringList.Create ;
+
+  kd := StringReplace(kd,'-','',[]) ;
+  kd := StringReplace(kd,'-','',[]) ;
+  kd := StringReplace(kd,'-','',[]) ;
+//  kd := '00055.600.38' ;
+  if lokalb then Flokalbaza.getsarze(kd,listsrz) else
+  begin
+    listoro := TstringList.Create ;
+    FDodatKod.Getlist(kd,Listoro) ;
+    if listoro.Count > 0 then
+    begin
+      DodIzbor.items.clear ;
+      dodIzbor.Visible := true ;
+      dodIzbor.Items := listoro ;
+    end;
+    listoro.Free ;
+    FsqlKode.getsarza(kd,Listsrz) ;
+    //showMessage(IntTostr(listsrz.Count)) ;
+    if listsrz.Count = 0 then Fsap.getKonsarza(kd,date-100,listsrz)   ;
+  end;
+
+  if listsrz.Count > 0 then
+  begin
+    if listsrz.Count  > 1 then
+    begin
+      label4.Visible := true ;
+      list5.Visible := true ;
+      list5.Items := listsrz ;
+    end else
+    begin
+      srz := listsrz[0] ;
+      if not lokalb then
+      begin
+        if not Fsap.preveriSar(srz) and lokalb then
+        begin
+          FsqlKode.MarkKoncan(kd,srz) ;
+          listsrz.clear ;
+          Fsap.getKonsarza(kd,date-100,listsrz) ;
+          if listsrz.Count = 1 then  srz := listsrz[0]
+            else
+            begin
+              Showmessage('Napaka kontrolne sarže. Obvesti administratorja') ;
+              exit ;
+            end;
+        end ;
+      end;
+      FillKarakt(kd,srz);
+    end;
+  end else ShowMessage('Za to kodo ni odprte nobene kontrolne serije') ;
+  listsrz.Free ;
+end;
+
+Procedure TFzacetna.nanovo ;
+  var i,j : Integer ;
+
+begin
+  for j := DODK+1 to karakti.ColCount-1 do karakti.Cells[j,0] := '' ;
+  for i := 1  to Karakti.rowcount-1 do
+    for j :=  0 to karakti.ColCount-1 do
+      karakti.Cells[j,i] := '' ;
+  for i := 1  to attri.rowcount-1 do
+    for j :=  0 to attri.ColCount-1 do
+    begin
+      attri.Cells[j,i] := '' ;
+
+    end;
+  karakti.repaint ;
+  edit3.Text := '' ;
+  edit2.Text := '' ;
+  label1.Hide ;
+  if lokalb then edit2.setfocus  ;
+  {Image1.Canvas.FillRect(Image1.Canvas.Cliprect) ;
+  Image2.Canvas.FillRect(Image2.Canvas.Cliprect) ;
+  Image3.Canvas.FillRect(Image3.Canvas.Cliprect) ;
+  Image4.Canvas.FillRect(Image4.Canvas.Cliprect) ; }
+end;
+
+procedure TFzacetna.list5Click(Sender: TObject);
+   var kd : string ;
+begin
+  srz := List5.Items[list5.ItemIndex] ;
+  brisitabelo ;
+  kd := List4.Items[list4.ItemIndex] ;
+  kd := StringReplace(kd,'-','',[]) ;
+  kd := StringReplace(kd,'-','',[]) ;
+  kd := StringReplace(kd,'-','',[]) ;
+  FillKarakt(kd,srz) ;
+end ;
+
+Procedure Tfzacetna.fillkarakt(kd,srz : string);
+var listkar1 : tlist ;
+      listkar2 : tlist ;
+      pp : ^karak ;
+      pk : ^atrib ;
+      ii : integer ;
+      obstaja : boolean ;
+      tx : string ;
+      kn : integer ;
+
+begin
+  listkar1 := Tlist.create ;
+  listkar2 := Tlist.create ;
+
+  if lokalb then Flokalbaza.GetKar(predm,srz,stcl,stvp,listkar1,listkar2)
+    else
+    begin
+      FSqlKode.Getplan(kd,srz,obstaja ,stcl,stvp,listkar1,listkar2) ;
+      if not obstaja then Fsap.getkarakt(kd,srz,stcl,stvp,listkar1,listkar2) ;
+    end;
+
+  karakti.RowCount := listkar1.count+1 ;
+  karakti.colcount := DODK + stcl ;
+  nkar1 := listkar1.count ;
+  nkar2 := listkar2.Count ;
+  for ii := 0 to listkar1.count-1 do
+  begin
+    pp := listkar1[ii] ;
+    karakti.Cells[0,ii+1] := pp^.poz ;
+    karakti.Cells[1,ii+1] := pp^.naziv ;
+    karakti.Cells[2,ii+1] := pp^.predpis ;
+    karakti.Cells[3,ii+1] := pp^.spmeja ;
+    karakti.Cells[4,ii+1] := pp^.zgmeja ;
+    karakti.Cells[7,ii+1] := pp^.oznaka ;
+
+
+    if pp^.stkan = 0  then karakti.Cells[5,ii+1] := pp^.metoda
+       else  karakti.Cells[5,ii+1] := IntTostr(pp^.stkan) ;
+    if pp^.com <> 0 then karakti.Cells[6,ii+1] := IntTostr(pp^.com)
+      else  karakti.Cells[6,ii+1] := '' ;
+    karakti.Cells[8,ii+1] := intToStr(pp^.id) ;
+    karakti.Cells[9,ii+1] := FloatTostrF(pp^.avr,ffFixed,8,3) ;
+    karakti.Cells[10,ii+1] := FloatTostrF(pp^.stand,ffFixed,8,3) ;
+  end;
+  for ii := 1 to stcl do karakti.Cells[DODK-1+ii,0] := 'Vzorec ' + intTostr(ii) ;
+
+  attri.RowCount := listkar2.Count +1 ;
+  for ii := 0 to listkar2.count-1 do
+  begin
+    pk := listkar2[ii] ;
+    attri.Cells[0,ii+1] := pk^.poz ;
+    attri.Cells[1,ii+1] := pk^.naziv ;
+    attri.Cells[2,ii+1] := IntToStr(pk^.st_vzor) ;
+    setcheck(ii+1) ;
+  end;
+  Fsap.Pocistikr(listkar1) ;
+  Fsap.Pocistiat(listkar2) ;
+
+  if karakti.RowCount > 1 then
+  begin
+    tx := karakti.Cells[5,1] ;
+    if length(tx) <= 2 then
+    try
+      kn := StrToInt(tx) ;
+      spinEdit1.Value := kn ;
+    except
+    end;
+    karakti.Row := 1 ;
+  end;
+end;
+
+{procedure TFzacetna.Pocisti1(list : Tlist) ;
+  var i : integer ;
+      pp : ^zapis ;
+begin
+  if assigned(list) then
+  begin
+    for i := 0 to (List.Count - 1) do
+    begin
+      pp := List[i];
+      Dispose(pp);
+    end;
+    List.Free ;
+  end;
+end;    }
+
+procedure TFzacetna.Postaje1Click(Sender: TObject);
+begin
+  Fpostaje.pregled(admin) ; ;
+ // obnovi ;
+
+  postaviListStr ;
+end;
+
+
+Procedure TFzacetna.deaktiviraj(odl : boolean)  ;
+begin
+  button4.enabled := odl;
+  edit3.Enabled := odl ;
+  edit4.Enabled := odl ;
+  karakti.Enabled := odl  ;
+  button14.Enabled := odl ;
+  attri.Enabled := odl ;
+  button2.Enabled := odl ;
+  button11.Enabled := odl ;
+  button13.Enabled := odl ;
+  button7.Enabled := odl ;
+  button9.Enabled := odl ;
+  button17.Enabled := odl ;
+  SpinEdit1.Enabled := odl ;
+  SpinEdit2.Enabled := odl ;
+end;
+
+end.

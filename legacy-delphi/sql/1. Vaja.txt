@@ -1,0 +1,9 @@
+	SELECT COUNT(glavmer.datum) AS 'Število meritev v danem časovnem obdobju' FROM konsar
+	JOIN konplan
+	CROSS JOIN glavmer
+	CROSS JOIN karmer
+	ON konsar.ident = konplan.idsar
+	WHERE konsar.koda = '12.141.00/00' AND konplan.pozicija = '0010'
+	AND YEAR(datum) = 2021
+	AND MONTH(datum) = 01
+	AND DAY(datum) = 19

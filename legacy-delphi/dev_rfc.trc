@@ -1,0 +1,4 @@
+
+**** ERROR file opened at 20240614 075110 Srednjeevropski poletni èas  , SAP-REL 720,0,119 RFC-VER 3  MT-SL
+T:58396 Error in program 'SAPSpc': ======> Uporabni#ki ra#un #e ni ali ni ve# veljaven.
+T:58396 Error in program 'SAPSpc': <* RfcReceive [1] : returns 3:RFC_SYS_EXCEPTION

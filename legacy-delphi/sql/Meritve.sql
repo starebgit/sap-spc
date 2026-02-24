@@ -1,0 +1,23 @@
+USE dia_stroji
+CREATE TABLE meritve(
+  id  bigint NOT NULL IDENTITY(1,1),
+  timestamp datetime DEFAULT (getdate()),
+  nalog  int,
+  tip nvarchar(20), 
+  stroj int,
+  glava int,
+  paleta int,
+  kaliber int,
+  status int,
+  t_olja decimal(8,4),
+  Hm decimal(8,4),
+  Hm_stiskanja decimal(8,4),
+  Hm_max decimal(8,4),
+  Hm_kontrole decimal(8,4),
+  Hm_puscanja decimal(8,4),
+  max_Hm decimal(8,4),
+  min_Hm decimal(8,4),
+  max_Hm_kontrola decimal(8,4),
+  min_Hm_kontrola decimal(8,4),
+  max_Hm_puscanje decimal(8,4),
+  min_Hm_puscanje decimal(8,4))

@@ -1,0 +1,93 @@
+Zdravo,
+
+
+
+
+zadnji popravki za pravilno delovanje programa:
+
+
+
+
+1. KODE in SARŽE (RAZLIÈNI SCENARIJI)
+
+
+
+
+A.) KODA NI VPISANA V SEZAM:
+
+Èe koda s katero se dela (je v Sinaproju) ni vpisana v seznam za merilno mesto, program javi opozorilno okno z napisom: "Izbrana koda ni registrirana v programu! Prosim kontaktiraj administratorja programa." in prekine izbiro.
+
+
+
+
+B.) SARŽA ZA KODO JE NEAKTIVNA - NA IZBIRO V SAP-u JE VEÈ RAZLIÈNIH ŠARŽ ALI PA NI NOBENE
+
+V tem primeru program ob izbiri kode javi opozorilno okno z napisom: "Kontrolna serija za izbrano kodo je neaktivna! Prosim kontaktiraj administratorja programa." Administrator mora nato v seznamu kod pod to kodo izbrati novo pravo serijo.
+
+
+
+
+C.) SARŽA ZA KODO JE NEAKTIVNA - NA IZBIRO V SAP-u JE SAMO ENA SARŽA
+
+V tem primeru pri izbiri kode javi opozorilno okno z napisom: "Kontrolna serija za izbrano kodo je neaktivna! Izbrana je bila nadomestna kontrolna serija. Po opravljeni meritvi obvesti administratorja programa." Program nato dovoli vpis meritev ter prenos v SAP. Obvestilo se ponavlja dokler administrator ne spremeni šarže v seznamu. 
+
+
+
+
+2. SEMAFOR:
+
+Za trenutno verzijo programa se semafor ne spreminja.
+
+
+
+
+3.  KONÈNICA KODE
+
+Ko program prebere kodo iz Sinaproja jo preveri v seznamu kod. V kolikor te kode vkljuèno s konènico ni v seznamu konènico kode spremeni v /00 in ponovno poizkusi. V kolikor kode še vedno ne najde - glej toèko 1. A.)
+
+
+
+
+4. IMPLEMENTACIJA PROGRAMA
+
+Dogovor je, da se program implementira na vse aktivne postaje v KT06 (v tem tednu).
+
+
+
+
+
+5. VERZIJA PROGRAMA
+
+V zgornji menu se doda zavihek "Pomoè" kar odpre seznam v katerem je izbira "Vizitka". Ob kliku na to se odpre okno z gumbov "V redu" na katerem piše: 
+
+>>>
+
+Vizitka
+
+
+
+
+Program merilnega mesta
+
+Verzija: 1.0.0
+
+ETA d.o.o. Cerkno
+
+
+<<<
+
+
+
+
+6. "LEPOTNI" IN OSTALI POPRAVKI
+
+•Poravnava v center gumbov v desnem menuju
+•Prva prijava v program se postavi na "Raèunalnik" Merilnega mesta v kolikor je ta raèunalnik s katerim dostopamo v seznamu Merilnega mesta. V nasprotnem primeru pod izbiro merilno mesto:" zapiše (ni prijave) in se ne postavi nikamor.
+• Nalepke Merilno mesto, Operater in Prijavljen naj nimajo presledka pred dvopièjem.
+
+•Baza na serverju -> "Postaje" spremeni v "Merilna mesta"
+•V izbiri "Postaje" spremeni naslov v "Merilna mesta"
+•V izbiri postaje odstrani "Konec"
+•V izbiri "Postaje" dodaj zgornji menu "Urejanje" s pod-izbirami "Vpis merilnega mesta" in "Briši merilno mesto"
+•V izbiri "Postaje" Poveèaj nalepko "Izbirna postaja:" In zraven dodaj nalepko Naziva (kot v glavnem programu npr merilno mesto: uporabi vse iste Font-e, velikosti, ...)
+•Skrji Stolpca "Zap. št. Postaje" POPRAVI: Opis merilne postaje v Opis merilnega mesta, Skrij stolpec imekon  
