@@ -154,11 +154,15 @@ namespace SapSpcWinForms
 
                 foreach (var (idstroja, naziv) in machines)
                 {
+                    bool strojAktiven = SinaproRepository.PreveriStroj(idstroja);
+                    if (!strojAktiven)
+                        continue;
+
                     int index = machinesList.Items.Count + 1; // 1-based like Delphi
                     machinesList.Items.Add(naziv);
 
                     _machineIdByIndex[index] = idstroja;
-                    _machineActiveByIndex[index] = SinaproRepository.PreveriStroj(idstroja);
+                    _machineActiveByIndex[index] = strojAktiven;
 
                     var (diff, traj) = ResolveIntervalForMachine(idstroja);
                     _diffByIndex[index] = diff;
