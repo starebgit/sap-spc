@@ -71,6 +71,8 @@ namespace SapSpcWinForms
             // 
             // PrijavaAdminButton
             // 
+            operacijeToolStripMenuItem.Visible = false;
+
             this.PrijavaAdminButton.Location = new System.Drawing.Point(12, 12);
             this.PrijavaAdminButton.Name = "PrijavaAdminButton";
             this.PrijavaAdminButton.Size = new System.Drawing.Size(120, 24);
