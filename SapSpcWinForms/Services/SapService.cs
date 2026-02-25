@@ -231,7 +231,8 @@ namespace SapSpcWinForms
 
             try
             {
-                var sarze = GetKonsarza(kd, new DateTime(2018, 1, 1), true) ?? new List<string>();
+                var ktex = StrojnaDbRepository.GetImeKTFromPostajeOrEmpty(idpost);
+                var sarze = GetKonsarza(kd, new DateTime(2018, 1, 1), true, ktex) ?? new List<string>();
 
                 if (sarze.Count != 1)
                 {
