@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Configuration;
+
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -119,9 +121,9 @@ namespace SapSpcWinForms
             _adapter.Fill(_table);
             _grid.DataSource = _table;
             if (_grid.Columns.Contains("zaopored"))
-                _grid.Columns["zaopored"].HeaderText = "Zap. št.";
+                _grid.Columns["zaopored"].HeaderText = TranslationService.Translate("Common.Ordinal");
             if (_grid.Columns.Contains("naziv"))
-                _grid.Columns["naziv"].HeaderText = "Naziv";
+                _grid.Columns["naziv"].HeaderText = TranslationService.Translate("DodatneKodeForm.Col.Name");
             if (_grid.Columns.Contains("koda"))
                 _grid.Columns["koda"].Visible = false;
         }

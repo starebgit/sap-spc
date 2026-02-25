@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
+
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -127,13 +129,13 @@ namespace SapSpcWinForms
             if (_grid.Columns.Contains("idpost"))
                 _grid.Columns["idpost"].Visible = false;
             if (_grid.Columns.Contains("red"))
-                _grid.Columns["red"].HeaderText = "Zap. št.";
+                _grid.Columns["red"].HeaderText = TranslationService.Translate("Common.Ordinal");
             if (_grid.Columns.Contains("stevilka"))
-                _grid.Columns["stevilka"].HeaderText = "ID merila";
+                _grid.Columns["stevilka"].HeaderText = TranslationService.Translate("MerilaForm.Col.Id");
             if (_grid.Columns.Contains("naziv"))
-                _grid.Columns["naziv"].HeaderText = "Naziv merila";
+                _grid.Columns["naziv"].HeaderText = TranslationService.Translate("MerilaForm.Col.Name");
             if (_grid.Columns.Contains("opis"))
-                _grid.Columns["opis"].HeaderText = "Opis merila";
+                _grid.Columns["opis"].HeaderText = TranslationService.Translate("MerilaForm.Col.Description");
             EnsureDeleteColumn();
         }
 
@@ -297,16 +299,16 @@ namespace SapSpcWinForms
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
                 int r = 0;
-                grid.Controls.Add(new Label { Text = "Zap. št.", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("Common.Ordinal"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numRed = new NumericUpDown { Dock = DockStyle.Left, Minimum = 1, Maximum = 999, Width = 80, Value = 1 };
                 grid.Controls.Add(_numRed, 1, r++);
-                grid.Controls.Add(new Label { Text = "ID merila", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilaForm.Col.Id"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbStevilka = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbStevilka, 1, r++);
-                grid.Controls.Add(new Label { Text = "Naziv merila", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilaForm.Col.Name"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbNaziv = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbNaziv, 1, r++);
-                grid.Controls.Add(new Label { Text = "Opis merila", AutoSize = true, Anchor = AnchorStyles.Left, TextAlign = ContentAlignment.MiddleLeft }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilaForm.Col.Description"), AutoSize = true, Anchor = AnchorStyles.Left, TextAlign = ContentAlignment.MiddleLeft }, 0, r);
                 _tbOpis = new TextBox { Dock = DockStyle.Fill, Multiline = false, Margin = new Padding(0, 4, 0, 4) };
                 grid.Controls.Add(_tbOpis, 1, r++);
                 var buttons = new FlowLayoutPanel

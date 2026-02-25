@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -520,7 +522,7 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrWhiteSpace(kd))
             {
-                MessageBox.Show(this, "Izbrani zapis nima kode (koda).", "Dodatki",
+                MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.Dodatki.NoCode"), TranslationService.Translate("KontrolniPlaniForm.Menu.Addons"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -539,7 +541,7 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show(this, "Izbrani zapis nima kontrolne šarže (sarza).", "Preveri šaržo",
+                MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.CheckBatch.NoBatch"), TranslationService.Translate("KontrolniPlaniForm.Menu.CheckBatch"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -551,14 +553,14 @@ namespace SapSpcWinForms
                 var ok = _sap.PreveriSar(srz.Trim());
 
                 MessageBox.Show(this,
-                    ok ? "Šarža je aktivna" : "Šarža ni aktivna",
-                    "Preveri šaržo",
+                    ok ? TranslationService.Translate("KontrolniPlaniForm.CheckBatch.Active") : TranslationService.Translate("KontrolniPlaniForm.CheckBatch.Inactive"),
+                    TranslationService.Translate("KontrolniPlaniForm.Menu.CheckBatch"),
                     MessageBoxButtons.OK,
                     ok ? MessageBoxIcon.Information : MessageBoxIcon.Exclamation);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Napaka pri preverjanju šarže v SAP:\n" + ex.Message, "Preveri šaržo",
+                MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.CheckBatch.Error") + "\n" + ex.Message, TranslationService.Translate("KontrolniPlaniForm.Menu.CheckBatch"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -637,8 +639,8 @@ namespace SapSpcWinForms
                     Value = Math.Max(1, Math.Min(999, initial))
                 };
 
-                var ok = new Button { Text = "OK", Left = 70, Width = 80, Top = 78, DialogResult = DialogResult.OK };
-                var cancel = new Button { Text = "Prekliči", Left = 158, Width = 80, Top = 78, DialogResult = DialogResult.Cancel };
+                var ok = new Button { Text = TranslationService.Translate("Common.Ok"), Left = 70, Width = 80, Top = 78, DialogResult = DialogResult.OK };
+                var cancel = new Button { Text = TranslationService.Translate("Common.Cancel"), Left = 158, Width = 80, Top = 78, DialogResult = DialogResult.Cancel };
 
                 f.Controls.AddRange(new Control[] { lbl, nud, ok, cancel });
                 f.AcceptButton = ok;
@@ -792,8 +794,8 @@ namespace SapSpcWinForms
                     Checked = prepisVse
                 };
 
-                var ok = new Button { Text = "OK", Left = 180, Width = 75, Top = 125, DialogResult = DialogResult.OK };
-                var cancel = new Button { Text = "Prekliči", Left = 260, Width = 75, Top = 125, DialogResult = DialogResult.Cancel };
+                var ok = new Button { Text = TranslationService.Translate("Common.Ok"), Left = 180, Width = 75, Top = 125, DialogResult = DialogResult.OK };
+                var cancel = new Button { Text = TranslationService.Translate("Common.Cancel"), Left = 260, Width = 75, Top = 125, DialogResult = DialogResult.Cancel };
 
                 f.Controls.AddRange(new Control[] { lbl1, txt1, lbl2, txt2, chkAll, ok, cancel });
                 f.AcceptButton = ok;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms.Forms
 {
@@ -20,7 +21,7 @@ namespace SapSpcWinForms.Forms
         {
             _idpost = idpost;
 
-            Text = "Vpis opombe / ukrepa";
+            Text = TranslationService.Translate("VpisOpombeForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 500;
@@ -32,9 +33,9 @@ namespace SapSpcWinForms.Forms
             _grid.MultiSelect = false;
             _grid.AutoGenerateColumns = false;
 
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StKar", HeaderText = "Št. kar.", DataPropertyName = "StKar", Width = 90, ReadOnly = true });
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "ImeKar", HeaderText = "Naziv karakteristike", DataPropertyName = "ImeKar", Width = 420, ReadOnly = true });
-            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Op", HeaderText = "Ukrep", DataPropertyName = "Op", Width = 320 });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StKar", HeaderText = TranslationService.Translate("VpisOpombeForm.Col.StKar"), DataPropertyName = "StKar", Width = 90, ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "ImeKar", HeaderText = TranslationService.Translate("VpisOpombeForm.Col.ImeKar"), DataPropertyName = "ImeKar", Width = 420, ReadOnly = true });
+            _grid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Op", HeaderText = TranslationService.Translate("VpisOpombeForm.Col.Op"), DataPropertyName = "Op", Width = 320 });
 
             var bottom = new FlowLayoutPanel
             {
@@ -45,16 +46,16 @@ namespace SapSpcWinForms.Forms
                 WrapContents = false
             };
 
-            _btnIzberi.Text = "Izberi (vrstica)";
+            _btnIzberi.Text = TranslationService.Translate("VpisOpombeForm.PickRow");
             _btnIzberi.Click += (s, e) => PickForCurrentRow();
 
-            _btnIzberiVsem.Text = "Izberi (vse)";
+            _btnIzberiVsem.Text = TranslationService.Translate("VpisOpombeForm.PickAll");
             _btnIzberiVsem.Click += (s, e) => PickForAllRows();
 
-            _btnOk.Text = "OK";
+            _btnOk.Text = TranslationService.Translate("Common.Ok");
             _btnOk.DialogResult = DialogResult.OK;
 
-            _btnCancel.Text = "Prekliči";
+            _btnCancel.Text = TranslationService.Translate("Common.Cancel");
             _btnCancel.DialogResult = DialogResult.Cancel;
 
             bottom.Controls.AddRange(new Control[] { _btnIzberi, _btnIzberiVsem, _btnOk, _btnCancel });
