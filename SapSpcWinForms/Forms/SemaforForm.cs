@@ -32,6 +32,7 @@ namespace SapSpcWinForms
             BuildUi(); // now configures MachinesGrid (designer), not a new grid
             ApplyAdminBorder(isAdmin);
             PositionOnMonitor();
+            WindowState = FormWindowState.Maximized;
             RecomputeLayoutAndRowCount();
             RefreshRowsAndRebind();
 
@@ -128,7 +129,9 @@ namespace SapSpcWinForms
                 ? (screens[0].Bounds.Left == 0 ? screens[1] : screens[0])
                 : screens[0];
 
-            Bounds = target.Bounds;
+            StartPosition = FormStartPosition.Manual;
+            Location = target.WorkingArea.Location;
+            Size = target.WorkingArea.Size;
         }
 
         private void RecomputeLayoutAndRowCount()
