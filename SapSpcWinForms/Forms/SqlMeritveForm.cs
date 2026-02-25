@@ -52,7 +52,7 @@ namespace SapSpcWinForms
 
         private void BuildUi()
         {
-            Text = "Meritve (server)";
+            Text = "Meritve (stre≈ænik)";
             StartPosition = FormStartPosition.CenterParent;
             Width = 1200;
             Height = 750;
@@ -79,13 +79,13 @@ namespace SapSpcWinForms
                 Left = 12,
                 Top = 12,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Text = $"Postaja: {_postajaNaziv}  (idpost={_idpost})"
+                Text = $"Merilno mesto: {_postajaNaziv}  (idpost={_idpost})"
             };
             top.Controls.Add(_lblPostaja);
 
             _btnDelete = new Button
             {
-                Text = "Izbriöi izbrano",
+                Text = "Izbri≈°i izbrano",
                 Width = 140,
                 Height = 26,
                 Left = 1000, // will be adjusted by Anchor
@@ -153,13 +153,13 @@ namespace SapSpcWinForms
             _gridGlav.DataBindingComplete += (s, e) =>
             {
                 HideColumns(_gridGlav, new[] { "idpost", "dodatno", "orodja" });
-                SetHeader(_gridGlav, "idmer", "Zap. öt");
+                SetHeader(_gridGlav, "idmer", "Zap. ≈°t");
             };
             _gridKar.DataBindingComplete += (s, e) =>
             {
                 HideColumns(_gridKar, new[] { "idkam", "idmer", "idkarm" });
                 SetHeader(_gridKar, "karakt", "Pozicija");
-                SetHeader(_gridKar, "zapvz", "ät. Vzorca");
+                SetHeader(_gridKar, "zapvz", "≈†t. Vzorca");
                 SetHeader(_gridKar, "vrednost", "Meritve");
             };
         }
@@ -192,7 +192,7 @@ namespace SapSpcWinForms
             var lblFrom = new Label { Text = "Od:", AutoSize = true, Anchor = AnchorStyles.Left };
             var lblTo = new Label { Text = "Do:", AutoSize = true, Anchor = AnchorStyles.Left };
             var lblKoda = new Label { Text = "Koda:", AutoSize = true, Anchor = AnchorStyles.Left };
-            var lblSarza = new Label { Text = "äarûa:", AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblSarza = new Label { Text = "≈†ar≈æa:", AutoSize = true, Anchor = AnchorStyles.Left };
 
             _dtFrom = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
             _dtTo = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
@@ -358,7 +358,7 @@ namespace SapSpcWinForms
             if (idmerObj == DBNull.Value) return;
             int idmer = Convert.ToInt32(idmerObj);
 
-            var confirm = MessageBox.Show(this, "Ali zares ûeliö izbrisati?", "Potrditev",
+            var confirm = MessageBox.Show(this, "Ali zares ≈æeli≈° izbrisati?", "Potrditev",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirm != DialogResult.Yes) return;

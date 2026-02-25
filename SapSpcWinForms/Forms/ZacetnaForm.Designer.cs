@@ -399,7 +399,7 @@ namespace SapSpcWinForms
             // 
             this.vpisStevKanalaToolStripMenuItem.Name = "vpisStevKanalaToolStripMenuItem";
             this.vpisStevKanalaToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
-            this.vpisStevKanalaToolStripMenuItem.Text = "Vpis t. kanala";
+            this.vpisStevKanalaToolStripMenuItem.Text = "Vpis št. kanala";
             this.vpisStevKanalaToolStripMenuItem.Click += new System.EventHandler(this.VpisStevKanalaMenuItem_Click);
             // 
             // decimalkeToolStripMenuItem

@@ -415,7 +415,7 @@ namespace SapSpcWinForms.Data
         {
             using (var cmd = openConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT TOP 1 [èas] FROM tmlmeritve WHERE premer = ? ORDER BY [èas] DESC";
+                cmd.CommandText = "SELECT TOP 1 [čas] FROM tmlmeritve WHERE premer = ? ORDER BY [čas] DESC";
                 cmd.Parameters.AddWithValue("@p1", premer);
 
                 var v = cmd.ExecuteScalar();

@@ -127,7 +127,7 @@ namespace SapSpcWinForms
             if (_grid.Columns.Contains("idpost"))
                 _grid.Columns["idpost"].Visible = false;
             if (_grid.Columns.Contains("red"))
-                _grid.Columns["red"].HeaderText = "Zap. öt.";
+                _grid.Columns["red"].HeaderText = "Zap. ≈°t.";
             if (_grid.Columns.Contains("stevilka"))
                 _grid.Columns["stevilka"].HeaderText = "ID merila";
             if (_grid.Columns.Contains("naziv"))
@@ -145,7 +145,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriöi",
+                    Text = "Izbri≈°i",
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -186,7 +186,7 @@ namespace SapSpcWinForms
                 if (!_isAdmin) return;
                 var row = _grid.Rows[e.RowIndex];
                 if (row == null || row.IsNewRow) return;
-                var res = MessageBox.Show("Ali zares ûeliö izbrisati izbrano merilo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var res = MessageBox.Show("Ali zares ≈æeli≈° izbrisati izbrano merilo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res != DialogResult.Yes) return;
                 _grid.Rows.RemoveAt(e.RowIndex);
                 SaveChanges();
@@ -297,7 +297,7 @@ namespace SapSpcWinForms
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
                 int r = 0;
-                grid.Controls.Add(new Label { Text = "Zap. öt.", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = "Zap. ≈°t.", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numRed = new NumericUpDown { Dock = DockStyle.Left, Minimum = 1, Maximum = 999, Width = 80, Value = 1 };
                 grid.Controls.Add(_numRed, 1, r++);
                 grid.Controls.Add(new Label { Text = "ID merila", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
@@ -317,7 +317,7 @@ namespace SapSpcWinForms
                     Height = 52
                 };
                 _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "PrekliËi", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnCancel = new Button { Text = "Prekliƒçi", DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);

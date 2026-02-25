@@ -77,14 +77,14 @@ namespace SapSpcWinForms
                 LoadData(keepId: newId);
             };
 
-            _btnDelete.Text = "Briöi";
+            _btnDelete.Text = "Bri≈°i";
             _btnDelete.Width = 120;
             _btnDelete.Click += (_, __) =>
             {
                 var id = GetCurrentId();
                 if (!id.HasValue) return;
 
-                var r = MessageBox.Show(this, "Ali zares ûeliö izbrisati?", "Dodatki",
+                var r = MessageBox.Show(this, "Ali zares ≈æeli≈° izbrisati?", "Dodatki",
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (r != DialogResult.Yes) return;
@@ -295,7 +295,7 @@ namespace SapSpcWinForms
                     ok.Width = 120;
                     ok.DialogResult = DialogResult.OK;
 
-                    cancel.Text = "PrekliËi";
+                    cancel.Text = "Prekliƒçi";
                     cancel.Left = 140;
                     cancel.Top = 74;
                     cancel.Width = 120;

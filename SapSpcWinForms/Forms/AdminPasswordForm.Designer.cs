@@ -46,7 +46,7 @@ namespace SapSpcWinForms
             this.cancelButton.Location = new System.Drawing.Point(180, 70);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
-            this.cancelButton.Text = "PrekliËi";
+            this.cancelButton.Text = "Prekliƒçi";
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // AdminPasswordForm

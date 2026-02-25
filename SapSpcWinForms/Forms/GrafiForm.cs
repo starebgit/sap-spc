@@ -131,13 +131,13 @@ namespace SapSpcWinForms
                 using (var p = new Pen(Color.Blue, 2))
                 {
                     g.DrawLine(p, 250, 25, 320, 25);
-                    g.DrawString("Povpreèje", Font, Brushes.Black, 325, y);
+                    g.DrawString("Povprečje", Font, Brushes.Black, 325, y);
                 }
 
                 using (var p = new Pen(Color.Red, 2))
                 {
                     g.DrawLine(p, 470, 25, 540, 25);
-                    g.DrawString("Toleranène meje", Font, Brushes.Black, 545, y);
+                    g.DrawString("Tolerančne meje", Font, Brushes.Black, 545, y);
                 }
 
                 // Delphi color $0200c0c0 ~ teal-ish; keep close
