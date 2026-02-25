@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -11,6 +12,7 @@ namespace SapSpcWinForms.Utils
         private static readonly Color DisabledForeColor = Color.FromArgb(90, 98, 106);
         private static readonly Color FormBackColor = Color.FromArgb(236, 243, 248);
         private static readonly Color PanelBackColor = Color.FromArgb(241, 247, 252);
+        private static readonly Dictionary<Button, ButtonThemeState> ButtonStates = new Dictionary<Button, ButtonThemeState>();
 
         public static void ApplyFormTheme(Form form)
         {
@@ -64,16 +66,48 @@ namespace SapSpcWinForms.Utils
             if (button == null)
                 return;
 
+            CaptureButtonState(button);
+
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderSize = 0;
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            button.Padding = new Padding(6);
-            button.Height = Math.Max(button.Height, 36);
+            button.Padding = new Padding(4, 2, 4, 2);
+            var minimumTextHeight = TextRenderer.MeasureText((button.Text ?? string.Empty) + " ", button.Font).Height + button.Padding.Vertical + 6;
+            button.Height = Math.Max(button.Height, Math.Max(30, minimumTextHeight));
             button.UseVisualStyleBackColor = false;
+            button.TextAlign = ContentAlignment.MiddleCenter;
+            button.TextImageRelation = TextImageRelation.ImageBeforeText;
+            button.AutoEllipsis = true;
 
             button.EnabledChanged -= Button_EnabledChanged;
             button.EnabledChanged += Button_EnabledChanged;
+            button.Disposed -= Button_Disposed;
+            button.Disposed += Button_Disposed;
+
             ApplyButtonState(button);
+        }
+
+        private static void CaptureButtonState(Button button)
+        {
+            var hasCustomBackColor = button.BackColor != Color.Empty && button.BackColor != SystemColors.Control;
+            var enabledBackColor = hasCustomBackColor ? button.BackColor : AccentColor;
+            var enabledForeColor = button.ForeColor != Color.Empty && button.ForeColor != SystemColors.ControlText
+                ? button.ForeColor
+                : GetReadableTextColor(enabledBackColor);
+
+            if (ButtonStates.ContainsKey(button))
+            {
+                ButtonStates[button] = new ButtonThemeState(enabledBackColor, enabledForeColor);
+                return;
+            }
+
+            ButtonStates.Add(button, new ButtonThemeState(enabledBackColor, enabledForeColor));
+        }
+
+        private static void Button_Disposed(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+                ButtonStates.Remove(button);
         }
 
         private static void Button_EnabledChanged(object sender, EventArgs e)
@@ -84,10 +118,19 @@ namespace SapSpcWinForms.Utils
 
         private static void ApplyButtonState(Button button)
         {
+            if (button == null)
+                return;
+
+            if (!ButtonStates.TryGetValue(button, out var state))
+            {
+                state = new ButtonThemeState(AccentColor, GetReadableTextColor(AccentColor));
+                ButtonStates[button] = state;
+            }
+
             if (button.Enabled)
             {
-                button.BackColor = AccentColor;
-                button.ForeColor = Color.White;
+                button.BackColor = state.EnabledBackColor;
+                button.ForeColor = state.EnabledForeColor;
                 button.Cursor = Cursors.Hand;
             }
             else
@@ -96,6 +139,24 @@ namespace SapSpcWinForms.Utils
                 button.ForeColor = DisabledForeColor;
                 button.Cursor = Cursors.Default;
             }
+        }
+
+        private static Color GetReadableTextColor(Color background)
+        {
+            var luminance = (0.299 * background.R) + (0.587 * background.G) + (0.114 * background.B);
+            return luminance >= 150 ? Color.FromArgb(24, 36, 48) : Color.White;
+        }
+
+        private struct ButtonThemeState
+        {
+            public ButtonThemeState(Color enabledBackColor, Color enabledForeColor)
+            {
+                EnabledBackColor = enabledBackColor;
+                EnabledForeColor = enabledForeColor;
+            }
+
+            public Color EnabledBackColor { get; }
+            public Color EnabledForeColor { get; }
         }
     }
 }
