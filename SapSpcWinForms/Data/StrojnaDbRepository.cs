@@ -132,6 +132,32 @@ namespace SapSpcWinForms.Data
             }
         }
 
+        public static string GetComForPostOrEmpty(int stpost)
+        {
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+
+                using (var conn = new OleDbConnection(connStr))
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT TOP 1 com FROM postaje WHERE stpost = ?";
+                    cmd.Parameters.AddWithValue("@p1", stpost);
+
+                    conn.Open();
+                    var v = cmd.ExecuteScalar();
+                    if (v == null || v == DBNull.Value)
+                        return "";
+
+                    return v.ToString();
+                }
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         public static bool PreveriKodoDelphiLike(string kd, int idpost)
         {
             string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;

@@ -58,10 +58,7 @@ namespace SapSpcWinForms
 
         private bool _testInputRunning = false;
         private Button _testInputButton;
-        private const string TEST_INPUT_PORT = "COM8";
-        private const int TEST_INPUT_BAUD = 9600;
-        private const string PRENOS_PORT = "COM8";
-        private const int PRENOS_BAUD = 9600;
+        private const int COM_BAUD = 9600;
 
         // Prenos s stopalko runtime state
         private System.Threading.CancellationTokenSource _prenosStopalkaCts;
@@ -1311,8 +1308,10 @@ namespace SapSpcWinForms
                     btn.Text = "Test Input (èakam...)";
                 }
 
+                string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
+
                 // Read one fresh frame after click (caliper sends when you press it)
-                string raw = await Task.Run(() => AppUtils.ReadOneFrameFromCom(TEST_INPUT_PORT, TEST_INPUT_BAUD, TimeSpan.FromSeconds(30)));
+                string raw = await Task.Run(() => AppUtils.ReadOneFrameFromCom(comPort, COM_BAUD, TimeSpan.FromSeconds(30)));
 
                 if (string.IsNullOrWhiteSpace(raw))
                 {
@@ -1480,9 +1479,12 @@ namespace SapSpcWinForms
             _prenosStopalkaCts?.Dispose();
             _prenosStopalkaCts = new System.Threading.CancellationTokenSource();
 
+            int rowIndex = cell.RowIndex;
+            string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(rowIndex), _currentStPost);
+
             try
             {
-                _prenosStopalkaPort = new SerialPort(PRENOS_PORT, PRENOS_BAUD, Parity.None, 8, StopBits.One)
+                _prenosStopalkaPort = new SerialPort(comPort, COM_BAUD, Parity.None, 8, StopBits.One)
                 {
                     Handshake = Handshake.None,
                     DtrEnable = true,
@@ -1579,6 +1581,14 @@ namespace SapSpcWinForms
             {
                 System.Threading.Interlocked.Exchange(ref _prenosBusy, 0);
             }
+        }
+
+        private string GetRowComValue(int rowIndex)
+        {
+            if (KaraktiGrid == null || rowIndex < 0 || rowIndex >= KaraktiGrid.Rows.Count || !KaraktiGrid.Columns.Contains("COM"))
+                return "";
+
+            return KaraktiGrid.Rows[rowIndex].Cells["COM"]?.Value?.ToString() ?? "";
         }
 
         // Programmatic docking layout for responsive UI
