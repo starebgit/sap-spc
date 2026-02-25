@@ -829,7 +829,7 @@ namespace SapSpcWinForms
             UpdateDodIzborVisibility((kdRaw ?? "").Trim());
 
             //UpdateDodIzborVisibility(kd); // Show/hide DodIzbor like Delphi
-            var srz = StrojnaDbRepository.GetSarzaForKoda(kd, _currentStPost.Value);
+            var srz = ResolveLocalSarzaDelphiLike(kd, _currentStPost.Value);
 
             _currentKodaClean = kd;
             _currentSarza = srz;
@@ -952,6 +952,25 @@ namespace SapSpcWinForms
             }
             UpdateGrafButtonEnabled();
             ApplyDefaultKanalFromFirstRow();
+        }
+
+        private string ResolveLocalSarzaDelphiLike(string kd, int idpost)
+        {
+            try
+            {
+                var localSarze = StrojnaDbRepository.GetSarzeForKodaDelphiLike(kd, idpost);
+                foreach (var s in localSarze)
+                {
+                    if (_sap.PreveriSar(s))
+                        return s;
+                }
+            }
+            catch
+            {
+                // keep Delphi behavior: if local validation path fails, caller falls back to SAP fetch.
+            }
+
+            return null;
         }
 
         private void ClearCharacteristicGrids()

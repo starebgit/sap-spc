@@ -210,25 +210,36 @@ namespace SapSpcWinForms.Data
             return list;
         }
 
-        public static string GetSarzaForKoda(string kd, int idpost)
+        public static List<string> GetSarzeForKodaDelphiLike(string kd, int idpost)
         {
+            var list = new List<string>();
             string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
             using (var conn = new OleDbConnection(connStr))
             using (var cmd = conn.CreateCommand())
             {
                 cmd.CommandText =
-                    "SELECT TOP 1 [sarza] " +
+                    "SELECT [sarza] " +
                     "FROM [konsar] " +
-                    "WHERE [koda] = ? AND [idpost] = ? AND ( [koncan] IS NULL OR [koncan] <> 'Y' ) " +
+                    "WHERE [koda] = ? AND [idpost] = ? " +
+                    "  AND ( [koncan] IS NULL OR ( [koncan] <> 'Y' AND [koncan] <> 'X' ) ) " +
                     "ORDER BY [ident] DESC";
 
                 cmd.Parameters.AddWithValue("@p1", kd);
                 cmd.Parameters.AddWithValue("@p2", idpost);
 
                 conn.Open();
-                var val = cmd.ExecuteScalar();
-                return val == null || val == DBNull.Value ? null : val.ToString();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r != null && r.Read())
+                    {
+                        var srz = r["sarza"] == DBNull.Value ? "" : r["sarza"].ToString().Trim();
+                        if (!string.IsNullOrWhiteSpace(srz))
+                            list.Add(srz);
+                    }
+                }
             }
+
+            return list;
         }
 
         public static DataTable GetKonplanRowsForSarza(string srz, int idpost)

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 
 using SapSpcWinForms.Services;
+using SapSpcWinForms.Data;
 
 namespace SapSpcWinForms
 {
@@ -883,7 +884,7 @@ namespace SapSpcWinForms
 
             using (var f = new VpisKodeForm(
                 presetKoda: "",
-                loadSarze: (kd, preve) => _sap.GetKonsarza(kd, new DateTime(2019, 1, 1), preve),
+                loadSarze: (kd, preve) => _sap.GetKonsarza(kd, new DateTime(2019, 1, 1), preve, GetKtexForCurrentPostaja()),
                 insertKonsar: InsertKonsarRow,
                 ensureKonplan: EnsureKonplanFromSap,
                 onAdded: newIdent => RefreshAfterInsert(newIdent)
@@ -903,7 +904,7 @@ namespace SapSpcWinForms
 
             using (var f = new VpisKodeForm(
                 presetKoda: kd,
-                loadSarze: (k, preve) => _sap.GetKonsarza(k, new DateTime(2019, 1, 1), preve),
+                loadSarze: (k, preve) => _sap.GetKonsarza(k, new DateTime(2019, 1, 1), preve, GetKtexForCurrentPostaja()),
                 insertKonsar: InsertKonsarRow,
                 ensureKonplan: EnsureKonplanFromSap,
                 onAdded: newIdent => RefreshAfterInsert(newIdent)
@@ -911,6 +912,15 @@ namespace SapSpcWinForms
             {
                 f.ShowDialog(this);
             }
+        }
+
+
+        private string GetKtexForCurrentPostaja()
+        {
+            if (!_stPost.HasValue || _stPost.Value <= 0)
+                return "";
+
+            return StrojnaDbRepository.GetImeKTFromPostajeOrEmpty(_stPost.Value);
         }
 
         private void RefreshAfterInsert(int newIdent)
