@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
+using SapSpcWinForms.Data;
 using System.Data.OleDb;
 using System.Globalization;
 using SAP.Middleware.Connector;
