@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.OleDb;
 using System.Globalization;
 using SAP.Middleware.Connector;
 
@@ -217,6 +220,166 @@ namespace SapSpcWinForms
             }
 
             return result;
+        }
+
+
+
+        public bool TryFetchSarzaFromSapAndCache(string kd, int idpost, out string srz, out string error)
+        {
+            srz = null;
+            error = null;
+
+            try
+            {
+                var sarze = GetKonsarza(kd, new DateTime(2018, 1, 1), true) ?? new List<string>();
+
+                if (sarze.Count != 1)
+                {
+                    error = "Izbrana koda nima kontrolne are.\nProsim kontaktiraj administratorja programa.";
+                    return false;
+                }
+
+                srz = (sarze[0] ?? "").Trim();
+                if (string.IsNullOrWhiteSpace(srz))
+                {
+                    error = "SAP je vrnil neveljavno kontrolno aro.";
+                    return false;
+                }
+
+                var idsar = InsertKonsarFromFallback(kd, srz, idpost);
+                if (idsar <= 0)
+                {
+                    error = "Neuspeen zapis kontrolne are v lokalno bazo.";
+                    return false;
+                }
+
+                ImportKonplanFromSap(idsar, srz, idpost);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = "Napaka pri prenosu kontrolne are iz SAP:\n" + ex.Message;
+                return false;
+            }
+        }
+
+        private int InsertKonsarFromFallback(string kd, string srz, int idpost)
+        {
+            const int defaultIntervalDiffMinutes = 120;
+            const int defaultIntervalTrajMinutes = 15;
+
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+
+            using (var conn = new OleDbConnection(connStr))
+            {
+                conn.Open();
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "INSERT INTO konsar (koda, sarza, idpost, merdiff, mertraj, koncan) VALUES (?,?,?,?,?,?)";
+
+                    cmd.Parameters.AddWithValue("@p1", kd ?? "");
+                    cmd.Parameters.AddWithValue("@p2", srz ?? "");
+                    cmd.Parameters.AddWithValue("@p3", idpost);
+                    cmd.Parameters.AddWithValue("@p4", defaultIntervalDiffMinutes);
+                    cmd.Parameters.AddWithValue("@p5", defaultIntervalTrajMinutes);
+                    cmd.Parameters.AddWithValue("@p6", "");
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                using (var idCmd = conn.CreateCommand())
+                {
+                    idCmd.CommandText = "SELECT @@IDENTITY";
+                    return Convert.ToInt32(idCmd.ExecuteScalar());
+                }
+            }
+        }
+
+        private void ImportKonplanFromSap(int idsar, string srz, int idpost)
+        {
+            var (variabilne, atributivne) = GetKarakt("", srz);
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+
+            using (var conn = new OleDbConnection(connStr))
+            {
+                conn.Open();
+
+                foreach (var p in variabilne ?? new List<SapKaraktVar>())
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText =
+                            "INSERT INTO konplan (idsar, tip, pozicija, naziv, predpis, spmeja, zgmeja, kanal, stvz, stkanal, operacija) " +
+                            "VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+                        cmd.Parameters.AddWithValue("@p1", idsar);
+                        cmd.Parameters.AddWithValue("@p2", 1);
+                        cmd.Parameters.AddWithValue("@p3", p?.poz ?? "");
+                        cmd.Parameters.AddWithValue("@p4", p?.naziv ?? "");
+                        cmd.Parameters.AddWithValue("@p5", ParseDoubleOrDefault(p?.predpis, 0));
+                        cmd.Parameters.AddWithValue("@p6", ParseNullableDoubleOrDbNull(p?.spmeja));
+                        cmd.Parameters.AddWithValue("@p7", ParseNullableDoubleOrDbNull(p?.zgmeja));
+                        cmd.Parameters.AddWithValue("@p8", p?.metoda ?? "");
+                        cmd.Parameters.AddWithValue("@p9", p?.stevVz ?? 1);
+                        cmd.Parameters.AddWithValue("@p10", GetStKanalForMetoda(conn, idpost, p?.metoda));
+                        cmd.Parameters.AddWithValue("@p11", p?.operac ?? "0010");
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                foreach (var p in atributivne ?? new List<SapAtribVar>())
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText =
+                            "INSERT INTO konplan (idsar, tip, pozicija, naziv, stvz, operacija) VALUES (?,?,?,?,?,?)";
+
+                        cmd.Parameters.AddWithValue("@p1", idsar);
+                        cmd.Parameters.AddWithValue("@p2", 2);
+                        cmd.Parameters.AddWithValue("@p3", p?.poz ?? "");
+                        cmd.Parameters.AddWithValue("@p4", p?.naziv ?? "");
+                        cmd.Parameters.AddWithValue("@p5", p?.stevVz ?? 1);
+                        cmd.Parameters.AddWithValue("@p6", p?.operac ?? "0010");
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+        }
+
+        private int GetStKanalForMetoda(OleDbConnection conn, int idpost, string metoda)
+        {
+            if (conn == null || string.IsNullOrWhiteSpace(metoda)) return 0;
+
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT TOP 1 kanal FROM metode WHERE idpost = ? AND metoda = ?";
+                cmd.Parameters.AddWithValue("@p1", idpost);
+                cmd.Parameters.AddWithValue("@p2", metoda);
+
+                var v = cmd.ExecuteScalar();
+                if (v == null || v == DBNull.Value) return 0;
+                return int.TryParse(v.ToString(), out var kanal) ? kanal : 0;
+            }
+        }
+
+        private static double ParseDoubleOrDefault(string value, double fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return fallback;
+            return double.TryParse(value.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var d)
+                ? d
+                : fallback;
+        }
+
+        private static object ParseNullableDoubleOrDbNull(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return DBNull.Value;
+            return double.TryParse(value.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out var d)
+                ? (object)d
+                : DBNull.Value;
         }
 
         // Delphi: SarzaKontrol(tab)
