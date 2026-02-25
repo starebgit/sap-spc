@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using SapSpcWinForms.Data;
 using SapSpcWinForms.Utils;
 using SapSpcWinForms.Forms;
@@ -1856,7 +1857,7 @@ namespace SapSpcWinForms
                 var sap = new global::SapSpcWinForms.SapService();
 
                 // odl/orod: keep empty for now (same as your current payload)
-                var (ok, msg) = sap.Zapis(
+                var (ok, _) = sap.Zapis(
                     srz: p.Sarza,
                     opr: p.Operacija,
                     nazivp: p.NazivKT,
@@ -1868,14 +1869,10 @@ namespace SapSpcWinForms
                     evalList: evalList
                 );
 
-                var sapCheckText =
-                    $"SAP {(ok ? "OK" : "NAPAKA")}\n\n" +
-                    $"Kontrolna ara (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
-                    $"Operacija: {p.Operacija}\n" +
-                    $"Merilno mesto: {_currentMestoOpis}\n" +
-                    $"Merilec: {p.Merilec}\n\n" +
-                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporoèilo: " + msg + "\n\n"))}" +
-                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno aro -> pojdi na 'Rezultati / Zapis meritev'.";
+                var sapServer = ResolveSapServerLabel();
+                var sapCheckText = ok
+                    ? $"SAP write was successful.\nServer: {sapServer}"
+                    : $"SAP write was unsuccessful.\nServer: {sapServer}";
 
                 try { Clipboard.SetText(p.Sarza ?? ""); } catch { /* ignore */ }
 
@@ -1900,6 +1897,16 @@ namespace SapSpcWinForms
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private static string ResolveSapServerLabel()
+        {
+            var host = (SapSession.GetActivePrijava()?.Streznik ?? string.Empty).Trim();
+            if (host.Length == 0)
+                return "Unknown";
+
+            var shortName = Regex.Match(host.ToUpperInvariant(), @"[A-Z]\d[A-Z]");
+            return shortName.Success ? shortName.Value : host;
         }
 
         private void ZapisSemaforOnSapClick()
