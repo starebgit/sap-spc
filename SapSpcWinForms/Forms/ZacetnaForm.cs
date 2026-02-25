@@ -410,6 +410,9 @@ namespace SapSpcWinForms
         private void ApplyModernVisualStyle()
         {
             BackColor = Color.FromArgb(236, 243, 248);
+            if (_leftContent != null)
+                _leftContent.BackColor = BackColor;
+
             topPanel.BackColor = _panelBackground;
             rightPanel.BackColor = Color.WhiteSmoke;
             rightPanel.Padding = new Padding(8, 4, 8, 8);
@@ -448,10 +451,11 @@ namespace SapSpcWinForms
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             button.Height = Math.Max(button.Height, 38);
             button.Width = 196;
-            button.Padding = new Padding(8, 6, 8, 6);
+            button.Padding = new Padding(6);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
-            StyleButtonIcon(button, SystemIcons.Shield);
+            button.Image = null;
+            button.TextAlign = ContentAlignment.MiddleCenter;
 
             button.EnabledChanged -= ActionButton_EnabledChanged;
             button.EnabledChanged += ActionButton_EnabledChanged;
@@ -472,39 +476,16 @@ namespace SapSpcWinForms
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             button.Height = Math.Max(button.Height, 38);
             button.Width = 196;
-            button.Padding = new Padding(8, 6, 8, 6);
+            button.Padding = new Padding(6);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
-
-            if (button == TransferButton)
-                StyleButtonIcon(button, SystemIcons.Information);
-            else if (button == TransferWithPedalButton)
-                StyleButtonIcon(button, SystemIcons.WinLogo);
-            else if (button == PrekinButton)
-                StyleButtonIcon(button, SystemIcons.Error);
-            else if (button == MeritveButton)
-                StyleButtonIcon(button, SystemIcons.Application);
-            else if (button == LegendaSideButton)
-                StyleButtonIcon(button, SystemIcons.Question);
-            else if (button == SemaforSideButton)
-                StyleButtonIcon(button, SystemIcons.Warning);
-            else if (button == GrafButton)
-                StyleButtonIcon(button, SystemIcons.Asterisk);
+            button.Image = null;
+            button.TextAlign = ContentAlignment.MiddleCenter;
 
             button.EnabledChanged -= ActionButton_EnabledChanged;
             button.EnabledChanged += ActionButton_EnabledChanged;
             WireButtonInteractionHandlers(button);
             ApplyActionButtonState(button);
-        }
-
-        private void StyleButtonIcon(Button button, Icon icon)
-        {
-            if (button == null || icon == null)
-                return;
-
-            button.Image = new Bitmap(icon.ToBitmap(), new Size(16, 16));
-            button.ImageAlign = ContentAlignment.MiddleLeft;
-            button.TextImageRelation = TextImageRelation.ImageBeforeText;
         }
 
         private void WireButtonInteractionHandlers(Button button)
