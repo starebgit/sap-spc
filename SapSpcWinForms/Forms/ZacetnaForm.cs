@@ -88,7 +88,7 @@ namespace SapSpcWinForms
         private Panel _variablePanel;
         private Panel _attributePanel;
         private readonly Color _accentColor = Color.FromArgb(0, 96, 160);
-        private readonly Color _panelBackground = Color.FromArgb(241, 247, 252);
+        private readonly Color _panelBackground = Color.FromArgb(233, 242, 250);
         private readonly Color _primaryHoverColor = Color.FromArgb(0, 114, 188);
         private readonly Color _primaryPressedColor = Color.FromArgb(0, 78, 131);
         private readonly Color _secondaryHoverColor = Color.FromArgb(239, 247, 255);
@@ -417,7 +417,7 @@ namespace SapSpcWinForms
             rightPanel.BackColor = Color.WhiteSmoke;
             rightPanel.Padding = new Padding(8, 4, 8, 8);
 
-            StyleCardPanel(topPanel);
+            StyleCardPanel(topPanel, keepPanelBackground: true);
             StyleCardPanel(_variablePanel);
             StyleCardPanel(_attributePanel);
 
@@ -599,12 +599,14 @@ namespace SapSpcWinForms
             }
         }
 
-        private void StyleCardPanel(Panel panel)
+        private void StyleCardPanel(Panel panel, bool keepPanelBackground = false)
         {
             if (panel == null)
                 return;
 
-            panel.BackColor = Color.White;
+            if (!keepPanelBackground)
+                panel.BackColor = Color.White;
+
             panel.Paint -= CardPanel_Paint;
             panel.Paint += CardPanel_Paint;
         }
@@ -630,7 +632,7 @@ namespace SapSpcWinForms
             if (listBox == null)
                 return;
 
-            listBox.BorderStyle = BorderStyle.None;
+            listBox.BorderStyle = BorderStyle.FixedSingle;
             listBox.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
             listBox.IntegralHeight = false;
             listBox.BackColor = Color.White;
