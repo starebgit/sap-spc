@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using SapSpcWinForms.Data;
 using SapSpcWinForms.Utils;
 using SapSpcWinForms.Forms;
@@ -1856,7 +1857,7 @@ namespace SapSpcWinForms
                 var sap = new global::SapSpcWinForms.SapService();
 
                 // odl/orod: keep empty for now (same as your current payload)
-                var (ok, msg) = sap.Zapis(
+                var (ok, _) = sap.Zapis(
                     srz: p.Sarza,
                     opr: p.Operacija,
                     nazivp: p.NazivKT,
@@ -1900,6 +1901,16 @@ namespace SapSpcWinForms
             {
                 Cursor.Current = Cursors.Default;
             }
+        }
+
+        private static string ResolveSapServerLabel()
+        {
+            var host = (SapSession.GetActivePrijava()?.Streznik ?? string.Empty).Trim();
+            if (host.Length == 0)
+                return "Unknown";
+
+            var shortName = Regex.Match(host.ToUpperInvariant(), @"[A-Z]\d[A-Z]");
+            return shortName.Success ? shortName.Value : host;
         }
 
         private void ZapisSemaforOnSapClick()
