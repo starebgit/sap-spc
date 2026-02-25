@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -16,6 +17,7 @@ namespace SapSpcWinForms
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            TranslationService.InitializeFromSettings();
             // start the new ZacetnaForm instead of original Form1 for the WPF port
             Application.Run(new ZacetnaForm());
         }

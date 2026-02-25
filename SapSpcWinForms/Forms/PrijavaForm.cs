@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -21,7 +22,7 @@ namespace SapSpcWinForms
 
         public PrijavaForm()
         {
-            Text = "SAP Prijave";
+            Text = TranslationService.Translate("PrijavaForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -36,7 +37,7 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = "SAP prijave (logini)",
+                Text = TranslationService.Translate("PrijavaForm.Header"),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -70,7 +71,7 @@ namespace SapSpcWinForms
                 {
                     Dock = DockStyle.Left,
                     Width = 160,
-                    Text = "+ Nov vpis",
+                    Text = TranslationService.Translate("PrijavaForm.NewEntryButton"),
                     BackColor = Color.FromArgb(46, 204, 113),
                     ForeColor = Color.White,
                     FlatStyle = FlatStyle.Flat,
@@ -83,7 +84,7 @@ namespace SapSpcWinForms
                 {
                     Dock = DockStyle.Right,
                     Width = 160,
-                    Text = "Izberi prijavo",
+                    Text = TranslationService.Translate("PrijavaForm.SelectLoginButton"),
                     BackColor = Color.FromArgb(41, 128, 185),
                     ForeColor = Color.White,
                     FlatStyle = FlatStyle.Flat,
@@ -125,21 +126,21 @@ namespace SapSpcWinForms
             if (_grid.Columns.Contains("ident"))
                 _grid.Columns["ident"].Visible = false;
             if (_grid.Columns.Contains("uporab"))
-                _grid.Columns["uporab"].HeaderText = "Uporabnik";
+                _grid.Columns["uporab"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Uporabnik");
             if (_grid.Columns.Contains("sistem"))
-                _grid.Columns["sistem"].HeaderText = "Sistem";
+                _grid.Columns["sistem"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Sistem");
             if (_grid.Columns.Contains("client"))
-                _grid.Columns["client"].HeaderText = "Client";
+                _grid.Columns["client"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Client");
             if (_grid.Columns.Contains("streznik"))
-                _grid.Columns["streznik"].HeaderText = "Strežnik";
+                _grid.Columns["streznik"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Streznik");
             if (_grid.Columns.Contains("sysnnum"))
-                _grid.Columns["sysnnum"].HeaderText = "Št. sistema";
+                _grid.Columns["sysnnum"].HeaderText = TranslationService.Translate("PrijavaForm.Col.SysNum");
             if (_grid.Columns.Contains("pass"))
-                _grid.Columns["pass"].HeaderText = "Geslo";
+                _grid.Columns["pass"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Geslo");
             if (_grid.Columns.Contains("jezik"))
-                _grid.Columns["jezik"].HeaderText = "Jezik";
+                _grid.Columns["jezik"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Jezik");
             if (_grid.Columns.Contains("glavni"))
-                _grid.Columns["glavni"].HeaderText = "Privzeta";
+                _grid.Columns["glavni"].HeaderText = TranslationService.Translate("PrijavaForm.Col.Privzeta");
         }
 
         private void Grid_SelectionChanged(object sender, EventArgs e)
@@ -184,7 +185,7 @@ namespace SapSpcWinForms
         {
             if (!_selectedId.HasValue)
             {
-                MessageBox.Show("Najprej izberite prijavo.", "Izbor prijave",
+                MessageBox.Show(TranslationService.Translate("PrijavaForm.SelectFirstMessage"), TranslationService.Translate("PrijavaForm.SelectTitle"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -219,7 +220,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message, "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("PrijavaForm.SaveError") + "\n" + ex.Message, TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -231,7 +232,7 @@ namespace SapSpcWinForms
             private Button _btnOk, _btnCancel;
             public NovaPrijavaDialog()
             {
-                Text = "Nov SAP vpis";
+                Text = TranslationService.Translate("PrijavaForm.NewDialog.Text");
                 FormBorderStyle = FormBorderStyle.FixedDialog;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = false;
@@ -253,28 +254,28 @@ namespace SapSpcWinForms
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
                 int r = 0;
-                grid.Controls.Add(new Label { Text = "Sistem", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Sistem"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbSistem = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbSistem, 1, r++);
-                grid.Controls.Add(new Label { Text = "Client", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Client"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbClient = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbClient, 1, r++);
-                grid.Controls.Add(new Label { Text = "Strežnik", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Streznik"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbStreznik = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbStreznik, 1, r++);
-                grid.Controls.Add(new Label { Text = "Št. sistema", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.SysNum"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbSysnnum = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbSysnnum, 1, r++);
-                grid.Controls.Add(new Label { Text = "Uporabnik", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Uporabnik"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbUporabnik = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbUporabnik, 1, r++);
-                grid.Controls.Add(new Label { Text = "Geslo", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Geslo"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbGeslo = new TextBox { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
                 grid.Controls.Add(_tbGeslo, 1, r++);
-                grid.Controls.Add(new Label { Text = "Jezik", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Jezik"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbJezik = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbJezik, 1, r++);
-                grid.Controls.Add(new Label { Text = "Privzeta", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("PrijavaForm.Col.Privzeta"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _cbPrivzeta = new CheckBox { Dock = DockStyle.Left };
                 grid.Controls.Add(_cbPrivzeta, 1, r++);
                 var buttons = new FlowLayoutPanel
@@ -284,8 +285,8 @@ namespace SapSpcWinForms
                     Padding = new Padding(12),
                     Height = 52
                 };
-                _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "Preklièi", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+                _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);

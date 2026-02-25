@@ -120,6 +120,7 @@
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\SapPrijavaRepository.cs" />
     <Compile Include="Services\SapSession.cs" />
+    <Compile Include="Services\TranslationService.cs" />
     <Compile Include="Forms\SemaforForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -157,6 +158,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.de.resx">
+      <DependentUpon>Resources.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.en.resx">
+      <DependentUpon>Resources.resx</DependentUpon>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
