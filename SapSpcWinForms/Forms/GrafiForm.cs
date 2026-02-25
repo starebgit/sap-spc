@@ -187,24 +187,17 @@ namespace SapSpcWinForms
                 // Use double precision step so dense series can still fit in the graph width.
                 double korak = req.Points.Count > 1 ? (double)availableWidth / (req.Points.Count - 1) : availableWidth;
 
-                int stvz = req.StVz <= 0 ? 1 : req.StVz;
                 int iy = 0;
                 int z2 = zy / 2;
 
-                // Use a smaller font for axis labels
-                using (var smallFont = new Font(Font.FontFamily, 7f))
+                // Use a 10% smaller font for dense axis labels.
+                using (var smallFont = new Font(Font.FontFamily, 6.3f))
                 {
                     // Show vertical guides for more visible data points than labels.
                     int verticalLineStep = 1;
                     if (req.Points.Count > 80)
                         verticalLineStep = req.Points.Count / 40; // keep up to ~40 guide lines
                     if (verticalLineStep < 1) verticalLineStep = 1;
-
-                    // Show only every Nth label, but always first and last
-                    int labelStep = 1;
-                    if (req.Points.Count > 20)
-                        labelStep = req.Points.Count / 8; // show about 8 labels max
-                    if (labelStep < 1) labelStep = 1;
 
                     for (int ii = 0; ii < req.Points.Count; ii++)
                     {
@@ -234,20 +227,15 @@ namespace SapSpcWinForms
                             }
                         }
 
-                        // Always show first and last label, otherwise every labelStep
-                        bool showLabel = (ii == 0) || (ii == req.Points.Count - 1) || (ii % labelStep == 0 && stvz > 0 && (ii % stvz == 0));
-                        if (showLabel)
-                        {
-                            var dt = req.Points[ii].When;
+                        var dt = req.Points[ii].When;
 
-                            string tx = dt.ToString("HH:mm");
-                            int w = TextRenderer.MeasureText(tx, smallFont).Width;
-                            g.DrawString(tx, smallFont, Brushes.Black, x - w / 2, zy + 5);
+                        string tx = dt.ToString("HH:mm");
+                        int w = TextRenderer.MeasureText(tx, smallFont).Width;
+                        g.DrawString(tx, smallFont, Brushes.Black, x - w / 2, zy + 5);
 
-                            string dx = dt.ToString("dd.MM");
-                            int w2 = TextRenderer.MeasureText(dx, smallFont).Width;
-                            g.DrawString(dx, smallFont, Brushes.Black, x - w2 / 2, zy + 15);
-                        }
+                        string dx = dt.ToString("dd.MM");
+                        int w2 = TextRenderer.MeasureText(dx, smallFont).Width;
+                        g.DrawString(dx, smallFont, Brushes.Black, x - w2 / 2, zy + 14);
 
                         iy = ix;
                     }
