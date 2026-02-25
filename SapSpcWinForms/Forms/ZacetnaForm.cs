@@ -1175,9 +1175,9 @@ namespace SapSpcWinForms
             }
         }
 
-        private List<SemaforForm.SemaforRow> GetSemaforRows()
+        private List<SemaforRow> GetSemaforRows()
         {
-            var list = new List<SemaforForm.SemaforRow>();
+            var list = new List<SemaforRow>();
             int n = machinesList.Items.Count;
             for (int i = 1; i <= n; i++)
             {
@@ -1186,7 +1186,7 @@ namespace SapSpcWinForms
                 int diff = _diffByIndex.TryGetValue(i, out var d) ? d : DefaultIntervalDiffMinutes;
                 var acas = _acasByIndex.TryGetValue(i, out var t) ? t : TimeSpan.Zero;
                 var baseDt = DateTime.Today.Add(acas);
-                list.Add(new SemaforForm.SemaforRow
+                list.Add(new SemaforRow
                 {
                     Naziv = naziv,
                     Status = status,
@@ -1297,7 +1297,7 @@ namespace SapSpcWinForms
                 return;
             }
 
-            var requests = new List<GrafiForm.GrafRequest>();
+            var requests = new List<GrafRequest>();
 
             foreach (var r in checkedRows)
             {
@@ -1317,7 +1317,7 @@ namespace SapSpcWinForms
 
                 AppUtils.ComputeStats(points.Select(p => p.Value).ToList(), out double avr, out double std);
 
-                requests.Add(new GrafiForm.GrafRequest
+                requests.Add(new GrafRequest
                 {
                     Title = $"{karakt} - {naziv}",
                     StVz = stvz,
