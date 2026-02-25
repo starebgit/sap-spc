@@ -5,6 +5,7 @@ using System.Data.OleDb;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -29,7 +30,7 @@ namespace SapSpcWinForms
             _isAdmin = isAdmin;
             _merilnoMestoOpis = merilnoMestoOpis;
             InitializeComponent();
-            Text = "Merilna mesta";
+            Text = TranslationService.Translate("MerilnaMestaForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -44,7 +45,11 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = $"Merilno mesto: {(string.IsNullOrWhiteSpace(_merilnoMestoOpis) ? "(ni izbranega)" : _merilnoMestoOpis)}",
+                Text = string.Format(
+                    TranslationService.Translate("MerilnaMestaForm.Header"),
+                    string.IsNullOrWhiteSpace(_merilnoMestoOpis)
+                        ? TranslationService.Translate("MerilnaMestaForm.NoSelection")
+                        : _merilnoMestoOpis),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -80,7 +85,7 @@ namespace SapSpcWinForms
                 {
                     Dock = DockStyle.Fill,
                     Height = 40,
-                    Text = "+ Nova postaja",
+                    Text = TranslationService.Translate("MerilnaMestaForm.NewStationButton"),
                     Enabled = _isAdmin,
                     BackColor = Color.FromArgb(46, 204, 113),
                     ForeColor = Color.White,
@@ -109,7 +114,7 @@ namespace SapSpcWinForms
             var connString = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connString))
             {
-                MessageBox.Show("Manjka connection string 'StrojnaDb' v App.config.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.MissingConn"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
@@ -160,7 +165,7 @@ namespace SapSpcWinForms
                 {
                     Name = SelectColName,
                     HeaderText = "",
-                    Text = "Izberi",
+                    Text = TranslationService.Translate("MerilnaMestaForm.SelectButton"),
                     UseColumnTextForButtonValue = true,
                     Width = 70,
                     ReadOnly = true,
@@ -182,7 +187,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriši",
+                    Text = TranslationService.Translate("MerilnaMestaForm.DeleteButton"),
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -228,7 +233,7 @@ namespace SapSpcWinForms
                 if (row == null || row.IsNewRow) return;
                 var drv = row.DataBoundItem as DataRowView;
                 if (drv == null) return;
-                var res = MessageBox.Show("Ali zares želiš izbrisati izbrano merilno mesto?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var res = MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.DeletePrompt"), TranslationService.Translate("MerilnaMestaForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res != DialogResult.Yes) return;
                 drv.Row.Delete();
                 _adapter.Update(_table);
@@ -266,7 +271,7 @@ namespace SapSpcWinForms
             {
                 Dock = DockStyle.Fill,                 // full width
                 Height = 40,
-                Text = "+ Nova postaja",
+                Text = TranslationService.Translate("MerilnaMestaForm.NewStationButton"),
                 Enabled = _isAdmin,
                 BackColor = Color.FromArgb(46, 204, 113), // green
                 ForeColor = Color.White,
@@ -296,8 +301,8 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message,
-                    "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.SaveError") + "\n" + ex.Message,
+                    TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -355,8 +360,8 @@ namespace SapSpcWinForms
             if (_table.GetChanges() != null)
             {
                 var result = MessageBox.Show(
-                    "Shranim spremembe v tabeli postaje?",
-                    "Shrani",
+                    TranslationService.Translate("MerilnaMestaForm.SavePrompt"),
+                    TranslationService.Translate("MerilnaMestaForm.SaveTitle"),
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question);
 
@@ -384,7 +389,7 @@ namespace SapSpcWinForms
             if (row == null || row.IsNewRow) return;
             var drv = row.DataBoundItem as DataRowView;
             if (drv == null) return;
-            var res = MessageBox.Show("Ali zares želiš izbrisati izbrano merilno mesto?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var res = MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.DeletePrompt"), TranslationService.Translate("MerilnaMestaForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (res != DialogResult.Yes) return;
             drv.Row.Delete();
             SaveChanges();
@@ -396,8 +401,8 @@ namespace SapSpcWinForms
         {
             if (!_isAdmin)
             {
-                MessageBox.Show("Vpis merilnega mesta je dovoljen samo administratorju.",
-                    "Ni dovoljeno", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.AdminOnly"),
+                    TranslationService.Translate("MerilnaMestaForm.NotAllowedTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 

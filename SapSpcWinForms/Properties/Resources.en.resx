@@ -312,4 +312,58 @@
   <data name="whiteDescAttr.Text" xml:space="preserve">
     <value>Machine can continue working.</value>
   </data>
+  <data name="MerilnaMestaForm.Text" xml:space="preserve">
+    <value>Measurement stations</value>
+  </data>
+  <data name="MerilnaMestaForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}</value>
+  </data>
+  <data name="MerilnaMestaForm.NoSelection" xml:space="preserve">
+    <value>(none selected)</value>
+  </data>
+  <data name="MerilnaMestaForm.NewStationButton" xml:space="preserve">
+    <value>+ New station</value>
+  </data>
+  <data name="MerilnaMestaForm.MissingConn" xml:space="preserve">
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
+  </data>
+  <data name="MerilnaMestaForm.SelectButton" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="MerilnaMestaForm.DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MerilnaMestaForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete the selected measurement station?</value>
+  </data>
+  <data name="MerilnaMestaForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="MerilnaMestaForm.SaveError" xml:space="preserve">
+    <value>Error while saving changes:</value>
+  </data>
+  <data name="MerilnaMestaForm.SavePrompt" xml:space="preserve">
+    <value>Save changes to postaje table?</value>
+  </data>
+  <data name="MerilnaMestaForm.SaveTitle" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MerilnaMestaForm.AdminOnly" xml:space="preserve">
+    <value>Measurement station entry is allowed for administrators only.</value>
+  </data>
+  <data name="MerilnaMestaForm.NotAllowedTitle" xml:space="preserve">
+    <value>Not allowed</value>
+  </data>
+  <data name="SemaforForm.Text" xml:space="preserve">
+    <value>Semaphore</value>
+  </data>
+  <data name="SemaforForm.LateBy" xml:space="preserve">
+    <value>Measurement is late by</value>
+  </data>
+  <data name="SemaforForm.NextMeasurementIn" xml:space="preserve">
+    <value>Until next measurement</value>
+  </data>
+  <data name="SemaforForm.MachineNotActive" xml:space="preserve">
+    <value>Machine is not active</value>
+  </data>
 </root>
