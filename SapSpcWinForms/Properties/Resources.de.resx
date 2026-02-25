@@ -13,97 +13,97 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ZacetnaForm.Text" xml:space="preserve">
-    <value>Program merilnega mesta</value>
+    <value>Messstellenprogramm</value>
   </data>
   <data name="PrijavaAdminButton.Text" xml:space="preserve">
-    <value>Prijava admin</value>
+    <value>Admin Anmeldung</value>
   </data>
   <data name="PrijavljenLabel.Text" xml:space="preserve">
-    <value>Uporabnik</value>
+    <value>Benutzer</value>
   </data>
   <data name="TransferButton.Text" xml:space="preserve">
-    <value>Prenos meritev</value>
+    <value>Messwerte übertragen</value>
   </data>
   <data name="TransferWithPedalButton.Text" xml:space="preserve">
-    <value>Prenos s stopalko</value>
+    <value>Übertragung mit Pedal</value>
   </data>
   <data name="PrekinButton.Text" xml:space="preserve">
-    <value>Prekini</value>
+    <value>Abbrechen</value>
   </data>
   <data name="SAPButton.Text" xml:space="preserve">
-    <value>Prepis v SAP</value>
+    <value>In SAP übertragen</value>
   </data>
   <data name="MeritveButton.Text" xml:space="preserve">
-    <value>Meritve</value>
+    <value>Messungen</value>
   </data>
   <data name="LegendaSideButton.Text" xml:space="preserve">
-    <value>Legenda</value>
+    <value>Legende</value>
   </data>
   <data name="SemaforSideButton.Text" xml:space="preserve">
-    <value>Semafor</value>
+    <value>Ampel</value>
   </data>
   <data name="GrafButton.Text" xml:space="preserve">
-    <value>Grafi</value>
+    <value>Diagramme</value>
   </data>
   <data name="KonecSideButton.Text" xml:space="preserve">
-    <value>Konec</value>
+    <value>Beenden</value>
   </data>
   <data name="variabilneTitleLabel.Text" xml:space="preserve">
-    <value>Variabilne karakteristike</value>
+    <value>Variable Merkmale</value>
   </data>
   <data name="atributivneTitleLabel.Text" xml:space="preserve">
-    <value>Atributivne karakteristike</value>
+    <value>Attributive Merkmale</value>
   </data>
   <data name="bazaNaServerjuToolStripMenuItem.Text" xml:space="preserve">
-    <value>Baza na serverju</value>
+    <value>Serverdatenbank</value>
   </data>
   <data name="merilnaMestaServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Merilna mesta</value>
+    <value>Messstellen</value>
   </data>
   <data name="strojiServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Stroji</value>
+    <value>Maschinen</value>
   </data>
   <data name="merilneMetodeServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Merilne metode</value>
+    <value>Messmethoden</value>
   </data>
   <data name="ukrepiServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Ukrepi</value>
+    <value>Maßnahmen</value>
   </data>
   <data name="kontrolniPlaniServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Kontrolni plani</value>
+    <value>Kontrollpläne</value>
   </data>
   <data name="meritveServerToolStripMenuItem.Text" xml:space="preserve">
-    <value>Meritve</value>
+    <value>Messungen</value>
   </data>
   <data name="nastavitveToolStripMenuItem.Text" xml:space="preserve">
-    <value>Nastavitve</value>
+    <value>Einstellungen</value>
   </data>
   <data name="vpisStevKanalaToolStripMenuItem.Text" xml:space="preserve">
-    <value>Vpis št. kanala</value>
+    <value>Kanalnummer eingeben</value>
   </data>
   <data name="decimalkeToolStripMenuItem.Text" xml:space="preserve">
-    <value>Decimalke</value>
+    <value>Dezimalstellen</value>
   </data>
   <data name="beriMeritveSettingsToolStripMenuItem.Text" xml:space="preserve">
-    <value>Beri meritve</value>
+    <value>Messwerte lesen</value>
   </data>
   <data name="operacijeToolStripMenuItem.Text" xml:space="preserve">
-    <value>Operacije</value>
+    <value>Operationen</value>
   </data>
   <data name="dodatneKodeToolStripMenuItem.Text" xml:space="preserve">
-    <value>Dodatne kode</value>
+    <value>Zusatzcodes</value>
   </data>
   <data name="informacijeToolStripMenuItem.Text" xml:space="preserve">
-    <value>Informacije</value>
+    <value>Informationen</value>
   </data>
   <data name="merilaInfoToolStripMenuItem.Text" xml:space="preserve">
-    <value>Merila</value>
+    <value>Messmittel</value>
   </data>
   <data name="prijavaInfoToolStripMenuItem.Text" xml:space="preserve">
-    <value>Prijava</value>
+    <value>Anmeldung</value>
   </data>
   <data name="jezikiToolStripMenuItem.Text" xml:space="preserve">
-    <value>Jeziki</value>
+    <value>Sprachen</value>
   </data>
   <data name="sloLanguageToolStripMenuItem.Text" xml:space="preserve">
     <value>SLO</value>
@@ -115,201 +115,201 @@
     <value>EN</value>
   </data>
   <data name="merilnoMestoLabel.Text" xml:space="preserve">
-    <value>Merilno mesto:</value>
+    <value>Messstelle:</value>
   </data>
   <data name="operatorLabel.Text" xml:space="preserve">
-    <value>Operater:</value>
+    <value>Bediener:</value>
   </data>
   <data name="strojiLabel.Text" xml:space="preserve">
-    <value>Stroji</value>
+    <value>Maschinen</value>
   </data>
   <data name="kodaLabel.Text" xml:space="preserve">
-    <value>Koda</value>
+    <value>Code</value>
   </data>
   <data name="dodIzborLabel.Text" xml:space="preserve">
-    <value>Dodatna opredelitev:</value>
+    <value>Zusatzdefinition:</value>
   </data>
   <data name="AdminToggle.Login" xml:space="preserve">
-    <value>Admin prijava</value>
+    <value>Admin anmelden</value>
   </data>
   <data name="AdminToggle.Logout" xml:space="preserve">
-    <value>Admin odjava</value>
+    <value>Admin abmelden</value>
   </data>
   <data name="AdminToggle.TooltipLogin" xml:space="preserve">
-    <value>Prijava</value>
+    <value>Anmeldung</value>
   </data>
   <data name="AdminToggle.TooltipLogout" xml:space="preserve">
-    <value>Odjava</value>
+    <value>Abmelden</value>
   </data>
   <data name="Message.AdminPasswordIncorrect" xml:space="preserve">
-    <value>Geslo ni pravilno</value>
+    <value>Passwort ist nicht korrekt</value>
   </data>
   <data name="Message.LoginTitle" xml:space="preserve">
-    <value>Prijava</value>
+    <value>Anmeldung</value>
   </data>
   <data name="Message.CloseNotAllowed" xml:space="preserve">
-    <value>Zapiranje ni dovoljeno brez administratorske prijave.</value>
+    <value>Schließen ist ohne Administratoranmeldung nicht erlaubt.</value>
   </data>
   <data name="Message.NoticeTitle" xml:space="preserve">
-    <value>Obvestilo</value>
+    <value>Hinweis</value>
   </data>
   <data name="Common.ErrorTitle" xml:space="preserve">
-    <value>Napaka</value>
+    <value>Fehler</value>
   </data>
   <data name="Common.Ok" xml:space="preserve">
-    <value>V redu</value>
+    <value>OK</value>
   </data>
   <data name="Common.Cancel" xml:space="preserve">
-    <value>Prekliči</value>
+    <value>Abbrechen</value>
   </data>
   <data name="PrijavaForm.Text" xml:space="preserve">
-    <value>SAP prijave</value>
+    <value>SAP-Anmeldungen</value>
   </data>
   <data name="PrijavaForm.Header" xml:space="preserve">
-    <value>SAP prijave (logini)</value>
+    <value>SAP-Anmeldungen (Logins)</value>
   </data>
   <data name="PrijavaForm.NewEntryButton" xml:space="preserve">
-    <value>+ Nov vpis</value>
+    <value>+ Neuer Eintrag</value>
   </data>
   <data name="PrijavaForm.SelectLoginButton" xml:space="preserve">
-    <value>Izberi prijavo</value>
+    <value>Anmeldung wählen</value>
   </data>
   <data name="PrijavaForm.SelectFirstMessage" xml:space="preserve">
-    <value>Najprej izberite prijavo.</value>
+    <value>Wählen Sie zuerst eine Anmeldung aus.</value>
   </data>
   <data name="PrijavaForm.SelectTitle" xml:space="preserve">
-    <value>Izbor prijave</value>
+    <value>Anmeldung auswählen</value>
   </data>
   <data name="PrijavaForm.SaveError" xml:space="preserve">
-    <value>Napaka pri shranjevanju sprememb:</value>
+    <value>Fehler beim Speichern der Änderungen:</value>
   </data>
   <data name="PrijavaForm.NewDialog.Text" xml:space="preserve">
-    <value>Nov SAP vpis</value>
+    <value>Neuer SAP-Eintrag</value>
   </data>
   <data name="PrijavaForm.Col.Uporabnik" xml:space="preserve">
-    <value>Uporabnik</value>
+    <value>Benutzer</value>
   </data>
   <data name="PrijavaForm.Col.Sistem" xml:space="preserve">
-    <value>Sistem</value>
+    <value>System</value>
   </data>
   <data name="PrijavaForm.Col.Client" xml:space="preserve">
     <value>Client</value>
   </data>
   <data name="PrijavaForm.Col.Streznik" xml:space="preserve">
-    <value>Strežnik</value>
+    <value>Server</value>
   </data>
   <data name="PrijavaForm.Col.SysNum" xml:space="preserve">
-    <value>Št. sistema</value>
+    <value>System-Nr.</value>
   </data>
   <data name="PrijavaForm.Col.Geslo" xml:space="preserve">
-    <value>Geslo</value>
+    <value>Passwort</value>
   </data>
   <data name="PrijavaForm.Col.Jezik" xml:space="preserve">
-    <value>Jezik</value>
+    <value>Sprache</value>
   </data>
   <data name="PrijavaForm.Col.Privzeta" xml:space="preserve">
-    <value>Privzeta</value>
+    <value>Standard</value>
   </data>
   <data name="StrojiForm.Text" xml:space="preserve">
-    <value>Stroji</value>
+    <value>Maschinen</value>
   </data>
   <data name="StrojiForm.Header" xml:space="preserve">
-    <value>Merilno mesto: {0}</value>
+    <value>Messstelle: {0}</value>
   </data>
   <data name="StrojiForm.NewMachineButton" xml:space="preserve">
-    <value>+ Nov stroj</value>
+    <value>+ Neue Maschine</value>
   </data>
   <data name="StrojiForm.DeleteButton" xml:space="preserve">
-    <value>Izbriši</value>
+    <value>Löschen</value>
   </data>
   <data name="StrojiForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Verbindungszeichenfolge 'StrojnaDb' fehlt in App.config.</value>
   </data>
   <data name="StrojiForm.SaveError" xml:space="preserve">
-    <value>Napaka pri shranjevanju sprememb:</value>
+    <value>Fehler beim Speichern der Änderungen:</value>
   </data>
   <data name="StrojiForm.SavePrompt" xml:space="preserve">
-    <value>Shranim spremembe v tabeli stroji?</value>
+    <value>Änderungen in der Tabelle stroji speichern?</value>
   </data>
   <data name="StrojiForm.SaveTitle" xml:space="preserve">
-    <value>Shrani</value>
+    <value>Speichern</value>
   </data>
   <data name="StrojiForm.DeletePrompt" xml:space="preserve">
-    <value>Ali zares želiš izbrisati izbran stroj?</value>
+    <value>Ausgewählte Maschine wirklich löschen?</value>
   </data>
   <data name="StrojiForm.ConfirmTitle" xml:space="preserve">
-    <value>Potrditev</value>
+    <value>Bestätigung</value>
   </data>
   <data name="StrojiForm.AdminOnly" xml:space="preserve">
-    <value>Vpis stroja je dovoljen samo administratorju.</value>
+    <value>Das Eintragen von Maschinen ist nur für Administratoren erlaubt.</value>
   </data>
   <data name="StrojiForm.NotAllowedTitle" xml:space="preserve">
-    <value>Ni dovoljeno</value>
+    <value>Nicht erlaubt</value>
   </data>
   <data name="StrojiForm.NewDialog.Text" xml:space="preserve">
-    <value>Nov stroj</value>
+    <value>Neue Maschine</value>
   </data>
   <data name="StrojiForm.NewDialog.stPost" xml:space="preserve">
     <value>stPost</value>
   </data>
   <data name="StrojiForm.NewDialog.IdStroja" xml:space="preserve">
-    <value>ID stroja</value>
+    <value>Maschinen-ID</value>
   </data>
   <data name="StrojiForm.NewDialog.SifraStroja" xml:space="preserve">
-    <value>Šifra stroja</value>
+    <value>Maschinencode</value>
   </data>
   <data name="StrojiForm.NewDialog.Naziv" xml:space="preserve">
-    <value>Naziv</value>
+    <value>Bezeichnung</value>
   </data>
   <data name="StrojiForm.NewDialog.Koda" xml:space="preserve">
-    <value>Koda</value>
+    <value>Code</value>
   </data>
   <data name="StrojiForm.NewDialog.IdRequired" xml:space="preserve">
-    <value>ID stroja je obvezen.</value>
+    <value>Maschinen-ID ist erforderlich.</value>
   </data>
   <data name="StrojiForm.NewDialog.NazivRequired" xml:space="preserve">
-    <value>Naziv je obvezen.</value>
+    <value>Bezeichnung ist erforderlich.</value>
   </data>
   <data name="LegendaForm.Text" xml:space="preserve">
-    <value>Legenda</value>
+    <value>Legende</value>
   </data>
   <data name="CloseButton.Text" xml:space="preserve">
-    <value>Zapri</value>
+    <value>Schließen</value>
   </data>
   <data name="titleVarLabel.Text" xml:space="preserve">
-    <value>Variabilne karakteristike</value>
+    <value>Variable Merkmale</value>
   </data>
   <data name="titleAttrLabel.Text" xml:space="preserve">
-    <value>Atributivne karakteristike</value>
+    <value>Attributive Merkmale</value>
   </data>
   <data name="redLabelVar.Text" xml:space="preserve">
-    <value>Izven tolerance</value>
+    <value>Außerhalb der Toleranz</value>
   </data>
   <data name="yellowLabelVar.Text" xml:space="preserve">
-    <value>Izven kontrolnih meja</value>
+    <value>Außerhalb der Kontrollgrenzen</value>
   </data>
   <data name="whiteLabelVar.Text" xml:space="preserve">
-    <value>Normalna meritev</value>
+    <value>Normale Messung</value>
   </data>
   <data name="redDescVar.Text" xml:space="preserve">
-    <value>Stroj naj se nemudoma zaustavi! Izvede naj se ustrezni ukrep in ponovna meritev</value>
+    <value>Maschine sofort stoppen! Geeignete Maßnahme durchführen und erneut messen.</value>
   </data>
   <data name="yellowDescVar.Text" xml:space="preserve">
-    <value>Stroj lahko nadaljuje s delom. Izvede naj se ukrep in ponovna meritev</value>
+    <value>Maschine kann weiterlaufen. Maßnahme durchführen und erneut messen.</value>
   </data>
   <data name="whiteDescVar.Text" xml:space="preserve">
-    <value>Stroj lahko nadaljuje s delom.</value>
+    <value>Maschine kann weiterlaufen.</value>
   </data>
   <data name="redLabelAttr.Text" xml:space="preserve">
-    <value>Število slabih</value>
+    <value>Anzahl Ausschuss</value>
   </data>
   <data name="whiteLabelAttr.Text" xml:space="preserve">
-    <value>Vsi dobri</value>
+    <value>Alle gut</value>
   </data>
   <data name="redDescAttr.Text" xml:space="preserve">
-    <value>Stroj naj se nemudoma zaustavi! Izvede naj se ustrezni ukrep in ponovna meritev</value>
+    <value>Maschine sofort stoppen! Geeignete Maßnahme durchführen und erneut messen.</value>
   </data>
   <data name="whiteDescAttr.Text" xml:space="preserve">
-    <value>Stroj lahko nadaljuje s delom.</value>
+    <value>Maschine kann weiterlaufen.</value>
   </data>
 </root>

@@ -57,6 +57,10 @@ namespace SapSpcWinForms
             this.informacijeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.merilaInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.prijavaInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.jezikiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sloLanguageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deLanguageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.enLanguageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.adminToggleButton = new System.Windows.Forms.ToolStripButton();
             this.versionInfoLabel = new System.Windows.Forms.ToolStripLabel();
             this.variabilneTitleLabel = new System.Windows.Forms.Label();
@@ -316,6 +320,7 @@ namespace SapSpcWinForms
             this.nastavitveToolStripMenuItem,
             this.operacijeToolStripMenuItem,
             this.informacijeToolStripMenuItem,
+            this.jezikiToolStripMenuItem,
             this.adminToggleButton,
             this.versionInfoLabel});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
@@ -394,7 +399,7 @@ namespace SapSpcWinForms
             // 
             this.vpisStevKanalaToolStripMenuItem.Name = "vpisStevKanalaToolStripMenuItem";
             this.vpisStevKanalaToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
-            this.vpisStevKanalaToolStripMenuItem.Text = "Vpis št. kanala";
+            this.vpisStevKanalaToolStripMenuItem.Text = "Vpis Âšt. kanala";
             this.vpisStevKanalaToolStripMenuItem.Click += new System.EventHandler(this.VpisStevKanalaMenuItem_Click);
             // 
             // decimalkeToolStripMenuItem
@@ -448,6 +453,37 @@ namespace SapSpcWinForms
             this.prijavaInfoToolStripMenuItem.Size = new System.Drawing.Size(136, 26);
             this.prijavaInfoToolStripMenuItem.Text = "Prijava";
             this.prijavaInfoToolStripMenuItem.Click += new System.EventHandler(this.PrijavaInfoMenuItem_Click);
+            // 
+            // jezikiToolStripMenuItem
+            // 
+            this.jezikiToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sloLanguageToolStripMenuItem,
+            this.deLanguageToolStripMenuItem,
+            this.enLanguageToolStripMenuItem});
+            this.jezikiToolStripMenuItem.Name = "jezikiToolStripMenuItem";
+            this.jezikiToolStripMenuItem.Size = new System.Drawing.Size(68, 27);
+            this.jezikiToolStripMenuItem.Text = "Jeziki";
+            // 
+            // sloLanguageToolStripMenuItem
+            // 
+            this.sloLanguageToolStripMenuItem.Name = "sloLanguageToolStripMenuItem";
+            this.sloLanguageToolStripMenuItem.Size = new System.Drawing.Size(115, 26);
+            this.sloLanguageToolStripMenuItem.Text = "SLO";
+            this.sloLanguageToolStripMenuItem.Click += new System.EventHandler(this.SloLanguageToolStripMenuItem_Click);
+            // 
+            // deLanguageToolStripMenuItem
+            // 
+            this.deLanguageToolStripMenuItem.Name = "deLanguageToolStripMenuItem";
+            this.deLanguageToolStripMenuItem.Size = new System.Drawing.Size(115, 26);
+            this.deLanguageToolStripMenuItem.Text = "DE";
+            this.deLanguageToolStripMenuItem.Click += new System.EventHandler(this.DeLanguageToolStripMenuItem_Click);
+            // 
+            // enLanguageToolStripMenuItem
+            // 
+            this.enLanguageToolStripMenuItem.Name = "enLanguageToolStripMenuItem";
+            this.enLanguageToolStripMenuItem.Size = new System.Drawing.Size(115, 26);
+            this.enLanguageToolStripMenuItem.Text = "EN";
+            this.enLanguageToolStripMenuItem.Click += new System.EventHandler(this.EnLanguageToolStripMenuItem_Click);
             // 
             // adminToggleButton
             // 
@@ -567,6 +603,10 @@ namespace SapSpcWinForms
         // Informacije
         private System.Windows.Forms.ToolStripMenuItem merilaInfoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem prijavaInfoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem jezikiToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sloLanguageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deLanguageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem enLanguageToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel versionInfoLabel;
         private System.Windows.Forms.ToolStripButton adminToggleButton;
 

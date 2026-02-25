@@ -26,5 +26,20 @@ namespace SapSpcWinForms.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("sl")]
+        public string UiLanguage
+        {
+            get
+            {
+                return ((string)(this["UiLanguage"]));
+            }
+            set
+            {
+                this["UiLanguage"] = value;
+            }
+        }
     }
 }

@@ -3,5 +3,9 @@
   <Profiles>
     <Profile Name="(Default)" />
   </Profiles>
-  <Settings />
+  <Settings>
+    <Setting Name="UiLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">sl</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

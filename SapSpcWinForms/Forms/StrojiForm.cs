@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -26,7 +27,7 @@ namespace SapSpcWinForms
             _isAdmin = isAdmin;
             _stPostFilter = stPostFilter;
             _merilnoMestoOpis = merilnoMestoOpis;
-            Text = "Stroji";
+            Text = TranslationService.Translate("StrojiForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -41,7 +42,7 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = $"Merilno mesto: {_merilnoMestoOpis ?? ""}",
+                Text = string.Format(TranslationService.Translate("StrojiForm.Header"), _merilnoMestoOpis ?? string.Empty),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -79,7 +80,7 @@ namespace SapSpcWinForms
             var connString = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connString))
             {
-                MessageBox.Show("Manjka connection string 'StrojnaDb' v App.config.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("StrojiForm.MissingConn"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
@@ -137,7 +138,7 @@ namespace SapSpcWinForms
             {
                 Dock = DockStyle.Fill,
                 Height = 40,
-                Text = "+ Nov stroj",
+                Text = TranslationService.Translate("StrojiForm.NewMachineButton"),
                 Enabled = _isAdmin,
                 BackColor = Color.FromArgb(46, 204, 113),
                 ForeColor = Color.White,
@@ -161,7 +162,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriši",
+                    Text = TranslationService.Translate("StrojiForm.DeleteButton"),
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -183,7 +184,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message, "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("StrojiForm.SaveError") + "\n" + ex.Message, TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -192,7 +193,7 @@ namespace SapSpcWinForms
             if (_table == null) return;
             if (_table.GetChanges() != null)
             {
-                var result = MessageBox.Show("Shranim spremembe v tabeli stroji?", "Shrani", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                var result = MessageBox.Show(TranslationService.Translate("StrojiForm.SavePrompt"), TranslationService.Translate("StrojiForm.SaveTitle"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Cancel)
                 {
                     e.Cancel = true;
@@ -226,7 +227,7 @@ namespace SapSpcWinForms
             if (row == null || row.IsNewRow) return;
             var drv = row.DataBoundItem as DataRowView;
             if (drv == null) return;
-            var res = MessageBox.Show("Ali zares želiš izbrisati izbran stroj?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var res = MessageBox.Show(TranslationService.Translate("StrojiForm.DeletePrompt"), TranslationService.Translate("StrojiForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (res != DialogResult.Yes) return;
             drv.Row.Delete();
             SaveChanges();
@@ -235,7 +236,7 @@ namespace SapSpcWinForms
 
         private void BtnNovStroj_Click(object sender, EventArgs e)
         {
-            if (!_isAdmin) { MessageBox.Show("Vpis stroja je dovoljen samo administratorju.", "Ni dovoljeno", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+            if (!_isAdmin) { MessageBox.Show(TranslationService.Translate("StrojiForm.AdminOnly"), TranslationService.Translate("StrojiForm.NotAllowedTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             if (_table == null) return;
             using (var dlg = new NovStrojDialog(_stPostFilter))
             {
@@ -266,7 +267,7 @@ namespace SapSpcWinForms
 
             public NovStrojDialog(int? stPostPreset)
             {
-                Text = "Nov stroj";
+                Text = TranslationService.Translate("StrojiForm.NewDialog.Text");
                 FormBorderStyle = FormBorderStyle.FixedDialog;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = false;
@@ -282,29 +283,29 @@ namespace SapSpcWinForms
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
                 grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
                 int r = 0;
-                grid.Controls.Add(new Label { Text = "stPost", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("StrojiForm.NewDialog.stPost"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numStPost = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 999999, Width = 160, Value = stPostPreset.HasValue ? stPostPreset.Value : 0 };
                 grid.Controls.Add(_numStPost, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "ID stroja", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("StrojiForm.NewDialog.IdStroja"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbId = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbId, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Šifra stroja", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("StrojiForm.NewDialog.SifraStroja"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbSif = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbSif, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Naziv", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("StrojiForm.NewDialog.Naziv"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbNaziv = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbNaziv, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Koda", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("StrojiForm.NewDialog.Koda"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbKoda = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbKoda, 1, r++);
 
                 var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(12), Height = 52 };
-                _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "Preklièi", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+                _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);
@@ -319,8 +320,8 @@ namespace SapSpcWinForms
             {
                 var id = (_tbId.Text ?? "").Trim();
                 var naziv = (_tbNaziv.Text ?? "").Trim();
-                if (string.IsNullOrWhiteSpace(id)) { MessageBox.Show("ID stroja je obvezen.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
-                if (string.IsNullOrWhiteSpace(naziv)) { MessageBox.Show("Naziv je obvezen.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
+                if (string.IsNullOrWhiteSpace(id)) { MessageBox.Show(TranslationService.Translate("StrojiForm.NewDialog.IdRequired"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
+                if (string.IsNullOrWhiteSpace(naziv)) { MessageBox.Show(TranslationService.Translate("StrojiForm.NewDialog.NazivRequired"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
                 Value = new StrojInput
                 {
                     StPost = (int)_numStPost.Value,

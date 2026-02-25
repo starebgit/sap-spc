@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using SapSpcWinForms.Data;
 using SapSpcWinForms.Utils;
 using SapSpcWinForms.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -111,6 +112,8 @@ namespace SapSpcWinForms
 
             // Load merilno mesto info
             LoadMerilnoMesto();
+            TranslationService.ApplyLocalization(this);
+            ApplyLanguageMenuChecks();
             UpdateAdminUi();
             InitializeCharacteristicGrids();
             WireGrafColumnBehavior();
@@ -341,6 +344,38 @@ namespace SapSpcWinForms
             }
         }
 
+        private void ApplyLanguageMenuChecks()
+        {
+            var code = TranslationService.CurrentLanguageCode;
+            sloLanguageToolStripMenuItem.Checked = code == "sl";
+            deLanguageToolStripMenuItem.Checked = code == "de";
+            enLanguageToolStripMenuItem.Checked = code == "en";
+        }
+
+        private void SloLanguageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationService.SetCulture("sl");
+            TranslationService.ApplyLocalization(this);
+            ApplyLanguageMenuChecks();
+            UpdateAdminUi();
+        }
+
+        private void DeLanguageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationService.SetCulture("de");
+            TranslationService.ApplyLocalization(this);
+            ApplyLanguageMenuChecks();
+            UpdateAdminUi();
+        }
+
+        private void EnLanguageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationService.SetCulture("en");
+            TranslationService.ApplyLocalization(this);
+            ApplyLanguageMenuChecks();
+            UpdateAdminUi();
+        }
+
         private void AdminToggleButton_Click(object sender, EventArgs e)
         {
             if (_isAdmin)
@@ -363,7 +398,7 @@ namespace SapSpcWinForms
                     }
                     else
                     {
-                        MessageBox.Show(this, "Geslo ni pravilno", "Prijava", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, TranslationService.Translate("Message.AdminPasswordIncorrect"), TranslationService.Translate("Message.LoginTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
@@ -374,7 +409,7 @@ namespace SapSpcWinForms
             if (!_isAdmin)
             {
                 e.Cancel = true;
-                MessageBox.Show(this, "Zapiranje ni dovoljeno brez administratorske prijave.", "Obvestilo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, TranslationService.Translate("Message.CloseNotAllowed"), TranslationService.Translate("Message.NoticeTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -384,9 +419,9 @@ namespace SapSpcWinForms
             if (adminToggleButton != null)
             {
                 var color = _isAdmin ? Color.Red : Color.Green;
-                adminToggleButton.Text = _isAdmin ? "Admin odjava" : "Admin prijava";
+                adminToggleButton.Text = _isAdmin ? TranslationService.Translate("AdminToggle.Logout") : TranslationService.Translate("AdminToggle.Login");
                 adminToggleButton.ForeColor = color;
-                adminToggleButton.ToolTipText = _isAdmin ? "Odjava" : "Prijava";
+                adminToggleButton.ToolTipText = _isAdmin ? TranslationService.Translate("AdminToggle.TooltipLogout") : TranslationService.Translate("AdminToggle.TooltipLogin");
                 adminToggleButton.Image = CreateAdminIcon(color);
             }
 
