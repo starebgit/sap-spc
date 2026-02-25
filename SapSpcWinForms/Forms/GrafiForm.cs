@@ -119,13 +119,13 @@ namespace SapSpcWinForms
                 using (var p = new Pen(Color.Blue, 2))
                 {
                     g.DrawLine(p, 250, 25, 320, 25);
-                    g.DrawString("Povpreèje", Font, Brushes.Black, 325, y);
+                    g.DrawString("PovpreÃ¨je", Font, Brushes.Black, 325, y);
                 }
 
                 using (var p = new Pen(Color.Red, 2))
                 {
                     g.DrawLine(p, 470, 25, 540, 25);
-                    g.DrawString("Toleranène meje", Font, Brushes.Black, 545, y);
+                    g.DrawString("ToleranÃ¨ne meje", Font, Brushes.Black, 545, y);
                 }
 
                 // Delphi color $0200c0c0 ~ teal-ish; keep close
@@ -154,8 +154,12 @@ namespace SapSpcWinForms
                 double dif = Math.Max(dif1, dif2);
                 if (Math.Abs(dif) < 1e-9) dif = 1;
 
+                // Add vertical headroom so tolerance/control lines are not glued to top/bottom edges.
+                const double yScalePaddingFactor = 1.25;
+                double scaledDif = dif * yScalePaddingFactor;
+
                 int zx, zy, zz;
-                DrawBase(g, pb.ClientRectangle, req.Sp, req.Zg, req.Sr, dif, req.Avr, req.Std, out zx, out zy, out zz);
+                DrawBase(g, pb.ClientRectangle, req.Sp, req.Zg, req.Sr, scaledDif, req.Avr, req.Std, out zx, out zy, out zz);
 
                 // title
                 using (var p = new Pen(Color.Black, 1))
@@ -166,8 +170,10 @@ namespace SapSpcWinForms
 
                 // Calculate korak so all points fit in the available width
                 int availableWidth = pb.Width - zx - 10; // 10px right margin
-                int korak = req.Points.Count > 1 ? availableWidth / (req.Points.Count - 1) : availableWidth;
-                if (korak < 1) korak = 1;
+                if (availableWidth < 1) availableWidth = 1;
+
+                // Use double precision step so dense series can still fit in the graph width.
+                double korak = req.Points.Count > 1 ? (double)availableWidth / (req.Points.Count - 1) : availableWidth;
 
                 int stvz = req.StVz <= 0 ? 1 : req.StVz;
                 int iy = 0;
@@ -186,8 +192,8 @@ namespace SapSpcWinForms
                     {
                         double xx = req.Points[ii].Value;
 
-                        int ix = (int)Math.Round((z2 - zz) * (xx - req.Sr + dif) / dif) + zz;
-                        int x = zx + ii * korak;
+                        int ix = (int)Math.Round((z2 - zz) * (xx - req.Sr + scaledDif) / scaledDif) + zz;
+                        int x = zx + (int)Math.Round(ii * korak);
                         int y = zy - ix;
 
                         if (ii == 0)
@@ -196,7 +202,7 @@ namespace SapSpcWinForms
                         }
                         else
                         {
-                            int px = zx + (ii - 1) * korak;
+                            int px = zx + (int)Math.Round((ii - 1) * korak);
                             int py = zy - iy;
                             g.DrawLine(Pens.Black, px, py, x, y);
                         }
