@@ -55,6 +55,12 @@ namespace SapSpcWinForms
             machinesList.SelectedIndexChanged += MachinesList_SelectedIndexChanged;
             codesList.SelectedIndexChanged += CodesList_SelectedIndexChanged;
 
+            if (TransferButton != null)
+            {
+                TransferButton.Click -= TransferButton_Click;
+                TransferButton.Click += TransferButton_Click;
+            }
+
             WireUpKanalDecimalke();
         }
 
@@ -1394,18 +1400,69 @@ namespace SapSpcWinForms
         //     }
         // }
 
-        private static bool TryParseValueFromRaw(string raw, out double value, out string tokenUsed)
+        private async void TransferButton_Click(object sender, EventArgs e)
         {
-            return AppUtils.TryParseLast04AFrame(raw, out value, out _, out tokenUsed);
+            var grid = KaraktiGrid;
+            if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out var cell))
+            {
+                MessageBox.Show(this,
+                    "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
+                    "Prenos meritev",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
+            string oldText = TransferButton.Text;
+
+            try
+            {
+                TransferButton.Enabled = false;
+                TransferButton.Text = "Prenos meritev (...)";
+
+                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), _stKanal));
+                if (string.IsNullOrWhiteSpace(raw))
+                {
+                    MessageBox.Show(this,
+                        "Ni prejetih podatkov iz merila v času čakanja.",
+                        "Prenos meritev",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, _stKanal, FormatMeasurement, out var parsedText))
+                {
+                    MessageBox.Show(this,
+                        "Ne morem prebrati meritve iz prejetih podatkov.",
+                        "Prenos meritev",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, parsedText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this,
+                    "Napaka pri branju COM porta:\n" + ex.Message,
+                    "Prenos meritev",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            finally
+            {
+                TransferButton.Enabled = true;
+                TransferButton.Text = oldText;
+            }
         }
 
         private void ApplyPrenosValueToCurrentCell(double value)
         {
             var grid = KaraktiGrid;
-            var cell = grid?.CurrentCell;
-            var colName = cell?.OwningColumn?.Name ?? "";
-
-            if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+            if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out _))
             {
                 MessageBox.Show(this,
                     "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
@@ -1416,57 +1473,7 @@ namespace SapSpcWinForms
                 return;
             }
 
-            // make sure were not stuck in edit mode
-            grid.EndEdit();
-            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-            // write value
-            cell.Value = FormatMeasurement(value);
-
-            int row = cell.RowIndex;
-            int curCol = cell.ColumnIndex;
-
-            // find first Vzorec col (for row wrap)
-            int firstVzCol = -1;
-            for (int i = 0; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    firstVzCol = i;
-                    break;
-                }
-            }
-
-            // 1) next Vzorec cell to the right in same row
-            int nextCol = -1;
-            for (int i = curCol + 1; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    nextCol = i;
-                    break;
-                }
-            }
-
-            int nextRow = row;
-
-            // 2) if no next column, go to next row + first Vzorec column
-            if (nextCol < 0 && firstVzCol >= 0)
-            {
-                if (row + 1 < grid.Rows.Count)
-                {
-                    nextRow = row + 1;
-                    nextCol = firstVzCol;
-                }
-            }
-
-            // move if we found a destination
-            if (nextCol >= 0)
-            {
-                grid.CurrentCell = grid.Rows[nextRow].Cells[nextCol];
-                grid.Focus();
-                grid.BeginEdit(true);
-            }
+            PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, FormatMeasurement(value));
         }
 
         private void WirePrenosStopalkaPrekiniButtons()
@@ -1524,14 +1531,7 @@ namespace SapSpcWinForms
 
             try
             {
-                _prenosStopalkaPort = new SerialPort(comPort, COM_BAUD, Parity.None, 8, StopBits.One)
-                {
-                    Handshake = Handshake.None,
-                    DtrEnable = true,
-                    RtsEnable = true,
-                    Encoding = Encoding.ASCII,
-                    ReadTimeout = 250
-                };
+                _prenosStopalkaPort = PrenosMeritevService.CreateConfiguredSerialPort(comPort, COM_BAUD);
 
                 _prenosStopalkaPort.DataReceived += PrenosStopalkaPort_DataReceived;
                 _prenosStopalkaPort.Open();
@@ -1601,17 +1601,11 @@ namespace SapSpcWinForms
 
             try
             {
-                string raw;
-                lock (_prenosLock) raw = _prenosBuf.ToString();
-
-                if (!AppUtils.TryParseLast04AFrame(raw, out double value, out int endIdx, out _))
-                    return;
-
-                // consume everything up to the end of the frame we used; keep any trailing bytes for next read
+                double value;
                 lock (_prenosLock)
                 {
-                    if (endIdx > 0 && endIdx <= _prenosBuf.Length)
-                        _prenosBuf.Remove(0, endIdx);
+                    if (!PrenosMeritevService.TryConsumeLast04AFrame(_prenosBuf, out value))
+                        return;
                 }
 
                 if (IsHandleCreated)

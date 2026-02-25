@@ -117,6 +117,7 @@
     <Compile Include="Data\StrojnaDbRepository.cs" />
     <Compile Include="Services\AppUtils.cs" />
     <Compile Include="Services\ComPortService.cs" />
+    <Compile Include="Services\PrenosMeritevService.cs" />
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\SapPrijavaRepository.cs" />
     <Compile Include="Services\SapSession.cs" />
