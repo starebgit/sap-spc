@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms.Services
 {
