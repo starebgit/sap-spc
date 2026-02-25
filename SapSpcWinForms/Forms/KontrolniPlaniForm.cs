@@ -82,10 +82,10 @@ namespace SapSpcWinForms
             };
             header.Controls.Add(title);
 
-            // Checkbox for nekonËane öarûe
+            // Checkbox for nekonƒçane ≈°ar≈æe
             _chkNekoncane.AutoSize = true;
             _chkNekoncane.Checked = true; // default = show only (koncan <> 'Y')
-            _chkNekoncane.Text = "Prikaûi nekonËane öarûe";
+            _chkNekoncane.Text = "Prika≈æi nekonƒçane ≈°ar≈æe";
             _chkNekoncane.Top = 12;
             header.Controls.Add(_chkNekoncane);
             header.Resize += (_, __) =>
@@ -108,23 +108,23 @@ namespace SapSpcWinForms
             // requested wiring
             urejanjeKode.DropDownItems.Clear();
             urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Nova koda", null, (_, __) => NovaKoda()));
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Sprememba kontrolne öarûe", null, (_, __) => SpremembaKontrolneSarze()));
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Briöi kodo", null, (_, __) => BrisiKodo()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Sprememba kontrolne ≈°ar≈æe", null, (_, __) => SpremembaKontrolneSarze()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Bri≈°i kodo", null, (_, __) => BrisiKodo()));
             urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Frekvenca meritev", null, (_, __) => FrekvencaMeritev()));
 
             var urejanjePlana = new ToolStripMenuItem("Urejanje kont. plana");
             urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Prenos kont. plana", null, (_, __) => PrenosKontrolnegaPlana()));
             urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Sprememba kanala", null, (_, __) => SpremembaKanala()));
             // Replaced stub handlers
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Briöi karakteristiko", null, (_, __) => BrisiKarakteristiko()));
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Briöi kontrolni plan", null, (_, __) => BrisiKontrolniPlan()));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Bri≈°i karakteristiko", null, (_, __) => BrisiKarakteristiko()));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Bri≈°i kontrolni plan", null, (_, __) => BrisiKontrolniPlan()));
 
             // Replace Vpogled menu with only Dodatki
             var vpogled = new ToolStripMenuItem("Vpogled");
             vpogled.DropDownItems.Add(new ToolStripMenuItem("Dodatki", null, (_, __) => OpenDodatki()));
 
             var operacije = new ToolStripMenuItem("Operacije");
-            operacije.DropDownItems.Add(new ToolStripMenuItem("Preveri öarûo", null, (_, __) => PreveriSarzoMenu()));
+            operacije.DropDownItems.Add(new ToolStripMenuItem("Preveri ≈°ar≈æo", null, (_, __) => PreveriSarzoMenu()));
 
             _menu.Items.AddRange(new ToolStripItem[] { urejanjeKode, urejanjePlana, vpogled, operacije });
 
@@ -208,7 +208,7 @@ namespace SapSpcWinForms
 
             if (_konsarGrid.Columns["koncan"] != null) _konsarGrid.Columns["koncan"].HeaderText = "aktivnost";
             if (_konsarGrid.Columns["merdiff"] != null) _konsarGrid.Columns["merdiff"].HeaderText = "frek. meritev";
-            if (_konsarGrid.Columns["mertraj"] != null) _konsarGrid.Columns["mertraj"].HeaderText = "Ëas za meritev";
+            if (_konsarGrid.Columns["mertraj"] != null) _konsarGrid.Columns["mertraj"].HeaderText = "ƒças za meritev";
         }
 
         private void SelectFirstRow()
@@ -268,7 +268,7 @@ namespace SapSpcWinForms
             if (_konplanGrid.Columns["stvz"] != null)    _konplanGrid.Columns["stvz"].HeaderText = "Vel. vzorca";
             if (_konplanGrid.Columns["spmeja"] != null)  _konplanGrid.Columns["spmeja"].HeaderText = "spodnja meja";
             if (_konplanGrid.Columns["zgmeja"] != null)  _konplanGrid.Columns["zgmeja"].HeaderText = "zgornja meja";
-            if (_konplanGrid.Columns["stkanal"] != null) _konplanGrid.Columns["stkanal"].HeaderText = "öt. kanala";
+            if (_konplanGrid.Columns["stkanal"] != null) _konplanGrid.Columns["stkanal"].HeaderText = "≈°t. kanala";
             if (_konplanGrid.Columns["kanal"] != null)   _konplanGrid.Columns["kanal"].HeaderText = "Metoda";
 
             // order columns left->right like Delphi (pic2)
@@ -311,7 +311,7 @@ namespace SapSpcWinForms
             var srz = (srzObj == null || srzObj == DBNull.Value) ? "" : srzObj.ToString();
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show(this, "Izbrani zapis nima kontrolne öarûe (sarza).", "Kontrolni plani",
+                MessageBox.Show(this, "Izbrani zapis nima kontrolne ≈°ar≈æe (sarza).", "Kontrolni plani",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -539,7 +539,7 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show(this, "Izbrani zapis nima kontrolne öarûe (sarza).", "Preveri öarûo",
+                MessageBox.Show(this, "Izbrani zapis nima kontrolne ≈°ar≈æe (sarza).", "Preveri ≈°ar≈æo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -551,14 +551,14 @@ namespace SapSpcWinForms
                 var ok = _sap.PreveriSar(srz.Trim());
 
                 MessageBox.Show(this,
-                    ok ? "äarûa je aktivna" : "äarûa ni aktivna",
-                    "Preveri öarûo",
+                    ok ? "≈†ar≈æa je aktivna" : "≈†ar≈æa ni aktivna",
+                    "Preveri ≈°ar≈æo",
                     MessageBoxButtons.OK,
                     ok ? MessageBoxIcon.Information : MessageBoxIcon.Exclamation);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Napaka pri preverjanju öarûe v SAP:\n" + ex.Message, "Preveri öarûo",
+                MessageBox.Show(this, "Napaka pri preverjanju ≈°ar≈æe v SAP:\n" + ex.Message, "Preveri ≈°ar≈æo",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -620,7 +620,7 @@ namespace SapSpcWinForms
         {
             using (var f = new Form
             {
-                Text = "ät. kanala",
+                Text = "≈†t. kanala",
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -629,7 +629,7 @@ namespace SapSpcWinForms
                 ClientSize = new Size(260, 120)
             })
             {
-                var lbl = new Label { Left = 12, Top = 14, AutoSize = true, Text = "Vpiöi öt. kanala:" };
+                var lbl = new Label { Left = 12, Top = 14, AutoSize = true, Text = "Vpi≈°i ≈°t. kanala:" };
                 var nud = new NumericUpDown
                 {
                     Left = 12, Top = 40, Width = 120,
@@ -638,7 +638,7 @@ namespace SapSpcWinForms
                 };
 
                 var ok = new Button { Text = "OK", Left = 70, Width = 80, Top = 78, DialogResult = DialogResult.OK };
-                var cancel = new Button { Text = "PrekliËi", Left = 158, Width = 80, Top = 78, DialogResult = DialogResult.Cancel };
+                var cancel = new Button { Text = "Prekliƒçi", Left = 158, Width = 80, Top = 78, DialogResult = DialogResult.Cancel };
 
                 f.Controls.AddRange(new Control[] { lbl, nud, ok, cancel });
                 f.AcceptButton = ok;
@@ -655,8 +655,8 @@ namespace SapSpcWinForms
             if (_konplanGrid.CurrentRow == null) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares ûeliö izbrisati?",
-                "Briöi karakteristiko",
+                "Ali zares ≈æeli≈° izbrisati?",
+                "Bri≈°i karakteristiko",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -682,8 +682,8 @@ namespace SapSpcWinForms
             if (!idsar.HasValue) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares ûeliö izbrisati celoten plan?",
-                "Briöi kontrolni plan",
+                "Ali zares ≈æeli≈° izbrisati celoten plan?",
+                "Bri≈°i kontrolni plan",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -719,7 +719,7 @@ namespace SapSpcWinForms
 
             bool prepisVse = true; // default = Delphi behavior
 
-            // Prefill from selected row (fixes ìalways 120î confusion)
+            // Prefill from selected row (fixes ‚Äúalways 120‚Äù confusion)
             int mrFk = ReadIntCell(_konsarGrid.CurrentRow, "merdiff") ?? 120;
             int mrTr = ReadIntCell(_konsarGrid.CurrentRow, "mertraj") ?? 15;
 
@@ -780,7 +780,7 @@ namespace SapSpcWinForms
                 var lbl1 = new Label { Left = 12, Top = 18, AutoSize = true, Text = "Frekvenca meritev:" };
                 var txt1 = new TextBox { Left = 170, Top = 14, Width = 165, Text = frk.ToString() };
 
-                var lbl2 = new Label { Left = 12, Top = 54, AutoSize = true, Text = "»as za meritev:" };
+                var lbl2 = new Label { Left = 12, Top = 54, AutoSize = true, Text = "ƒåas za meritev:" };
                 var txt2 = new TextBox { Left = 170, Top = 50, Width = 165, Text = trj.ToString() };
 
                 var chkAll = new CheckBox
@@ -788,12 +788,12 @@ namespace SapSpcWinForms
                     Left = 12,
                     Top = 84,
                     AutoSize = true,
-                    Text = "Prepiöi vse",
+                    Text = "Prepi≈°i vse",
                     Checked = prepisVse
                 };
 
                 var ok = new Button { Text = "OK", Left = 180, Width = 75, Top = 125, DialogResult = DialogResult.OK };
-                var cancel = new Button { Text = "PrekliËi", Left = 260, Width = 75, Top = 125, DialogResult = DialogResult.Cancel };
+                var cancel = new Button { Text = "Prekliƒçi", Left = 260, Width = 75, Top = 125, DialogResult = DialogResult.Cancel };
 
                 f.Controls.AddRange(new Control[] { lbl1, txt1, lbl2, txt2, chkAll, ok, cancel });
                 f.AcceptButton = ok;
@@ -823,8 +823,8 @@ namespace SapSpcWinForms
             if (!idsar.HasValue) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares ûeliö izbrisati?",
-                "Briöi kodo",
+                "Ali zares ≈æeli≈° izbrisati?",
+                "Bri≈°i kodo",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -867,7 +867,7 @@ namespace SapSpcWinForms
             {
                 MessageBox.Show(this,
                     "Napaka pri brisanju kode:\n" + ex.Message,
-                    "Briöi kodo",
+                    "Bri≈°i kodo",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }

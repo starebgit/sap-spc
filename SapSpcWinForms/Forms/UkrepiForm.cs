@@ -169,7 +169,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriöi",
+                    Text = "Izbri≈°i",
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -234,7 +234,7 @@ namespace SapSpcWinForms
             if (row == null || row.IsNewRow) return;
             var drv = row.DataBoundItem as DataRowView;
             if (drv == null) return;
-            var res = MessageBox.Show("Ali zares ûeliö izbrisati izbran ukrep?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var res = MessageBox.Show("Ali zares ≈æeli≈° izbrisati izbran ukrep?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (res != DialogResult.Yes) return;
             drv.Row.Delete();
             SaveChanges();
@@ -294,7 +294,7 @@ namespace SapSpcWinForms
 
                 var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(12), Height = 52 };
                 _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "PrekliËi", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnCancel = new Button { Text = "Prekliƒçi", DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);

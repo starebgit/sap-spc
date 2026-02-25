@@ -76,7 +76,7 @@ namespace SapSpcWinForms
 
             _btnDelete = new Button
             {
-                Text = "Izbriöi",
+                Text = "Izbri≈°i",
                 Width = 100,
                 Height = 30,
                 BackColor = Color.FromArgb(231, 76, 60),
@@ -119,7 +119,7 @@ namespace SapSpcWinForms
             _adapter.Fill(_table);
             _grid.DataSource = _table;
             if (_grid.Columns.Contains("zaopored"))
-                _grid.Columns["zaopored"].HeaderText = "Zap. öt.";
+                _grid.Columns["zaopored"].HeaderText = "Zap. ≈°t.";
             if (_grid.Columns.Contains("naziv"))
                 _grid.Columns["naziv"].HeaderText = "Naziv";
             if (_grid.Columns.Contains("koda"))
@@ -151,7 +151,7 @@ namespace SapSpcWinForms
         {
             if (_grid.SelectedRows.Count > 0)
             {
-                var res = MessageBox.Show("Ali zares ûeliö izbrisati izbrano dodatno kodo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var res = MessageBox.Show("Ali zares ≈æeli≈° izbrisati izbrano dodatno kodo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                 {
                     foreach (DataGridViewRow row in _grid.SelectedRows)
@@ -222,7 +222,7 @@ namespace SapSpcWinForms
             _tbInput = new TextBox { Dock = DockStyle.Top, Margin = new Padding(8), Height = 28 };
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Height = 40 };
             _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-            _btnCancel = new Button { Text = "PrekliËi", DialogResult = DialogResult.Cancel, AutoSize = true };
+            _btnCancel = new Button { Text = "Prekliƒçi", DialogResult = DialogResult.Cancel, AutoSize = true };
             _btnOk.Click += Ok_Click;
             buttons.Controls.Add(_btnOk);
             buttons.Controls.Add(_btnCancel);

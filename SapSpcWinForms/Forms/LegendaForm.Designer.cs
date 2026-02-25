@@ -191,7 +191,7 @@ namespace SapSpcWinForms
             this.redLabelAttr.Name = "redLabelAttr";
             this.redLabelAttr.Size = new System.Drawing.Size(94, 15);
             this.redLabelAttr.TabIndex = 14;
-            this.redLabelAttr.Text = "Število slabih";
+            this.redLabelAttr.Text = "Å tevilo slabih";
             // 
             // redDescAttr
             // 

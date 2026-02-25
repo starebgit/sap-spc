@@ -63,13 +63,13 @@ namespace SapSpcWinForms
             _chkPreveri.Text = "Preveri / filtriraj (SAP)";
             _chkPreveri.CheckedChanged += (_, __) => RefreshSarze();
 
-            var lblSarze = new Label { Left = 12, Top = 52, AutoSize = true, Text = "Kontrolne šarže:" };
+            var lblSarze = new Label { Left = 12, Top = 52, AutoSize = true, Text = "Kontrolne Å¡arÅ¾e:" };
             _listSarze.SetBounds(12, 74, 488, 170);
 
             var lblFrk = new Label { Left = 12, Top = 260, AutoSize = true, Text = "Frekvenca:" };
             _txtFrk.SetBounds(90, 256, 80, 24);
 
-            var lblTrj = new Label { Left = 190, Top = 260, AutoSize = true, Text = "Èas:" };
+            var lblTrj = new Label { Left = 190, Top = 260, AutoSize = true, Text = "ÄŒas:" };
             _txtTrj.SetBounds(230, 256, 80, 24);
 
             _btnDodaj.Text = "Dodaj";
@@ -103,7 +103,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Napaka pri branju šarž iz SAP:\n" + ex.Message, "SAP",
+                MessageBox.Show(this, "Napaka pri branju Å¡arÅ¾ iz SAP:\n" + ex.Message, "SAP",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -119,7 +119,7 @@ namespace SapSpcWinForms
 
             if (_listSarze.SelectedIndex < 0)
             {
-                MessageBox.Show(this, "Izberi šaržo.", "Vpis",
+                MessageBox.Show(this, "Izberi Å¡arÅ¾o.", "Vpis",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }

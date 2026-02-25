@@ -428,7 +428,7 @@ namespace SapSpcWinForms
             // Gate menus exactly like Delphi menupravice
             if (menuStrip != null)
             {
-                // Baza na serverju  keep top-level enabled, gate subitems
+                // Baza na serverju – keep top-level enabled, gate subitems
                 bazaNaServerjuToolStripMenuItem.Enabled = true;
                 merilnaMestaServerToolStripMenuItem.Enabled = _isAdmin; // Postaja
                 strojiServerToolStripMenuItem.Enabled = _isAdmin;       // Stroji
@@ -437,7 +437,7 @@ namespace SapSpcWinForms
                 kontrolniPlaniServerToolStripMenuItem.Enabled = _isAdmin; // Kontrolni plani
                 meritveServerToolStripMenuItem.Enabled = _isAdmin;        // Meritve
 
-                // Nastavitve, Operacije, Informacije  not gated here
+                // Nastavitve, Operacije, Informacije – not gated here
                 nastavitveToolStripMenuItem.Enabled = true;
                 operacijeToolStripMenuItem.Enabled = true;
                 informacijeToolStripMenuItem.Enabled = true;
@@ -544,7 +544,7 @@ namespace SapSpcWinForms
         // --------- NASTAVITVE ------------------------------------
         private void VpisStevKanalaMenuItem_Click(object sender, EventArgs e)
         {
-            _stKanal = VpisStevDialog.Vpis(this, "Vpis tev. kanala", "tevilka merila", _stKanal, 1, 10);
+            _stKanal = VpisStevDialog.Vpis(this, "Vpis št. kanala", "Številka merila", _stKanal, 1, 10);
         }
 
         private void DecimalkeMenuItem_Click(object sender, EventArgs e)
@@ -830,9 +830,9 @@ namespace SapSpcWinForms
                 if (!_sap.TryFetchSarzaFromSapAndCache(kd, _currentStPost.Value, out srz, out var fallbackError))
                 {
                     MessageBox.Show(string.IsNullOrWhiteSpace(fallbackError)
-                            ? "Izbrana koda nima kontrolne are.\nProsim kontaktiraj administratorja programa."
+                            ? "Izbrana koda nima kontrolne šarže.\nProsim kontaktiraj administratorja programa."
                             : fallbackError,
-                        "Kontrolna ara",
+                        "Kontrolna šarža",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
 
@@ -851,7 +851,7 @@ namespace SapSpcWinForms
 
             if (dt.Rows.Count == 0)
             {
-                MessageBox.Show("Za izbrano aro ni kontrolnega plana v konplan.");
+                MessageBox.Show("Za izbrano šaržo ni kontrolnega plana v konplan.");
                 ClearCharacteristicGrids();
                 if (GrafButton != null) GrafButton.Enabled = false;
                 // clear context
@@ -977,7 +977,7 @@ namespace SapSpcWinForms
                 ThreeState = false
             };
             KaraktiGrid.Columns.Add(grafCol);
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preraèun", Width = 80, Visible = false });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preračun", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Avr", HeaderText = "Avr", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Std", HeaderText = "Std", Width = 80, Visible = false });
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVz", HeaderText = "StVz", Width = 80, Visible = false });
@@ -1265,7 +1265,7 @@ namespace SapSpcWinForms
 
             if (checkedRows.Count == 0)
             {
-                MessageBox.Show("Najprej oznaèite vsaj eno karakteristiko (Graf).", "Graf", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Najprej označite vsaj eno karakteristiko (Graf).", "Graf", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -1340,7 +1340,7 @@ namespace SapSpcWinForms
                 if (btn != null)
                 {
                     btn.Enabled = false;
-                    btn.Text = "Test Input (èakam...)";
+                    btn.Text = "Test Input (čakam...)";
                 }
 
                 string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
@@ -1351,7 +1351,7 @@ namespace SapSpcWinForms
                 if (string.IsNullOrWhiteSpace(raw))
                 {
                     MessageBox.Show(this,
-                        "Timeout (30s)  ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na ublerju.",
+                        "Timeout (30s) – ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na šublerju.",
                         "Test Input",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
@@ -1870,12 +1870,12 @@ namespace SapSpcWinForms
 
                 var sapCheckText =
                     $"SAP {(ok ? "OK" : "NAPAKA")}\n\n" +
-                    $"Kontrolna ara (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
+                    $"Kontrolna šarža (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
                     $"Operacija: {p.Operacija}\n" +
                     $"Merilno mesto: {_currentMestoOpis}\n" +
                     $"Merilec: {p.Merilec}\n\n" +
-                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporoèilo: " + msg + "\n\n"))}" +
-                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno aro -> pojdi na 'Rezultati / Zapis meritev'.";
+                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporočilo: " + msg + "\n\n"))}" +
+                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno šaržo -> pojdi na 'Rezultati / Zapis meritev'.";
 
                 try { Clipboard.SetText(p.Sarza ?? ""); } catch { /* ignore */ }
 
@@ -1941,7 +1941,7 @@ namespace SapSpcWinForms
 
             if (!_currentStPost.HasValue) { error = "Ni merilnega mesta."; return false; }
             if (string.IsNullOrWhiteSpace(_currentKodaClean)) { error = "Ni izbrane kode."; return false; }
-            if (string.IsNullOrWhiteSpace(_currentSarza)) { error = "Ni sare (konsar)."; return false; }
+            if (string.IsNullOrWhiteSpace(_currentSarza)) { error = "Ni šarže (konsar)."; return false; }
 
             // --- Delphi: opr from plan; default 0010 ---
             string opr = "0010";
