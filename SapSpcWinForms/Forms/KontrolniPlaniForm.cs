@@ -335,11 +335,12 @@ namespace SapSpcWinForms
                 return;
             }
 
-            // preview ALWAYS (even if konplan already exists)
-            MessageBox.Show(this,
-                $"idsar={idsar}\nsarza='{srz}'\nkonplanExists={already}\n\n" + BuildSapPreview(variabilne, atributivne),
-                "SAP GetKarakt preview",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Commented out intentionally: this always-on SAP GetKarakt preview popup is debug-only
+            // and interrupts normal import flow for every run.
+            // MessageBox.Show(this,
+            //     $"idsar={idsar}\nsarza='{srz}'\nkonplanExists={already}\n\n" + BuildSapPreview(variabilne, atributivne),
+            //     "SAP GetKarakt preview",
+            //     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             // keep Delphi behavior: don't insert if already exists
             if (already)
