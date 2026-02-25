@@ -30,9 +30,12 @@ namespace SapSpcWinForms
 
         private readonly PictureBox[] _plots = new PictureBox[4];
         private readonly PictureBox _legend = new PictureBox();
+        private readonly List<GrafRequest> _graphs;
 
         public GrafiForm(List<GrafRequest> graphs)
         {
+            _graphs = graphs ?? new List<GrafRequest>();
+
             Text = "Grafi";
             Width = 1400;
             Height = 900; // reduced height by about 10%
@@ -72,20 +75,29 @@ namespace SapSpcWinForms
 
             DrawLegend();
 
-            // draw up to 4 graphs
-            for (int i = 0; i < _plots.Length; i++)
-            {
-                if (graphs != null && i < graphs.Count)
-                    DrawGraph(_plots[i], graphs[i]);
-                else
-                    ClearPlot(_plots[i]);
-            }
+            RedrawGraphs();
+
+            Resize += (_, __) => RedrawGraphs();
 
             FormClosed += (_, __) =>
             {
                 foreach (var pb in _plots) pb.Image?.Dispose();
                 _legend.Image?.Dispose();
             };
+        }
+
+        private void RedrawGraphs()
+        {
+            DrawLegend();
+
+            // draw up to 4 graphs
+            for (int i = 0; i < _plots.Length; i++)
+            {
+                if (i < _graphs.Count)
+                    DrawGraph(_plots[i], _graphs[i]);
+                else
+                    ClearPlot(_plots[i]);
+            }
         }
 
         private void ClearPlot(PictureBox pb)
@@ -182,6 +194,12 @@ namespace SapSpcWinForms
                 // Use a smaller font for axis labels
                 using (var smallFont = new Font(Font.FontFamily, 7f))
                 {
+                    // Show vertical guides for more visible data points than labels.
+                    int verticalLineStep = 1;
+                    if (req.Points.Count > 80)
+                        verticalLineStep = req.Points.Count / 40; // keep up to ~40 guide lines
+                    if (verticalLineStep < 1) verticalLineStep = 1;
+
                     // Show only every Nth label, but always first and last
                     int labelStep = 1;
                     if (req.Points.Count > 20)
@@ -207,6 +225,15 @@ namespace SapSpcWinForms
                             g.DrawLine(Pens.Black, px, py, x, y);
                         }
 
+                        bool showVerticalLine = (ii > 0) && ((ii % verticalLineStep == 0) || (ii == req.Points.Count - 1));
+                        if (showVerticalLine)
+                        {
+                            using (var p = new Pen(Color.Black, 1) { DashStyle = DashStyle.Dot })
+                            {
+                                g.DrawLine(p, x, zy, x, zz);
+                            }
+                        }
+
                         // Always show first and last label, otherwise every labelStep
                         bool showLabel = (ii == 0) || (ii == req.Points.Count - 1) || (ii % labelStep == 0 && stvz > 0 && (ii % stvz == 0));
                         if (showLabel)
@@ -220,14 +247,6 @@ namespace SapSpcWinForms
                             string dx = dt.ToString("dd.MM");
                             int w2 = TextRenderer.MeasureText(dx, smallFont).Width;
                             g.DrawString(dx, smallFont, Brushes.Black, x - w2 / 2, zy + 15);
-
-                            if (ii > 0)
-                            {
-                                using (var p = new Pen(Color.Black, 1) { DashStyle = DashStyle.Dot })
-                                {
-                                    g.DrawLine(p, x, zy, x, zz);
-                                }
-                            }
                         }
 
                         iy = ix;
@@ -241,15 +260,16 @@ namespace SapSpcWinForms
         private void DrawBase(Graphics g, Rectangle rect, double sp, double zg, double sr, double dif, double avr, double std,
                               out int zx, out int zy, out int zz)
         {
-            zx = 5; // left margin
+            zx = 45; // left margin so y labels are clear and not crossed by plot lines
             zy = rect.Height - 25; // increased bottom margin for visible x axis labels
             zz = 5; // top margin
 
             int z2 = zy / 2;
             int zf = rect.Width;
+            int right = rect.Width - 1;
 
             // axes
-            g.DrawLine(Pens.Black, zx, zy, rect.Width, zy);
+            g.DrawLine(Pens.Black, zx, zy, right, zy);
             g.DrawLine(Pens.Black, zx, zy, zx, 0);
 
             // cp/cpk (Delphi cps)
@@ -281,11 +301,11 @@ namespace SapSpcWinForms
             using (var p = new Pen(Color.Red, 2))
             {
                 int y1 = yy(sp);
-                g.DrawLine(p, zx, y1, rect.Width, y1);
+                g.DrawLine(p, zx, y1, right, y1);
                 g.DrawString($"{sp:0.00}", Font, Brushes.Black, 0, y1 - 7);
 
                 int y2 = yy(zg);
-                g.DrawLine(p, zx, y2, rect.Width, y2);
+                g.DrawLine(p, zx, y2, right, y2);
                 g.DrawString($"{zg:0.00}", Font, Brushes.Black, 0, y2 - 7);
             }
 
@@ -293,7 +313,7 @@ namespace SapSpcWinForms
             using (var p = new Pen(Color.Blue, 2))
             {
                 int ya = yy(avr);
-                g.DrawLine(p, zx, ya, rect.Width, ya);
+                g.DrawLine(p, zx, ya, right, ya);
             }
 
             // control limits (teal): avr +/- 3*std
@@ -301,14 +321,14 @@ namespace SapSpcWinForms
             {
                 int yhi = yy(avr + 3 * std);
                 int ylo = yy(avr - 3 * std);
-                g.DrawLine(p, zx, yhi, rect.Width, yhi);
-                g.DrawLine(p, zx, ylo, rect.Width, ylo);
+                g.DrawLine(p, zx, yhi, right, yhi);
+                g.DrawLine(p, zx, ylo, right, ylo);
             }
 
             // center line (green) at sr (Delphi draws it at z2 and prints sr)
             using (var p = new Pen(Color.Green, 2))
             {
-                g.DrawLine(p, zx, z2, rect.Width, z2);
+                g.DrawLine(p, zx, z2, right, z2);
                 g.DrawString($"{sr:0.00}", Font, Brushes.Black, 0, z2 - 7);
             }
         }
