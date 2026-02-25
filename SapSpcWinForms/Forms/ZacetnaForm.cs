@@ -86,6 +86,8 @@ namespace SapSpcWinForms
         private Panel _leftContent;
         private Panel _variablePanel;
         private Panel _attributePanel;
+        private readonly Color _accentColor = Color.FromArgb(0, 96, 160);
+        private readonly Color _panelBackground = Color.FromArgb(241, 247, 252);
 
         private ListBox _dodIzborListBox;
         private Label _dodIzborLabel;
@@ -97,7 +99,7 @@ namespace SapSpcWinForms
             InitializeComponent();   // must be first
             InitializeDodIzborControls(); // Add DodIzbor controls
             ConfigureResponsiveLayout(); // programmatic docking layout
-            this.ClientSize = new Size(this.ClientSize.Width, this.ClientSize.Height + 120);
+            this.WindowState = FormWindowState.Maximized;
             WireUpEvents();
             beriMeritveSettingsToolStripMenuItem.Checked = (_berMer == 0);
 
@@ -124,6 +126,7 @@ namespace SapSpcWinForms
             TranslationService.ApplyLocalization(this);
             ApplyLanguageMenuChecks();
             UpdateAdminUi();
+            ApplyModernVisualStyle();
             InitializeCharacteristicGrids();
             WireGrafColumnBehavior();
 
@@ -139,6 +142,15 @@ namespace SapSpcWinForms
                 StopPrenosStopalka();
                 _semaforRefreshTimer.Stop();
             };
+
+            this.Resize += (s, e) =>
+            {
+                LayoutTopPanelContent();
+                AdjustGridSizingForWindow();
+            };
+
+            LayoutTopPanelContent();
+            AdjustGridSizingForWindow();
         }
 
         private void OnMerilnoMestoStateChanged()
@@ -295,7 +307,7 @@ namespace SapSpcWinForms
             }
 
             // --- MIDDLE SEGMENT: Stroji ---
-            int middleX = _merilnoMestoLabel.Left + 180; // space from left
+            int middleX = _merilnoMestoLabel.Left + 180; // baseline spacing from left
             if (_strojiLabel == null)
             {
                 _strojiLabel = new Label
@@ -350,6 +362,134 @@ namespace SapSpcWinForms
                 _dodIzborListBox.BringToFront();
 
                 topPanel.Height = Math.Max(topPanel.Height, _dodIzborListBox.Bottom + 12);
+            }
+
+            LayoutTopPanelContent();
+        }
+
+        private void LayoutTopPanelContent()
+        {
+            if (topPanel == null || machinesList == null || codesList == null)
+                return;
+
+            int margin = 16;
+            int gap = 18;
+            int labelTop = 12;
+            int listTop = 32;
+            int listHeight = Math.Max(96, topPanel.Height - listTop - 24);
+            int availableWidth = Math.Max(300, topPanel.ClientSize.Width - margin * 2);
+
+            int leftInfoWidth = Math.Min(340, Math.Max(220, availableWidth / 3));
+            int listWidth = Math.Min(320, Math.Max(180, (availableWidth - leftInfoWidth - (gap * 3)) / 3));
+
+            int middleX = margin + leftInfoWidth + gap;
+            int rightX = middleX + listWidth + gap;
+
+            if (_strojiLabel != null) _strojiLabel.Location = new Point(middleX, labelTop);
+            machinesList.Location = new Point(middleX, listTop);
+            machinesList.Size = new Size(listWidth, listHeight);
+
+            if (_kodaLabel != null) _kodaLabel.Location = new Point(rightX, labelTop);
+            codesList.Location = new Point(rightX, listTop);
+            codesList.Size = new Size(listWidth, listHeight);
+
+            if (_dodIzborLabel != null && _dodIzborListBox != null)
+            {
+                int dodX = Math.Min(topPanel.ClientSize.Width - margin - listWidth, rightX + listWidth + gap);
+                _dodIzborLabel.Location = new Point(dodX, listTop);
+                _dodIzborListBox.Location = new Point(dodX, _dodIzborLabel.Bottom + 4);
+                _dodIzborListBox.Size = new Size(listWidth, Math.Max(56, listHeight - _dodIzborLabel.Height - 4));
+            }
+        }
+
+        private void ApplyModernVisualStyle()
+        {
+            BackColor = Color.FromArgb(236, 243, 248);
+            topPanel.BackColor = _panelBackground;
+            rightPanel.BackColor = Color.WhiteSmoke;
+            rightPanel.Padding = new Padding(8, 4, 8, 8);
+
+            StyleListBox(machinesList);
+            StyleListBox(codesList);
+            StyleGrid(KaraktiGrid);
+            StyleGrid(attriGrid);
+
+            foreach (var button in new[] { TransferButton, TransferWithPedalButton, PrekinButton, SAPButton, MeritveButton, LegendaSideButton, SemaforSideButton, GrafButton, KonecSideButton })
+            {
+                StyleButton(button);
+            }
+
+            variabilneTitleLabel.BackColor = Color.FromArgb(217, 233, 246);
+            variabilneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
+            atributivneTitleLabel.BackColor = Color.FromArgb(217, 233, 246);
+            atributivneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
+        }
+
+        private void StyleButton(Button button)
+        {
+            if (button == null)
+                return;
+
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
+            button.BackColor = _accentColor;
+            button.ForeColor = Color.White;
+            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            button.Height = Math.Max(button.Height, 38);
+            button.Width = 196;
+            button.Padding = new Padding(6);
+            button.Cursor = Cursors.Hand;
+        }
+
+        private void StyleListBox(ListBox listBox)
+        {
+            if (listBox == null)
+                return;
+
+            listBox.BorderStyle = BorderStyle.None;
+            listBox.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            listBox.IntegralHeight = false;
+            listBox.BackColor = Color.White;
+        }
+
+        private void StyleGrid(DataGridView grid)
+        {
+            if (grid == null)
+                return;
+
+            grid.BorderStyle = BorderStyle.None;
+            grid.GridColor = Color.FromArgb(219, 226, 235);
+            grid.BackgroundColor = Color.White;
+            grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+            grid.RowTemplate.Height = 30;
+            grid.ColumnHeadersHeight = 34;
+
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(225, 235, 246);
+            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(28, 58, 88);
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+
+            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(204, 228, 248);
+            grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(17, 31, 47);
+            grid.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+        }
+
+        private void AdjustGridSizingForWindow()
+        {
+            if (KaraktiGrid == null || attriGrid == null)
+                return;
+
+            if (WindowState == FormWindowState.Maximized || Width > 1600)
+            {
+                KaraktiGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                attriGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            }
+            else
+            {
+                KaraktiGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+                attriGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             }
         }
 
