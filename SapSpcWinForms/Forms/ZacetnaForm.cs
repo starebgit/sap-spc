@@ -1857,7 +1857,7 @@ namespace SapSpcWinForms
                 var sap = new global::SapSpcWinForms.SapService();
 
                 // odl/orod: keep empty for now (same as your current payload)
-                var (ok, _) = sap.Zapis(
+                var (ok, msg) = sap.Zapis(
                     srz: p.Sarza,
                     opr: p.Operacija,
                     nazivp: p.NazivKT,
@@ -1869,14 +1869,20 @@ namespace SapSpcWinForms
                     evalList: evalList
                 );
 
+                var sapServer = ResolveSapServerLabel();
+                var sapStatus = ok
+                    ? TranslationService.Translate("SapWrite.Status.Success")
+                    : TranslationService.Translate("SapWrite.Status.Failure");
+
                 var sapCheckText =
-                    $"SAP {(ok ? "OK" : "NAPAKA")}\n\n" +
-                    $"Kontrolna šarža (INSPLOT) za preverjanje v SAP:\n{p.Sarza}\n\n" +
-                    $"Operacija: {p.Operacija}\n" +
-                    $"Merilno mesto: {_currentMestoOpis}\n" +
-                    $"Merilec: {p.Merilec}\n\n" +
-                    $"{(string.IsNullOrWhiteSpace(msg) ? "" : ("SAP sporočilo: " + msg + "\n\n"))}" +
-                    $"Preveri v SAP: QA03 (ali QA02) -> odpri kontrolno šaržo -> pojdi na 'Rezultati / Zapis meritev'.";
+                    $"{TranslationService.Translate("SapWrite.StatusLabel")}: {sapStatus}\n" +
+                    $"{TranslationService.Translate("SapWrite.ServerLabel")}: {sapServer}";
+
+                if (!ok && !string.IsNullOrWhiteSpace(msg))
+                {
+                    sapCheckText += "\n" +
+                                    $"{TranslationService.Translate("SapWrite.RawErrorLabel")}: {msg}";
+                }
 
                 try { Clipboard.SetText(p.Sarza ?? ""); } catch { /* ignore */ }
 
