@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
+
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -278,15 +280,15 @@ namespace SapSpcWinForms
                 _numIdPost = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 999999, Width = 160, Value = idPostPreset.HasValue ? idPostPreset.Value : 0 };
                 grid.Controls.Add(_numIdPost, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Metoda", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilneMetodeForm.NewDialog.Metoda"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbMetoda = new TextBox { Dock = DockStyle.Fill, MaxLength = 5 };
                 grid.Controls.Add(_tbMetoda, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Št. kanala", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilneMetodeForm.NewDialog.Channel"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numKanal = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 65535, Width = 160 };
                 grid.Controls.Add(_numKanal, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Opis metode", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilneMetodeForm.NewDialog.Description"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbOpis = new TextBox { Dock = DockStyle.Fill, MaxLength = 40 };
                 grid.Controls.Add(_tbOpis, 1, r++);
 

@@ -391,7 +391,7 @@
     <value>+ Neuer Eintrag</value>
   </data>
   <data name="UkrepiForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="UkrepiForm.DeleteButton" xml:space="preserve">
     <value>Löschen</value>
@@ -436,7 +436,7 @@
     <value>Keine Messstelle ausgewählt.</value>
   </data>
   <data name="MerilaForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="MerilaForm.DeleteButton" xml:space="preserve">
     <value>Löschen</value>
@@ -469,7 +469,7 @@
     <value>+ Neuer Eintrag</value>
   </data>
   <data name="MerilneMetodeForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="MerilneMetodeForm.DeleteButton" xml:space="preserve">
     <value>Löschen</value>
@@ -514,7 +514,7 @@
     <value>Löschen</value>
   </data>
   <data name="DodatneKodeForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="DodatneKodeForm.InputPrompt" xml:space="preserve">
     <value>Name des Zusatzcodes eingeben:</value>
@@ -693,4 +693,6 @@
   <data name="KontrolniPlaniForm.DeleteCodeError" xml:space="preserve">
     <value>Fehler beim Löschen des Codes:</value>
   </data>
-</root>
+<data name="VpisKodeForm.Text" xml:space="preserve"><value>Code eingeben</value></data><data name="VpisKodeForm.Code" xml:space="preserve"><value>Code:</value></data><data name="VpisKodeForm.CheckFilter" xml:space="preserve"><value>Prüfen / filtern (SAP)</value></data><data name="VpisKodeForm.Batches" xml:space="preserve"><value>Kontrollchargen:</value></data><data name="VpisKodeForm.Frequency" xml:space="preserve"><value>Frequenz:</value></data><data name="VpisKodeForm.Time" xml:space="preserve"><value>Zeit:</value></data><data name="VpisKodeForm.Add" xml:space="preserve"><value>Hinzufügen</value></data><data name="VpisKodeForm.Close" xml:space="preserve"><value>Schließen</value></data><data name="VpisKodeForm.BatchReadError" xml:space="preserve"><value>Fehler beim Lesen der Chargen aus SAP:</value></data><data name="VpisKodeForm.SapTitle" xml:space="preserve"><value>SAP</value></data><data name="VpisKodeForm.SelectBatch" xml:space="preserve"><value>Bitte Charge auswählen.</value></data><data name="VpisKodeForm.EntryTitle" xml:space="preserve"><value>Eingabe</value></data><data name="VpisKodeForm.WriteError" xml:space="preserve"><value>Fehler beim Speichern:</value></data><data name="DodatkiForm.Text" xml:space="preserve"><value>Zusätze</value></data><data name="DodatkiForm.NoCode" xml:space="preserve"><value>Kein Code (koda) ausgewählt.</value></data><data name="DodatkiForm.CodeLabel" xml:space="preserve"><value>Code = {0}</value></data><data name="DodatkiForm.Add" xml:space="preserve"><value>Hinzufügen</value></data><data name="DodatkiForm.InputTitle" xml:space="preserve"><value>Zusatz eingeben</value></data><data name="DodatkiForm.Name" xml:space="preserve"><value>Name</value></data><data name="DodatkiForm.Delete" xml:space="preserve"><value>Löschen</value></data><data name="DodatkiForm.DeletePrompt" xml:space="preserve"><value>Möchten Sie wirklich löschen?</value></data><data name="DodatkiForm.Close" xml:space="preserve"><value>Schließen</value></data><data name="VpisUkrepDialog.Text" xml:space="preserve"><value>Maßnahme auswählen</value></data><data name="VpisUkrepDialog.Other" xml:space="preserve"><value>Andere</value></data><data name="VpisUkrepDialog.OtherLabel" xml:space="preserve"><value>Andere:</value></data><data name="VpisOpombeForm.Text" xml:space="preserve"><value>Hinweis / Maßnahme eingeben</value></data><data name="VpisOpombeForm.Col.StKar" xml:space="preserve"><value>Merkm.-Nr.</value></data><data name="VpisOpombeForm.Col.ImeKar" xml:space="preserve"><value>Merkmalsname</value></data><data name="VpisOpombeForm.Col.Op" xml:space="preserve"><value>Maßnahme</value></data><data name="VpisOpombeForm.PickRow" xml:space="preserve"><value>Auswählen (Zeile)</value></data><data name="VpisOpombeForm.PickAll" xml:space="preserve"><value>Auswählen (alle)</value></data><data name="MerilnaMestaForm.NewDialog.Text" xml:space="preserve"><value>Neue Station</value></data><data name="MerilnaMestaForm.NewDialog.Imerac" xml:space="preserve"><value>Computername</value></data><data name="MerilnaMestaForm.NewDialog.Com" xml:space="preserve"><value>COM</value></data><data name="MerilnaMestaForm.NewDialog.Opis" xml:space="preserve"><value>Beschreibung</value></data><data name="MerilnaMestaForm.NewDialog.LokalHelp" xml:space="preserve"><value>Lokal:
+0 = Daten auf lokalem Computer
+1 = Daten auf Server</value></data><data name="MerilnaMestaForm.NewDialog.Imekon" xml:space="preserve"><value>Kontrollpunktname</value></data><data name="MerilnaMestaForm.NewDialog.Postkoda" xml:space="preserve"><value>Postcode</value></data><data name="MerilnaMestaForm.NewDialog.Stevrsta" xml:space="preserve"><value>Typanzahl</value></data><data name="MerilnaMestaForm.NewDialog.IzbiraKd" xml:space="preserve"><value>Codeauswahl</value></data><data name="MerilnaMestaForm.NewDialog.ImeracRequired" xml:space="preserve"><value>Computername (imerac) ist erforderlich.</value></data><data name="MerilnaMestaForm.NewDialog.OpisRequired" xml:space="preserve"><value>Beschreibung ist erforderlich.</value></data><data name="Common.Ordinal" xml:space="preserve"><value>Nr.</value></data><data name="MerilaForm.Col.Id" xml:space="preserve"><value>Messmittel-ID</value></data><data name="MerilaForm.Col.Name" xml:space="preserve"><value>Messmittelname</value></data><data name="MerilaForm.Col.Description" xml:space="preserve"><value>Messmittelbeschreibung</value></data><data name="MerilneMetodeForm.NewDialog.Metoda" xml:space="preserve"><value>Methode</value></data><data name="MerilneMetodeForm.NewDialog.Channel" xml:space="preserve"><value>Kanal-Nr.</value></data><data name="MerilneMetodeForm.NewDialog.Description" xml:space="preserve"><value>Methodenbeschreibung</value></data><data name="DodatneKodeForm.Col.Name" xml:space="preserve"><value>Name</value></data><data name="KontrolniPlaniForm.Dodatki.NoCode" xml:space="preserve"><value>Der ausgewählte Datensatz hat keinen Code (koda).</value></data><data name="KontrolniPlaniForm.CheckBatch.NoBatch" xml:space="preserve"><value>Der ausgewählte Datensatz hat keine Kontrollcharge (sarza).</value></data><data name="KontrolniPlaniForm.CheckBatch.Active" xml:space="preserve"><value>Charge ist aktiv</value></data><data name="KontrolniPlaniForm.CheckBatch.Inactive" xml:space="preserve"><value>Charge ist nicht aktiv</value></data><data name="KontrolniPlaniForm.CheckBatch.Error" xml:space="preserve"><value>Fehler bei der Chargenprüfung in SAP:</value></data><data name="ZacetnaForm.ChannelDialog.Text" xml:space="preserve"><value>Kanalnummer eingeben</value></data><data name="ZacetnaForm.ChannelDialog.Prompt" xml:space="preserve"><value>Messmittelnummer</value></data><data name="ZacetnaForm.DecimalsDialog.Text" xml:space="preserve"><value>Dezimalstellen</value></data><data name="ZacetnaForm.DecimalsDialog.Prompt" xml:space="preserve"><value>Anzahl der Dezimalstellen</value></data><data name="MerilnaMestaForm.NewDialog.ComPort" xml:space="preserve"><value>COM-Port</value></data><data name="MerilnaMestaForm.NewDialog.Lokal" xml:space="preserve"><value>Lokal</value></data></root>

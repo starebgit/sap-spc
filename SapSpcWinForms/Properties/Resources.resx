@@ -391,7 +391,7 @@
     <value>+ Nov vnos</value>
   </data>
   <data name="UkrepiForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="UkrepiForm.DeleteButton" xml:space="preserve">
     <value>Izbriši</value>
@@ -436,7 +436,7 @@
     <value>Merilno mesto ni izbrano.</value>
   </data>
   <data name="MerilaForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="MerilaForm.DeleteButton" xml:space="preserve">
     <value>Izbriši</value>
@@ -469,7 +469,7 @@
     <value>+ Nov vnos</value>
   </data>
   <data name="MerilneMetodeForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="MerilneMetodeForm.DeleteButton" xml:space="preserve">
     <value>Izbriši</value>
@@ -514,7 +514,7 @@
     <value>Izbriši</value>
   </data>
   <data name="DodatneKodeForm.MissingConn" xml:space="preserve">
-    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+    <value>Missing connection string 'StrojnaDb' in App.config.</value>
   </data>
   <data name="DodatneKodeForm.InputPrompt" xml:space="preserve">
     <value>Vnesi naziv dodatne kode:</value>
@@ -693,4 +693,6 @@
   <data name="KontrolniPlaniForm.DeleteCodeError" xml:space="preserve">
     <value>Napaka pri brisanju kode:</value>
   </data>
-</root>
+<data name="VpisKodeForm.Text" xml:space="preserve"><value>Vpis kode</value></data><data name="VpisKodeForm.Code" xml:space="preserve"><value>Koda:</value></data><data name="VpisKodeForm.CheckFilter" xml:space="preserve"><value>Preveri / filtriraj (SAP)</value></data><data name="VpisKodeForm.Batches" xml:space="preserve"><value>Kontrolne šarže:</value></data><data name="VpisKodeForm.Frequency" xml:space="preserve"><value>Frekvenca:</value></data><data name="VpisKodeForm.Time" xml:space="preserve"><value>Čas:</value></data><data name="VpisKodeForm.Add" xml:space="preserve"><value>Dodaj</value></data><data name="VpisKodeForm.Close" xml:space="preserve"><value>Zapri</value></data><data name="VpisKodeForm.BatchReadError" xml:space="preserve"><value>Napaka pri branju šarž iz SAP:</value></data><data name="VpisKodeForm.SapTitle" xml:space="preserve"><value>SAP</value></data><data name="VpisKodeForm.SelectBatch" xml:space="preserve"><value>Izberi šaržo.</value></data><data name="VpisKodeForm.EntryTitle" xml:space="preserve"><value>Vpis</value></data><data name="VpisKodeForm.WriteError" xml:space="preserve"><value>Napaka pri zapisu:</value></data><data name="DodatkiForm.Text" xml:space="preserve"><value>Dodatki</value></data><data name="DodatkiForm.NoCode" xml:space="preserve"><value>Ni izbrane kode (koda).</value></data><data name="DodatkiForm.CodeLabel" xml:space="preserve"><value>Koda = {0}</value></data><data name="DodatkiForm.Add" xml:space="preserve"><value>Dodaj</value></data><data name="DodatkiForm.InputTitle" xml:space="preserve"><value>Vnos dodatka</value></data><data name="DodatkiForm.Name" xml:space="preserve"><value>Naziv</value></data><data name="DodatkiForm.Delete" xml:space="preserve"><value>Briši</value></data><data name="DodatkiForm.DeletePrompt" xml:space="preserve"><value>Ali zares želiš izbrisati?</value></data><data name="DodatkiForm.Close" xml:space="preserve"><value>Zapri</value></data><data name="VpisUkrepDialog.Text" xml:space="preserve"><value>Izbor ukrepa</value></data><data name="VpisUkrepDialog.Other" xml:space="preserve"><value>Drugo</value></data><data name="VpisUkrepDialog.OtherLabel" xml:space="preserve"><value>Drugo:</value></data><data name="VpisOpombeForm.Text" xml:space="preserve"><value>Vpis opombe / ukrepa</value></data><data name="VpisOpombeForm.Col.StKar" xml:space="preserve"><value>Št. kar.</value></data><data name="VpisOpombeForm.Col.ImeKar" xml:space="preserve"><value>Naziv karakteristike</value></data><data name="VpisOpombeForm.Col.Op" xml:space="preserve"><value>Ukrep</value></data><data name="VpisOpombeForm.PickRow" xml:space="preserve"><value>Izberi (vrstica)</value></data><data name="VpisOpombeForm.PickAll" xml:space="preserve"><value>Izberi (vse)</value></data><data name="MerilnaMestaForm.NewDialog.Text" xml:space="preserve"><value>Nova postaja</value></data><data name="MerilnaMestaForm.NewDialog.Imerac" xml:space="preserve"><value>Ime računalnika</value></data><data name="MerilnaMestaForm.NewDialog.Com" xml:space="preserve"><value>COM</value></data><data name="MerilnaMestaForm.NewDialog.Opis" xml:space="preserve"><value>Opis</value></data><data name="MerilnaMestaForm.NewDialog.LokalHelp" xml:space="preserve"><value>Lokal:
+0 = podatki na lokalnem računalniku
+1 = podatki na serverju</value></data><data name="MerilnaMestaForm.NewDialog.Imekon" xml:space="preserve"><value>Ime kontrolne točke</value></data><data name="MerilnaMestaForm.NewDialog.Postkoda" xml:space="preserve"><value>Postkoda</value></data><data name="MerilnaMestaForm.NewDialog.Stevrsta" xml:space="preserve"><value>Stevrsta</value></data><data name="MerilnaMestaForm.NewDialog.IzbiraKd" xml:space="preserve"><value>IzbiraKd</value></data><data name="MerilnaMestaForm.NewDialog.ImeracRequired" xml:space="preserve"><value>Ime računalnika (imerac) je obvezno.</value></data><data name="MerilnaMestaForm.NewDialog.OpisRequired" xml:space="preserve"><value>Opis je obvezen.</value></data><data name="Common.Ordinal" xml:space="preserve"><value>Zap. št.</value></data><data name="MerilaForm.Col.Id" xml:space="preserve"><value>ID merila</value></data><data name="MerilaForm.Col.Name" xml:space="preserve"><value>Naziv merila</value></data><data name="MerilaForm.Col.Description" xml:space="preserve"><value>Opis merila</value></data><data name="MerilneMetodeForm.NewDialog.Metoda" xml:space="preserve"><value>Metoda</value></data><data name="MerilneMetodeForm.NewDialog.Channel" xml:space="preserve"><value>Št. kanala</value></data><data name="MerilneMetodeForm.NewDialog.Description" xml:space="preserve"><value>Opis metode</value></data><data name="DodatneKodeForm.Col.Name" xml:space="preserve"><value>Naziv</value></data><data name="KontrolniPlaniForm.Dodatki.NoCode" xml:space="preserve"><value>Izbrani zapis nima kode (koda).</value></data><data name="KontrolniPlaniForm.CheckBatch.NoBatch" xml:space="preserve"><value>Izbrani zapis nima kontrolne šarže (sarza).</value></data><data name="KontrolniPlaniForm.CheckBatch.Active" xml:space="preserve"><value>Šarža je aktivna</value></data><data name="KontrolniPlaniForm.CheckBatch.Inactive" xml:space="preserve"><value>Šarža ni aktivna</value></data><data name="KontrolniPlaniForm.CheckBatch.Error" xml:space="preserve"><value>Napaka pri preverjanju šarže v SAP:</value></data><data name="ZacetnaForm.ChannelDialog.Text" xml:space="preserve"><value>Vpis št. kanala</value></data><data name="ZacetnaForm.ChannelDialog.Prompt" xml:space="preserve"><value>Številka merila</value></data><data name="ZacetnaForm.DecimalsDialog.Text" xml:space="preserve"><value>Decimalke</value></data><data name="ZacetnaForm.DecimalsDialog.Prompt" xml:space="preserve"><value>Število decimalk</value></data><data name="MerilnaMestaForm.NewDialog.ComPort" xml:space="preserve"><value>COM port</value></data><data name="MerilnaMestaForm.NewDialog.Lokal" xml:space="preserve"><value>Lokal</value></data></root>

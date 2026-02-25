@@ -463,7 +463,7 @@ namespace SapSpcWinForms
 
             public NovaPostajaDialog()
             {
-                Text = "Nova postaja";
+                Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Text");
                 FormBorderStyle = FormBorderStyle.FixedDialog;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = false;
@@ -489,15 +489,15 @@ namespace SapSpcWinForms
 
                 int r = 0;
 
-                grid.Controls.Add(new Label { Text = "Ime računalnika", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Imerac"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbImerac = new TextBox { Dock = DockStyle.Fill, Text = Environment.MachineName };
                 grid.Controls.Add(_tbImerac, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "COM port", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.ComPort"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numCom = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 999, Width = 120, Value = 0 };
                 grid.Controls.Add(_numCom, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Opis", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Opis"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbOpis = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbOpis, 1, r++);
 
@@ -506,7 +506,7 @@ namespace SapSpcWinForms
                 {
                     AutoSize = true,
                     MaximumSize = new Size(340, 0),
-                    Text = "Lokal:\n0 = podatki na lokalnem računalniku\n1 = podatki na serverju",
+                    Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.LokalHelp"),
                     ForeColor = Color.DimGray
                 };
 
@@ -514,25 +514,25 @@ namespace SapSpcWinForms
                 grid.SetColumnSpan(info, 2);
                 r++;
 
-                grid.Controls.Add(new Label { Text = "Lokal", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Lokal"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _cbLokal = new ComboBox { Dock = DockStyle.Left, DropDownStyle = ComboBoxStyle.DropDownList, Width = 120 };
                 _cbLokal.Items.AddRange(new object[] { "0", "1" });
                 _cbLokal.SelectedIndex = 1; // default 1 (server)
                 grid.Controls.Add(_cbLokal, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Ime kontrolne točke", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Imekon"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbImekon = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbImekon, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Postkoda", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Postkoda"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _tbPostkoda = new TextBox { Dock = DockStyle.Fill };
                 grid.Controls.Add(_tbPostkoda, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "Stevrsta", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.Stevrsta"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numStevrsta = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 999, Width = 120, Value = 6 };
                 grid.Controls.Add(_numStevrsta, 1, r++);
 
-                grid.Controls.Add(new Label { Text = "IzbiraKd", AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
+                grid.Controls.Add(new Label { Text = TranslationService.Translate("MerilnaMestaForm.NewDialog.IzbiraKd"), AutoSize = true, Anchor = AnchorStyles.Left }, 0, r);
                 _numIzbiraKd = new NumericUpDown { Dock = DockStyle.Left, Minimum = 0, Maximum = 999, Width = 120, Value = 0 };
                 grid.Controls.Add(_numIzbiraKd, 1, r++);
 
@@ -544,8 +544,8 @@ namespace SapSpcWinForms
                     Height = 52
                 };
 
-                _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "Prekliči", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+                _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
 
                 _btnOk.Click += Ok_Click;
 
@@ -566,7 +566,7 @@ namespace SapSpcWinForms
 
                 if (string.IsNullOrWhiteSpace(imerac))
                 {
-                    MessageBox.Show("Ime računalnika (imerac) je obvezno.", "Napaka",
+                    MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.NewDialog.ImeracRequired"), TranslationService.Translate("Common.ErrorTitle"),
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     DialogResult = DialogResult.None;
                     return;
@@ -574,7 +574,7 @@ namespace SapSpcWinForms
 
                 if (string.IsNullOrWhiteSpace(opis))
                 {
-                    MessageBox.Show("Opis je obvezen.", "Napaka",
+                    MessageBox.Show(TranslationService.Translate("MerilnaMestaForm.NewDialog.OpisRequired"), TranslationService.Translate("Common.ErrorTitle"),
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     DialogResult = DialogResult.None;
                     return;

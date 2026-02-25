@@ -5,6 +5,7 @@ using System.Data.OleDb;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -26,7 +27,7 @@ namespace SapSpcWinForms
             _connStr = connStr ?? throw new ArgumentNullException(nameof(connStr));
             _koda = (koda ?? "").Trim();
 
-            Text = "Dodatki";
+            Text = TranslationService.Translate("DodatkiForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -37,13 +38,13 @@ namespace SapSpcWinForms
             {
                 if (string.IsNullOrWhiteSpace(_koda))
                 {
-                    MessageBox.Show(this, "Ni izbrane kode (koda).", "Dodatki",
+                    MessageBox.Show(this, TranslationService.Translate("DodatkiForm.NoCode"), TranslationService.Translate("DodatkiForm.Text"),
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Close();
                     return;
                 }
 
-                _lbl.Text = $"Koda = {_koda}";
+                _lbl.Text = string.Format(TranslationService.Translate("DodatkiForm.CodeLabel"), _koda);
                 LoadData();
             };
         }
@@ -66,25 +67,25 @@ namespace SapSpcWinForms
                 WrapContents = false
             };
 
-            _btnAdd.Text = "Dodaj";
+            _btnAdd.Text = TranslationService.Translate("DodatkiForm.Add");
             _btnAdd.Width = 120;
             _btnAdd.Click += (_, __) =>
             {
-                var nz = InputBox.Show("Vnos dodatka", "Naziv:");
+                var nz = InputBox.Show(TranslationService.Translate("DodatkiForm.InputTitle"), TranslationService.Translate("DodatkiForm.Name"));
                 if (string.IsNullOrWhiteSpace(nz)) return;
 
                 int newId = InsertRow(nz.Trim());
                 LoadData(keepId: newId);
             };
 
-            _btnDelete.Text = "Briši";
+            _btnDelete.Text = TranslationService.Translate("DodatkiForm.Delete");
             _btnDelete.Width = 120;
             _btnDelete.Click += (_, __) =>
             {
                 var id = GetCurrentId();
                 if (!id.HasValue) return;
 
-                var r = MessageBox.Show(this, "Ali zares želiš izbrisati?", "Dodatki",
+                var r = MessageBox.Show(this, TranslationService.Translate("DodatkiForm.DeletePrompt"), TranslationService.Translate("DodatkiForm.Text"),
                     MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (r != DialogResult.Yes) return;
@@ -93,7 +94,7 @@ namespace SapSpcWinForms
                 LoadData();
             };
 
-            _btnClose.Text = "Zapri";
+            _btnClose.Text = TranslationService.Translate("DodatkiForm.Close");
             _btnClose.Width = 120;
             _btnClose.Click += (_, __) => Close();
 
@@ -138,7 +139,7 @@ namespace SapSpcWinForms
 
             if (_grid.Columns["naziv"] != null)
             {
-                _grid.Columns["naziv"].HeaderText = "naziv";
+                _grid.Columns["naziv"].HeaderText = TranslationService.Translate("DodatkiForm.Name");
                 _grid.Columns["naziv"].ReadOnly = false;
                 _grid.Columns["naziv"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
@@ -289,13 +290,13 @@ namespace SapSpcWinForms
                     tb.Top = 38;
                     tb.Width = 480;
 
-                    ok.Text = "OK";
+                    ok.Text = TranslationService.Translate("Common.Ok");
                     ok.Left = 12;
                     ok.Top = 74;
                     ok.Width = 120;
                     ok.DialogResult = DialogResult.OK;
 
-                    cancel.Text = "Prekliči";
+                    cancel.Text = TranslationService.Translate("Common.Cancel");
                     cancel.Left = 140;
                     cancel.Top = 74;
                     cancel.Width = 120;

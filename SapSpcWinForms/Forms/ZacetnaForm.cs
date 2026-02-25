@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -545,12 +545,12 @@ namespace SapSpcWinForms
         // --------- NASTAVITVE ------------------------------------
         private void VpisStevKanalaMenuItem_Click(object sender, EventArgs e)
         {
-            _stKanal = VpisStevDialog.Vpis(this, "Vpis št. kanala", "Številka merila", _stKanal, 1, 10);
+            _stKanal = VpisStevDialog.Vpis(this, TranslationService.Translate("ZacetnaForm.ChannelDialog.Text"), TranslationService.Translate("ZacetnaForm.ChannelDialog.Prompt"), _stKanal, 1, 10);
         }
 
         private void DecimalkeMenuItem_Click(object sender, EventArgs e)
         {
-            _stDec = VpisStevDialog.Vpis(this, "Decimalke", "tevilo decimalk", _stDec, 0, 6);
+            _stDec = VpisStevDialog.Vpis(this, TranslationService.Translate("ZacetnaForm.DecimalsDialog.Text"), TranslationService.Translate("ZacetnaForm.DecimalsDialog.Prompt"), _stDec, 0, 6);
         }
 
         private void BeriMeritveSettingsMenuItem_Click(object sender, EventArgs e)

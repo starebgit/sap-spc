@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -33,7 +34,7 @@ namespace SapSpcWinForms
             _ensureKonplan = ensureKonplan;
             _onAdded = onAdded;
 
-            Text = "Vpis kode";
+            Text = TranslationService.Translate("VpisKodeForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -54,29 +55,29 @@ namespace SapSpcWinForms
 
         private void BuildUi()
         {
-            var lblKoda = new Label { Left = 12, Top = 14, AutoSize = true, Text = "Koda:" };
+            var lblKoda = new Label { Left = 12, Top = 14, AutoSize = true, Text = TranslationService.Translate("VpisKodeForm.Code") };
             _txtKoda.SetBounds(90, 10, 170, 24);
             _txtKoda.Leave += (_, __) => RefreshSarze();
 
             _chkPreveri.SetBounds(280, 12, 220, 24);
             _chkPreveri.AutoSize = true;
-            _chkPreveri.Text = "Preveri / filtriraj (SAP)";
+            _chkPreveri.Text = TranslationService.Translate("VpisKodeForm.CheckFilter");
             _chkPreveri.CheckedChanged += (_, __) => RefreshSarze();
 
-            var lblSarze = new Label { Left = 12, Top = 52, AutoSize = true, Text = "Kontrolne šarže:" };
+            var lblSarze = new Label { Left = 12, Top = 52, AutoSize = true, Text = TranslationService.Translate("VpisKodeForm.Batches") };
             _listSarze.SetBounds(12, 74, 488, 170);
 
-            var lblFrk = new Label { Left = 12, Top = 260, AutoSize = true, Text = "Frekvenca:" };
+            var lblFrk = new Label { Left = 12, Top = 260, AutoSize = true, Text = TranslationService.Translate("VpisKodeForm.Frequency") };
             _txtFrk.SetBounds(90, 256, 80, 24);
 
-            var lblTrj = new Label { Left = 190, Top = 260, AutoSize = true, Text = "Čas:" };
+            var lblTrj = new Label { Left = 190, Top = 260, AutoSize = true, Text = TranslationService.Translate("VpisKodeForm.Time") };
             _txtTrj.SetBounds(230, 256, 80, 24);
 
-            _btnDodaj.Text = "Dodaj";
+            _btnDodaj.Text = TranslationService.Translate("VpisKodeForm.Add");
             _btnDodaj.SetBounds(320, 302, 80, 30);
             _btnDodaj.Click += (_, __) => Dodaj();
 
-            _btnZapri.Text = "Zapri";
+            _btnZapri.Text = TranslationService.Translate("VpisKodeForm.Close");
             _btnZapri.SetBounds(420, 302, 80, 30);
             _btnZapri.Click += (_, __) => Close();
 
@@ -103,7 +104,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Napaka pri branju šarž iz SAP:\n" + ex.Message, "SAP",
+                MessageBox.Show(this, TranslationService.Translate("VpisKodeForm.BatchReadError") + "\n" + ex.Message, TranslationService.Translate("VpisKodeForm.SapTitle"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -119,7 +120,7 @@ namespace SapSpcWinForms
 
             if (_listSarze.SelectedIndex < 0)
             {
-                MessageBox.Show(this, "Izberi šaržo.", "Vpis",
+                MessageBox.Show(this, TranslationService.Translate("VpisKodeForm.SelectBatch"), TranslationService.Translate("VpisKodeForm.EntryTitle"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -142,7 +143,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Napaka pri zapisu:\n" + ex.Message, "Vpis",
+                MessageBox.Show(this, TranslationService.Translate("VpisKodeForm.WriteError") + "\n" + ex.Message, TranslationService.Translate("VpisKodeForm.EntryTitle"),
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

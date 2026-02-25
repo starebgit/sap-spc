@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -37,7 +37,7 @@ namespace SapSpcWinForms
 
             _ok = new Button
             {
-                Text = "V redu",
+                Text = SapSpcWinForms.Services.TranslationService.Translate("Common.Ok"),
                 DialogResult = DialogResult.OK,
                 Location = new Point(240, 78),
                 Width = 80

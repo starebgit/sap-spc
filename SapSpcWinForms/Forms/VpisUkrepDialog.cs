@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using SapSpcWinForms.Data;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -15,11 +16,11 @@ namespace SapSpcWinForms
         private readonly Button _btnOk = new Button();
         private readonly Button _btnCancel = new Button();
 
-        private const string OtherItemText = "Drugo";
+        private static readonly string OtherItemText = TranslationService.Translate("VpisUkrepDialog.Other");
 
         private VpisUkrepDialog(string imekar, IEnumerable<string> ukrepi)
         {
-            Text = "Izbor ukrepa";
+            Text = TranslationService.Translate("VpisUkrepDialog.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 520;
             Height = 420;
@@ -40,7 +41,7 @@ namespace SapSpcWinForms
 
             var bottom = new Panel { Dock = DockStyle.Bottom, Height = 86, Padding = new Padding(10) };
 
-            _lblOther.Text = "Drugo:";
+            _lblOther.Text = TranslationService.Translate("VpisUkrepDialog.OtherLabel");
             _lblOther.Left = 10;
             _lblOther.Top = 10;
             _lblOther.Width = 60;
@@ -52,14 +53,14 @@ namespace SapSpcWinForms
             _txtOther.Visible = false;
             _txtOther.TextChanged += (_, __) => _btnOk.Enabled = true;
 
-            _btnOk.Text = "OK";
+            _btnOk.Text = TranslationService.Translate("Common.Ok");
             _btnOk.Left = 290;
             _btnOk.Top = 40;
             _btnOk.Width = 90;
             _btnOk.Enabled = false;
             _btnOk.DialogResult = DialogResult.OK;
 
-            _btnCancel.Text = "Prekliči";
+            _btnCancel.Text = TranslationService.Translate("Common.Cancel");
             _btnCancel.Left = 390;
             _btnCancel.Top = 40;
             _btnCancel.Width = 90;
