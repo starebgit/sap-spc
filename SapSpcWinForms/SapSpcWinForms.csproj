@@ -133,6 +133,7 @@
     <Compile Include="Services\SapPrijavaRepository.cs" />
     <Compile Include="Services\SapSession.cs" />
     <Compile Include="Services\TranslationService.cs" />
+    <Compile Include="Services\UiTheme.cs" />
     <Compile Include="Forms\SemaforForm.cs">
       <SubType>Form</SubType>
     </Compile>
