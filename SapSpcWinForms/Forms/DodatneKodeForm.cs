@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Configuration;
 
 using SapSpcWinForms.Services;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms
 {
@@ -29,6 +30,7 @@ namespace SapSpcWinForms
             Width = 500;
             Height = 400;
             BuildUi();
+            UiTheme.ApplyFormTheme(this);
             Load += DodatneKodeForm_Load;
         }
 
