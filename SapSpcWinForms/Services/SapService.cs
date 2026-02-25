@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Globalization;
 using SAP.Middleware.Connector;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -80,7 +81,12 @@ namespace SapSpcWinForms
         // Helper: safe get string by field name from IRfcStructure (compatible with C# 7.3)
         private static string SafeGetField(IRfcStructure r, string name)
         {
-            try { return r.GetString(name); } catch { return ""; }
+            try { return r.GetString(name); }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn($"SapService.SafeGetField.{name}", ex);
+                return "";
+            }
         }
 
         // Helper: dump selected fields from a structure
@@ -114,7 +120,11 @@ namespace SapSpcWinForms
                 sb.AppendLine($"RETURN.TYPE='{ret.GetString("TYPE")}', ID='{ret.GetString("ID")}', NO='{ret.GetString("NUMBER")}'");
                 sb.AppendLine($"RETURN.MESSAGE='{ret.GetString("MESSAGE")}'");
             }
-            catch { sb.AppendLine("RETURN: <missing>"); }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SapService.DumpReturn.RETURN", ex);
+                sb.AppendLine("RETURN: <missing>");
+            }
 
             try
             {
@@ -127,7 +137,11 @@ namespace SapSpcWinForms
                     sb.AppendLine($"{i + 1}: TYPE='{SafeGetField(r, "TYPE")}' ID='{SafeGetField(r, "ID")}' NO='{SafeGetField(r, "NUMBER")}' MSG='{SafeGetField(r, "MESSAGE")}'");
                 }
             }
-            catch { sb.AppendLine("RETURNTABLE: <missing>"); }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SapService.DumpReturn.RETURNTABLE", ex);
+                sb.AppendLine("RETURNTABLE: <missing>");
+            }
 
             return sb.ToString();
         }

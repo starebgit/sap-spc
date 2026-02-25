@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.OleDb;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms.Data
 {
@@ -30,7 +31,10 @@ namespace SapSpcWinForms.Data
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SinaproRepository.PreveriStroj", ex);
+            }
             return false;
         }
 
