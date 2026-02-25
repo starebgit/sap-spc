@@ -5,6 +5,7 @@ using System.Data.OleDb;
 using System.Drawing;
 using System.Windows.Forms;
 using SapSpcWinForms.Services;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms
 {
@@ -27,6 +28,7 @@ namespace SapSpcWinForms
             Width = 900;
             Height = 600;
             BuildUi();
+            UiTheme.ApplyFormTheme(this);
         }
 
         private void BuildUi()

@@ -439,6 +439,36 @@ namespace SapSpcWinForms
             button.Width = 196;
             button.Padding = new Padding(6);
             button.Cursor = Cursors.Hand;
+            button.UseVisualStyleBackColor = false;
+
+            button.EnabledChanged -= ActionButton_EnabledChanged;
+            button.EnabledChanged += ActionButton_EnabledChanged;
+            ApplyActionButtonState(button);
+        }
+
+        private void ActionButton_EnabledChanged(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+                ApplyActionButtonState(button);
+        }
+
+        private void ApplyActionButtonState(Button button)
+        {
+            if (button == null)
+                return;
+
+            if (button.Enabled)
+            {
+                button.BackColor = _accentColor;
+                button.ForeColor = Color.White;
+                button.Cursor = Cursors.Hand;
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(188, 196, 204);
+                button.ForeColor = Color.FromArgb(90, 98, 106);
+                button.Cursor = Cursors.Default;
+            }
         }
 
         private void StyleListBox(ListBox listBox)
@@ -1864,13 +1894,13 @@ namespace SapSpcWinForms
             Controls.Add(rightPanel);
             Controls.Add(menuStrip);
 
-            ConfigureRightPanelCenteredLayout();
+            ConfigureRightPanelTopAlignedLayout();
 
             ResumeLayout(true);
         }
 
-        // Center the rightPanel content vertically (logo + text + buttons)
-        private void ConfigureRightPanelCenteredLayout()
+        // Keep right panel actions aligned to the top (under logo + company text)
+        private void ConfigureRightPanelTopAlignedLayout()
         {
             // Keep your existing controls, just re-parent them into a top header + centered button stack.
             var buttons = new Control[]
@@ -1918,7 +1948,7 @@ namespace SapSpcWinForms
                 header.Controls.Add(companyLabel, 0, header.RowCount++);
             }
 
-            // ---------- BODY (buttons centered in remaining space) ----------
+            // ---------- BODY (buttons start at the top, under header) ----------
             var body = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -1927,17 +1957,16 @@ namespace SapSpcWinForms
                 Padding = new Padding(0, 8, 0, 16)
             };
             body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            body.RowCount = 3;
-            body.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));  // spacer
-            body.RowStyles.Add(new RowStyle(SizeType.AutoSize));      // buttons
-            body.RowStyles.Add(new RowStyle(SizeType.Percent, 50f));  // spacer
+            body.RowCount = 2;
+            body.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            body.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             var flow = new FlowLayoutPanel
             {
                 AutoSize = true,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                Anchor = AnchorStyles.None,
+                Anchor = AnchorStyles.Top,
                 BackColor = rightPanel.BackColor,
                 Margin = new Padding(0)
             };
@@ -1950,7 +1979,7 @@ namespace SapSpcWinForms
                 flow.Controls.Add(c);
             }
 
-            body.Controls.Add(flow, 0, 1);
+            body.Controls.Add(flow, 0, 0);
 
             // IMPORTANT: add Fill first, then Top (docking order)
             rightPanel.Controls.Add(body);
