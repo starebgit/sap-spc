@@ -58,8 +58,10 @@ namespace SapSpcWinForms
             WireUpKanalDecimalke();
         }
 
-        private bool _testInputRunning = false;
-        private Button _testInputButton;
+        // Commented out: test-only UI flow is intentionally disabled to avoid exposing
+        // diagnostic prompts/runtime toggles in normal production usage.
+        // private bool _testInputRunning = false;
+        // private Button _testInputButton;
         private const int COM_BAUD = 9600;
 
         // Prenos s stopalko runtime state
@@ -1315,80 +1317,82 @@ namespace SapSpcWinForms
             }
         }
 
-        private async void TestInputButton_Click(object sender, EventArgs e)
-        {
-            if (_testInputRunning) return;
-
-            var btn = _testInputButton ?? (sender as Button);
-            string oldText = btn?.Text ?? "Test Input";
-
-            _testInputRunning = true;
-            try
-            {
-                // Must click a Vzorec cell first
-                var cell = KaraktiGrid?.CurrentCell;
-                var colName = cell?.OwningColumn?.Name ?? "";
-                if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    MessageBox.Show(this,
-                        "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
-                        "Test Input",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    return;
-                }
-
-                if (btn != null)
-                {
-                    btn.Enabled = false;
-                    btn.Text = "Test Input (čakam...)";
-                }
-
-                string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
-
-                // Read one fresh frame after click (caliper sends when you press it)
-                string raw = await Task.Run(() => AppUtils.ReadOneFrameFromCom(comPort, COM_BAUD, TimeSpan.FromSeconds(30)));
-
-                if (string.IsNullOrWhiteSpace(raw))
-                {
-                    MessageBox.Show(this,
-                        "Timeout (30s) – ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na šublerju.",
-                        "Test Input",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (!TryParseValueFromRaw(raw, out double value, out string tokenUsed))
-                {
-                    MessageBox.Show(this,
-                        "Ne znam parsirati meritve iz prejetega okvirja.\n\nRAW:\n" + raw,
-                        "Test Input",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                    return;
-                }
-
-                ApplyPrenosValueToCurrentCell(value);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this,
-                    "Napaka pri branju COM porta:\n" + ex.Message,
-                    "Test Input",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-            finally
-            {
-                if (btn != null)
-                {
-                    btn.Enabled = true;
-                    btn.Text = oldText;
-                }
-                _testInputRunning = false;
-            }
-        }
+        // Commented out intentionally: test-input click flow was used for ad-hoc diagnostics
+        // (test-oriented UI messages and runtime flag handling) and should not run in standard flow.
+        // private async void TestInputButton_Click(object sender, EventArgs e)
+        // {
+        //     if (_testInputRunning) return;
+        //
+        //     var btn = _testInputButton ?? (sender as Button);
+        //     string oldText = btn?.Text ?? "Test Input";
+        //
+        //     _testInputRunning = true;
+        //     try
+        //     {
+        //         // Must click a Vzorec cell first
+        //         var cell = KaraktiGrid?.CurrentCell;
+        //         var colName = cell?.OwningColumn?.Name ?? "";
+        //         if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+        //         {
+        //             MessageBox.Show(this,
+        //                 "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
+        //                 "Test Input",
+        //                 MessageBoxButtons.OK,
+        //                 MessageBoxIcon.Information);
+        //             return;
+        //         }
+        //
+        //         if (btn != null)
+        //         {
+        //             btn.Enabled = false;
+        //             btn.Text = "Test Input (čakam...)";
+        //         }
+        //
+        //         string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
+        //
+        //         // Read one fresh frame after click (caliper sends when you press it)
+        //         string raw = await Task.Run(() => AppUtils.ReadOneFrameFromCom(comPort, COM_BAUD, TimeSpan.FromSeconds(30)));
+        //
+        //         if (string.IsNullOrWhiteSpace(raw))
+        //         {
+        //             MessageBox.Show(this,
+        //                 "Timeout (30s) – ni podatkov.\n\nNamig: klikni Test Input, nato pritisni gumb na šublerju.",
+        //                 "Test Input",
+        //                 MessageBoxButtons.OK,
+        //                 MessageBoxIcon.Warning);
+        //             return;
+        //         }
+        //
+        //         if (!TryParseValueFromRaw(raw, out double value, out string tokenUsed))
+        //         {
+        //             MessageBox.Show(this,
+        //                 "Ne znam parsirati meritve iz prejetega okvirja.\n\nRAW:\n" + raw,
+        //                 "Test Input",
+        //                 MessageBoxButtons.OK,
+        //                 MessageBoxIcon.Warning);
+        //             return;
+        //         }
+        //
+        //         ApplyPrenosValueToCurrentCell(value);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         MessageBox.Show(this,
+        //             "Napaka pri branju COM porta:\n" + ex.Message,
+        //             "Test Input",
+        //             MessageBoxButtons.OK,
+        //             MessageBoxIcon.Error);
+        //     }
+        //     finally
+        //     {
+        //         if (btn != null)
+        //         {
+        //             btn.Enabled = true;
+        //             btn.Text = oldText;
+        //         }
+        //         _testInputRunning = false;
+        //     }
+        // }
 
         private static bool TryParseValueFromRaw(string raw, out double value, out string tokenUsed)
         {

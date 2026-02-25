@@ -677,17 +677,18 @@ namespace SapSpcWinForms
 
             var inspPointData = SafeGetStructure(fn, "INSPPOINTDATA");
 
-            // DEBUG: show actual NCo field order for INSPPOINTDATA
-            {
-                var md = inspPointData.Metadata;
-                var sb = new System.Text.StringBuilder();
-                sb.AppendLine("INSPPOINTDATA field order (NCo):");
-                for (int i = 0; i < md.FieldCount; i++)
-                {
-                    var f = md[i];
-                    sb.AppendLine($"{i + 1,3}: {f.Name}  ({f.DataType}) len={f.NucLength}");
-                }
-            }
+            // Commented out intentionally: debug metadata dump created a StringBuilder that was
+            // never consumed (no logging/output), so it is disabled to avoid dead debug code.
+            // {
+            //     var md = inspPointData.Metadata;
+            //     var sb = new System.Text.StringBuilder();
+            //     sb.AppendLine("INSPPOINTDATA field order (NCo):");
+            //     for (int i = 0; i < md.FieldCount; i++)
+            //     {
+            //         var f = md[i];
+            //         sb.AppendLine($"{i + 1,3}: {f.Name}  ({f.DataType}) len={f.NucLength}");
+            //     }
+            // }
 
             if (inspPointData == null) return (false, "Missing INSPPOINTDATA structure in BAPI_INSPOPER_RECORDRESULTS");
 
