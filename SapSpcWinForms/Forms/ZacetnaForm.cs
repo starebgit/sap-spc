@@ -1578,8 +1578,8 @@ namespace SapSpcWinForms
         {
             _prenosStopalkaRunning = false;
 
-            try { _prenosStopalkaCts?.Cancel(); } catch { }
-            try { _prenosStopalkaCts?.Dispose(); } catch { }
+            try { _prenosStopalkaCts?.Cancel(); } catch (Exception ex) { Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.Cancel", ex); }
+            try { _prenosStopalkaCts?.Dispose(); } catch (Exception ex) { Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.DisposeCts", ex); }
             _prenosStopalkaCts = null;
 
             try
@@ -1591,7 +1591,10 @@ namespace SapSpcWinForms
                     _prenosStopalkaPort.Dispose();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.PortClose", ex);
+            }
             _prenosStopalkaPort = null;
 
             lock (_prenosLock) _prenosBuf.Clear();
@@ -1612,7 +1615,11 @@ namespace SapSpcWinForms
 
             string chunk;
             try { chunk = _prenosStopalkaPort.ReadExisting(); }
-            catch { return; }
+            catch (Exception ex)
+            {
+                Services.DiagnosticLog.Warn("ZacetnaForm.PrenosStopalkaPort_DataReceived.ReadExisting", ex);
+                return;
+            }
 
             if (string.IsNullOrEmpty(chunk)) return;
 

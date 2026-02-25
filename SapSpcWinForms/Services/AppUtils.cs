@@ -235,7 +235,11 @@ namespace SapSpcWinForms.Utils
         public static T FindControl<T>(Control root, string name) where T : Control
         {
             try { return root.Controls.Find(name, true).OfType<T>().FirstOrDefault(); }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                Services.DiagnosticLog.Warn("AppUtils.FindControl", ex);
+                return null;
+            }
         }
 
         public static Button FindFirstButtonByTextContains(Control root, string needle)
@@ -296,6 +300,19 @@ namespace SapSpcWinForms.Utils
             return double.TryParse(tokenUsed, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
         }
 
+
+        public static bool TryParseLast04AFrame(StringBuilder rawBuffer, out double value, out int frameEndIndex, out string tokenUsed)
+        {
+            value = 0;
+            frameEndIndex = -1;
+            tokenUsed = null;
+
+            if (rawBuffer == null || rawBuffer.Length == 0)
+                return false;
+
+            return TryParseLast04AFrame(rawBuffer.ToString(), out value, out frameEndIndex, out tokenUsed);
+        }
+
         public static string ReadOneFrameFromCom(string portName, int baud, TimeSpan timeout)
         {
             if (string.IsNullOrWhiteSpace(portName))
@@ -320,7 +337,10 @@ namespace SapSpcWinForms.Utils
                 {
                     string chunk = null;
                     try { chunk = sp.ReadExisting(); }
-                    catch (TimeoutException) { /* ignore */ }
+                    catch (TimeoutException ex)
+                    {
+                        Services.DiagnosticLog.Warn("AppUtils.ReadOneFrameFromCom.ReadExisting", ex);
+                    }
 
                     if (!string.IsNullOrEmpty(chunk))
                     {

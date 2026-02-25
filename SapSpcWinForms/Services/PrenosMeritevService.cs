@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using SapSpcWinForms.Utils;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms.Services
 {
@@ -24,6 +25,9 @@ namespace SapSpcWinForms.Services
 
         public static void ApplyMeasurementToCurrentCell(DataGridView grid, string measurement)
         {
+            if (grid == null)
+                return;
+
             if (!TryGetCurrentVzorecCell(grid, out var cell))
                 return;
 
@@ -36,6 +40,9 @@ namespace SapSpcWinForms.Services
 
         public static void MoveToNextVzorecCell(DataGridView grid, int row, int curCol)
         {
+            if (grid == null || row < 0 || row >= grid.Rows.Count || grid.ColumnCount <= 0)
+                return;
+
             int firstVzCol = -1;
             for (int i = 0; i < grid.ColumnCount; i++)
             {
@@ -63,11 +70,15 @@ namespace SapSpcWinForms.Services
                 nextCol = firstVzCol;
             }
 
-            if (nextCol >= 0)
+            if (nextCol >= 0 && nextRow >= 0 && nextRow < grid.Rows.Count)
             {
-                grid.CurrentCell = grid.Rows[nextRow].Cells[nextCol];
-                grid.Focus();
-                grid.BeginEdit(true);
+                var targetRow = grid.Rows[nextRow];
+                if (targetRow != null && nextCol < targetRow.Cells.Count)
+                {
+                    grid.CurrentCell = targetRow.Cells[nextCol];
+                    grid.Focus();
+                    grid.BeginEdit(true);
+                }
             }
         }
 
@@ -98,7 +109,10 @@ namespace SapSpcWinForms.Services
                 {
                     string chunk = null;
                     try { chunk = sp.ReadExisting(); }
-                    catch (TimeoutException) { }
+                    catch (TimeoutException ex)
+                    {
+                        DiagnosticLog.Warn("PrenosMeritevService.ReadSingleMeasurementRaw.ReadExisting", ex);
+                    }
 
                     if (!string.IsNullOrEmpty(chunk))
                     {
@@ -108,8 +122,14 @@ namespace SapSpcWinForms.Services
                         if (sb.Length > 2048)
                             sb.Remove(0, sb.Length - 2048);
 
-                        if (stKanal <= 8 && AppUtils.TryParseLast04AFrame(sb.ToString(), out _, out _, out _))
-                            break;
+                        if (stKanal <= 8 && sb.Length >= 12)
+                        {
+                            var hasFrameSignature = chunk.IndexOf("04A", StringComparison.OrdinalIgnoreCase) >= 0
+                                || sb.ToString().IndexOf("04A", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                            if (hasFrameSignature && AppUtils.TryParseLast04AFrame(sb.ToString(), out _, out _, out _))
+                                break;
+                        }
                     }
 
                     if (sb.Length > 0 && lastDataMs >= 0 && (sw.ElapsedMilliseconds - lastDataMs) > 220)
@@ -203,8 +223,7 @@ namespace SapSpcWinForms.Services
             if (buffer == null || buffer.Length == 0)
                 return false;
 
-            var raw = buffer.ToString();
-            if (!AppUtils.TryParseLast04AFrame(raw, out value, out int endIdx, out _))
+            if (!AppUtils.TryParseLast04AFrame(buffer, out value, out int endIdx, out _))
                 return false;
 
             if (endIdx > 0 && endIdx <= buffer.Length)
