@@ -26,7 +26,7 @@ namespace SapSpcWinForms
             _isAdmin = isAdmin;
             _idPost = idPost;
             _merilnoMestoOpis = merilnoMestoOpis;
-            Text = "Merila";
+            Text = TranslationService.Translate("MerilaForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -41,7 +41,7 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = $"Merilno mesto: {_merilnoMestoOpis ?? ""}",
+                Text = string.Format(TranslationService.Translate("MerilaForm.Header"), _merilnoMestoOpis ?? ""),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -76,7 +76,7 @@ namespace SapSpcWinForms
                 {
                     Dock = DockStyle.Fill,
                     Height = 40,
-                    Text = "+ Novo merilo",
+                    Text = TranslationService.Translate("MerilaForm.NewEntryButton"),
                     Enabled = _isAdmin,
                     BackColor = Color.FromArgb(46, 204, 113),
                     ForeColor = Color.White,
@@ -102,14 +102,14 @@ namespace SapSpcWinForms
         {
             if (!_idPost.HasValue)
             {
-                MessageBox.Show("Merilno mesto ni izbrano.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilaForm.NoStation"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
             var connString = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connString))
             {
-                MessageBox.Show("Manjka connection string 'StrojnaDb' v App.config.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilaForm.MissingConn"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
@@ -145,7 +145,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriši",
+                    Text = TranslationService.Translate("MerilaForm.DeleteButton"),
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -186,7 +186,7 @@ namespace SapSpcWinForms
                 if (!_isAdmin) return;
                 var row = _grid.Rows[e.RowIndex];
                 if (row == null || row.IsNewRow) return;
-                var res = MessageBox.Show("Ali zares želiš izbrisati izbrano merilo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var res = MessageBox.Show(TranslationService.Translate("MerilaForm.DeletePrompt"), TranslationService.Translate("MerilaForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res != DialogResult.Yes) return;
                 _grid.Rows.RemoveAt(e.RowIndex);
                 SaveChanges();
@@ -198,7 +198,7 @@ namespace SapSpcWinForms
         {
             if (!_isAdmin)
             {
-                MessageBox.Show("Vpis merila je dovoljen samo administratorju.", "Ni dovoljeno", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(TranslationService.Translate("MerilaForm.AdminOnly"), TranslationService.Translate("MerilaForm.NotAllowedTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             using (var dlg = new NovaMeriloDialog())
@@ -260,7 +260,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message, "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilaForm.SaveError") + "\n" + ex.Message, TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -275,7 +275,7 @@ namespace SapSpcWinForms
             private Button _btnCancel;
             public NovaMeriloDialog()
             {
-                Text = "Novo merilo";
+                Text = TranslationService.Translate("MerilaForm.NewDialog.Text");
                 FormBorderStyle = FormBorderStyle.FixedDialog;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = false;
@@ -316,8 +316,8 @@ namespace SapSpcWinForms
                     Padding = new Padding(12),
                     Height = 52
                 };
-                _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "Prekliči", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+                _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);

@@ -52,7 +52,7 @@ namespace SapSpcWinForms
 
         private void BuildUi()
         {
-            Text = "Meritve (strežnik)";
+            Text = TranslationService.Translate("SqlMeritveForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 1200;
             Height = 750;
@@ -79,13 +79,13 @@ namespace SapSpcWinForms
                 Left = 12,
                 Top = 12,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
-                Text = $"Merilno mesto: {_postajaNaziv}  (idpost={_idpost})"
+                Text = string.Format(TranslationService.Translate("SqlMeritveForm.Header"), _postajaNaziv, _idpost)
             };
             top.Controls.Add(_lblPostaja);
 
             _btnDelete = new Button
             {
-                Text = "Izbriši izbrano",
+                Text = TranslationService.Translate("SqlMeritveForm.DeleteButton"),
                 Width = 140,
                 Height = 26,
                 Left = 1000, // will be adjusted by Anchor
@@ -153,14 +153,14 @@ namespace SapSpcWinForms
             _gridGlav.DataBindingComplete += (s, e) =>
             {
                 HideColumns(_gridGlav, new[] { "idpost", "dodatno", "orodja" });
-                SetHeader(_gridGlav, "idmer", "Zap. št");
+                SetHeader(_gridGlav, "idmer", TranslationService.Translate("SqlMeritveForm.Col.ZapSt"));
             };
             _gridKar.DataBindingComplete += (s, e) =>
             {
                 HideColumns(_gridKar, new[] { "idkam", "idmer", "idkarm" });
-                SetHeader(_gridKar, "karakt", "Pozicija");
-                SetHeader(_gridKar, "zapvz", "Št. Vzorca");
-                SetHeader(_gridKar, "vrednost", "Meritve");
+                SetHeader(_gridKar, "karakt", TranslationService.Translate("SqlMeritveForm.Col.Pozicija"));
+                SetHeader(_gridKar, "zapvz", TranslationService.Translate("SqlMeritveForm.Col.StVzorca"));
+                SetHeader(_gridKar, "vrednost", TranslationService.Translate("SqlMeritveForm.Col.Meritve"));
             };
         }
 
@@ -189,10 +189,10 @@ namespace SapSpcWinForms
 
             host.Controls.Add(bar);
 
-            var lblFrom = new Label { Text = "Od:", AutoSize = true, Anchor = AnchorStyles.Left };
-            var lblTo = new Label { Text = "Do:", AutoSize = true, Anchor = AnchorStyles.Left };
-            var lblKoda = new Label { Text = "Koda:", AutoSize = true, Anchor = AnchorStyles.Left };
-            var lblSarza = new Label { Text = "Šarža:", AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblFrom = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.From"), AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblTo = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.To"), AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblKoda = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.Koda"), AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblSarza = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.Sarza"), AutoSize = true, Anchor = AnchorStyles.Left };
 
             _dtFrom = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
             _dtTo = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
@@ -200,7 +200,7 @@ namespace SapSpcWinForms
             _txtKodaFilter = new TextBox { Width = 140 };
             _txtSarzaFilter = new TextBox { Width = 140 };
 
-            _btnClear = new Button { Text = "Clear", Width = 70, Height = 26 };
+            _btnClear = new Button { Text = TranslationService.Translate("SqlMeritveForm.Filter.Clear"), Width = 70, Height = 26 };
 
             // Defaults (Delphi-ish but modern)
             _dtFrom.Value = _filterFrom ?? DateTime.Today.AddDays(-1);
@@ -358,7 +358,7 @@ namespace SapSpcWinForms
             if (idmerObj == DBNull.Value) return;
             int idmer = Convert.ToInt32(idmerObj);
 
-            var confirm = MessageBox.Show(this, "Ali zares želiš izbrisati?", "Potrditev",
+            var confirm = MessageBox.Show(this, TranslationService.Translate("SqlMeritveForm.DeletePrompt"), TranslationService.Translate("SqlMeritveForm.ConfirmTitle"),
                 MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirm != DialogResult.Yes) return;

@@ -381,4 +381,316 @@
   <data name="SapWrite.RawErrorLabel" xml:space="preserve">
     <value>Napaka (SAP)</value>
   </data>
+  <data name="UkrepiForm.Text" xml:space="preserve">
+    <value>Ukrepi</value>
+  </data>
+  <data name="UkrepiForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}</value>
+  </data>
+  <data name="UkrepiForm.NewEntryButton" xml:space="preserve">
+    <value>+ Nov vnos</value>
+  </data>
+  <data name="UkrepiForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="UkrepiForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši</value>
+  </data>
+  <data name="UkrepiForm.SaveError" xml:space="preserve">
+    <value>Napaka pri shranjevanju sprememb:</value>
+  </data>
+  <data name="UkrepiForm.SavePrompt" xml:space="preserve">
+    <value>Shranim spremembe v tabeli ukrepi?</value>
+  </data>
+  <data name="UkrepiForm.SaveTitle" xml:space="preserve">
+    <value>Shrani</value>
+  </data>
+  <data name="UkrepiForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati izbran ukrep?</value>
+  </data>
+  <data name="UkrepiForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="UkrepiForm.AdminOnly" xml:space="preserve">
+    <value>Vpis ukrepa je dovoljen samo administratorju.</value>
+  </data>
+  <data name="UkrepiForm.NotAllowedTitle" xml:space="preserve">
+    <value>Ni dovoljeno</value>
+  </data>
+  <data name="UkrepiForm.NewDialog.Text" xml:space="preserve">
+    <value>Nov ukrep</value>
+  </data>
+  <data name="UkrepiForm.NewDialog.Required" xml:space="preserve">
+    <value>Polje 'ukrep' je obvezno.</value>
+  </data>
+  <data name="MerilaForm.Text" xml:space="preserve">
+    <value>Merila</value>
+  </data>
+  <data name="MerilaForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}</value>
+  </data>
+  <data name="MerilaForm.NewEntryButton" xml:space="preserve">
+    <value>+ Novo merilo</value>
+  </data>
+  <data name="MerilaForm.NoStation" xml:space="preserve">
+    <value>Merilno mesto ni izbrano.</value>
+  </data>
+  <data name="MerilaForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="MerilaForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši</value>
+  </data>
+  <data name="MerilaForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati izbrano merilo?</value>
+  </data>
+  <data name="MerilaForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="MerilaForm.AdminOnly" xml:space="preserve">
+    <value>Vpis merila je dovoljen samo administratorju.</value>
+  </data>
+  <data name="MerilaForm.NotAllowedTitle" xml:space="preserve">
+    <value>Ni dovoljeno</value>
+  </data>
+  <data name="MerilaForm.SaveError" xml:space="preserve">
+    <value>Napaka pri shranjevanju sprememb:</value>
+  </data>
+  <data name="MerilaForm.NewDialog.Text" xml:space="preserve">
+    <value>Novo merilo</value>
+  </data>
+  <data name="MerilneMetodeForm.Text" xml:space="preserve">
+    <value>Merilne metode</value>
+  </data>
+  <data name="MerilneMetodeForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}</value>
+  </data>
+  <data name="MerilneMetodeForm.NewEntryButton" xml:space="preserve">
+    <value>+ Nov vnos</value>
+  </data>
+  <data name="MerilneMetodeForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="MerilneMetodeForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši</value>
+  </data>
+  <data name="MerilneMetodeForm.SaveError" xml:space="preserve">
+    <value>Napaka pri shranjevanju sprememb:</value>
+  </data>
+  <data name="MerilneMetodeForm.SavePrompt" xml:space="preserve">
+    <value>Shranim spremembe v tabeli metode?</value>
+  </data>
+  <data name="MerilneMetodeForm.SaveTitle" xml:space="preserve">
+    <value>Shrani</value>
+  </data>
+  <data name="MerilneMetodeForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati izbrano metodo?</value>
+  </data>
+  <data name="MerilneMetodeForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="MerilneMetodeForm.AdminOnly" xml:space="preserve">
+    <value>Vpis metode je dovoljen samo administratorju.</value>
+  </data>
+  <data name="MerilneMetodeForm.NotAllowedTitle" xml:space="preserve">
+    <value>Ni dovoljeno</value>
+  </data>
+  <data name="MerilneMetodeForm.NewDialog.Text" xml:space="preserve">
+    <value>Nova metoda</value>
+  </data>
+  <data name="MerilneMetodeForm.NewDialog.Required" xml:space="preserve">
+    <value>Metoda je obvezna.</value>
+  </data>
+  <data name="DodatneKodeForm.Text" xml:space="preserve">
+    <value>Dodatne kode</value>
+  </data>
+  <data name="DodatneKodeForm.Header" xml:space="preserve">
+    <value>Koda: {0}</value>
+  </data>
+  <data name="DodatneKodeForm.AddButton" xml:space="preserve">
+    <value>Dodaj</value>
+  </data>
+  <data name="DodatneKodeForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši</value>
+  </data>
+  <data name="DodatneKodeForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="DodatneKodeForm.InputPrompt" xml:space="preserve">
+    <value>Vnesi naziv dodatne kode:</value>
+  </data>
+  <data name="DodatneKodeForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati izbrano dodatno kodo?</value>
+  </data>
+  <data name="DodatneKodeForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="DodatneKodeForm.SaveError" xml:space="preserve">
+    <value>Napaka pri shranjevanju sprememb:</value>
+  </data>
+  <data name="DodatneKodeForm.InputTitle" xml:space="preserve">
+    <value>Vnos</value>
+  </data>
+  <data name="SqlMeritveForm.Text" xml:space="preserve">
+    <value>Meritve (strežnik)</value>
+  </data>
+  <data name="SqlMeritveForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}  (idpost={1})</value>
+  </data>
+  <data name="SqlMeritveForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši izbrano</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.From" xml:space="preserve">
+    <value>Od:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.To" xml:space="preserve">
+    <value>Do:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Koda" xml:space="preserve">
+    <value>Koda:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Sarza" xml:space="preserve">
+    <value>Šarža:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Clear" xml:space="preserve">
+    <value>Počisti</value>
+  </data>
+  <data name="SqlMeritveForm.Col.ZapSt" xml:space="preserve">
+    <value>Zap. št</value>
+  </data>
+  <data name="SqlMeritveForm.Col.Pozicija" xml:space="preserve">
+    <value>Pozicija</value>
+  </data>
+  <data name="SqlMeritveForm.Col.StVzorca" xml:space="preserve">
+    <value>Št. vzorca</value>
+  </data>
+  <data name="SqlMeritveForm.Col.Meritve" xml:space="preserve">
+    <value>Meritve</value>
+  </data>
+  <data name="SqlMeritveForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati?</value>
+  </data>
+  <data name="SqlMeritveForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="KontrolniPlaniForm.Text" xml:space="preserve">
+    <value>Kontrolni plani</value>
+  </data>
+  <data name="KontrolniPlaniForm.SelectStationFirst" xml:space="preserve">
+    <value>Najprej izberi merilno mesto (postaja).</value>
+  </data>
+  <data name="KontrolniPlaniForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}</value>
+  </data>
+  <data name="KontrolniPlaniForm.ShowIncomplete" xml:space="preserve">
+    <value>Prikaži nekončane šarže</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.EditCode" xml:space="preserve">
+    <value>Urejanje kode</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.NewCode" xml:space="preserve">
+    <value>Nova koda</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ChangeBatch" xml:space="preserve">
+    <value>Sprememba kontrolne šarže</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeleteCode" xml:space="preserve">
+    <value>Briši kodo</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.MeasurementFrequency" xml:space="preserve">
+    <value>Frekvenca meritev</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.EditPlan" xml:space="preserve">
+    <value>Urejanje kont. plana</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ImportPlan" xml:space="preserve">
+    <value>Prenos kont. plana</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ChangeChannel" xml:space="preserve">
+    <value>Sprememba kanala</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeleteCharacteristic" xml:space="preserve">
+    <value>Briši karakteristiko</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeletePlan" xml:space="preserve">
+    <value>Briši kontrolni plan</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.View" xml:space="preserve">
+    <value>Vpogled</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.Addons" xml:space="preserve">
+    <value>Dodatki</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.Operations" xml:space="preserve">
+    <value>Operacije</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.CheckBatch" xml:space="preserve">
+    <value>Preveri šaržo</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Activity" xml:space="preserve">
+    <value>aktivnost</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Frequency" xml:space="preserve">
+    <value>frek. meritev</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.TimeForMeasurement" xml:space="preserve">
+    <value>čas za meritev</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.SampleSize" xml:space="preserve">
+    <value>Vel. vzorca</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.LowerLimit" xml:space="preserve">
+    <value>spodnja meja</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.UpperLimit" xml:space="preserve">
+    <value>zgornja meja</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.ChannelNumber" xml:space="preserve">
+    <value>št. kanala</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Method" xml:space="preserve">
+    <value>Metoda</value>
+  </data>
+  <data name="KontrolniPlaniForm.AdminImportOnly" xml:space="preserve">
+    <value>Samo admin lahko prenese kontrolni plan.</value>
+  </data>
+  <data name="KontrolniPlaniForm.NoBatchInRow" xml:space="preserve">
+    <value>Izbrani zapis nima kontrolne šarže (sarza).</value>
+  </data>
+  <data name="KontrolniPlaniForm.ChannelDialog.Text" xml:space="preserve">
+    <value>Št. kanala</value>
+  </data>
+  <data name="KontrolniPlaniForm.ChannelDialog.Prompt" xml:space="preserve">
+    <value>Vpiši št. kanala:</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati?</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCharacteristicTitle" xml:space="preserve">
+    <value>Briši karakteristiko</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePlanPrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati celoten plan?</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePlanTitle" xml:space="preserve">
+    <value>Briši kontrolni plan</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Text" xml:space="preserve">
+    <value>Frekvenca meritev</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Frequency" xml:space="preserve">
+    <value>Frekvenca meritev:</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Time" xml:space="preserve">
+    <value>Čas za meritev:</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.ApplyAll" xml:space="preserve">
+    <value>Prepiši vse</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCodeTitle" xml:space="preserve">
+    <value>Briši kodo</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCodeError" xml:space="preserve">
+    <value>Napaka pri brisanju kode:</value>
+  </data>
 </root>
