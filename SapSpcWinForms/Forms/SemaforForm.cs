@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -41,7 +42,7 @@ namespace SapSpcWinForms
 
         private void BuildUi()
         {
-            Text = "Semafor";
+            Text = TranslationService.Translate("SemaforForm.Text");
             StartPosition = FormStartPosition.Manual;
 
             // Delphi semafor has no built-in legend panel; keep only grid + close button
@@ -248,7 +249,9 @@ namespace SapSpcWinForms
                     // time info
                     if (row.Status < 5)
                     {
-                        string label = (row.Status == 3) ? "Meritev zamuja za" : "Do naslednje meritve";
+                        string label = (row.Status == 3)
+                            ? TranslationService.Translate("SemaforForm.LateBy")
+                            : TranslationService.Translate("SemaforForm.NextMeasurementIn");
                         string timeTxt = FormatRemaining(row);
 
                         var y1 = e.CellBounds.Top + rowH / 6;
@@ -259,7 +262,7 @@ namespace SapSpcWinForms
                     }
                     else
                     {
-                        string stt = "Stroj ni aktiven";
+                        string stt = TranslationService.Translate("SemaforForm.MachineNotActive");
                         var y = e.CellBounds.Top + rowH / 3;
                         DrawCenteredText(e.Graphics, stt, fontBig, Brushes.White, e.CellBounds, y);
                     }

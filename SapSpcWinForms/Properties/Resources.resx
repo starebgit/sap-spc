@@ -312,4 +312,58 @@
   <data name="whiteDescAttr.Text" xml:space="preserve">
     <value>Stroj lahko nadaljuje s delom.</value>
   </data>
+  <data name="MerilnaMestaForm.Text" xml:space="preserve">
+    <value>Merilna mesta</value>
+  </data>
+  <data name="MerilnaMestaForm.Header" xml:space="preserve">
+    <value>Merilno mesto: {0}</value>
+  </data>
+  <data name="MerilnaMestaForm.NoSelection" xml:space="preserve">
+    <value>(ni izbranega)</value>
+  </data>
+  <data name="MerilnaMestaForm.NewStationButton" xml:space="preserve">
+    <value>+ Nova postaja</value>
+  </data>
+  <data name="MerilnaMestaForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="MerilnaMestaForm.SelectButton" xml:space="preserve">
+    <value>Izberi</value>
+  </data>
+  <data name="MerilnaMestaForm.DeleteButton" xml:space="preserve">
+    <value>Izbriši</value>
+  </data>
+  <data name="MerilnaMestaForm.DeletePrompt" xml:space="preserve">
+    <value>Ali zares želiš izbrisati izbrano merilno mesto?</value>
+  </data>
+  <data name="MerilnaMestaForm.ConfirmTitle" xml:space="preserve">
+    <value>Potrditev</value>
+  </data>
+  <data name="MerilnaMestaForm.SaveError" xml:space="preserve">
+    <value>Napaka pri shranjevanju sprememb:</value>
+  </data>
+  <data name="MerilnaMestaForm.SavePrompt" xml:space="preserve">
+    <value>Shranim spremembe v tabeli postaje?</value>
+  </data>
+  <data name="MerilnaMestaForm.SaveTitle" xml:space="preserve">
+    <value>Shrani</value>
+  </data>
+  <data name="MerilnaMestaForm.AdminOnly" xml:space="preserve">
+    <value>Vpis merilnega mesta je dovoljen samo administratorju.</value>
+  </data>
+  <data name="MerilnaMestaForm.NotAllowedTitle" xml:space="preserve">
+    <value>Ni dovoljeno</value>
+  </data>
+  <data name="SemaforForm.Text" xml:space="preserve">
+    <value>Semafor</value>
+  </data>
+  <data name="SemaforForm.LateBy" xml:space="preserve">
+    <value>Meritev zamuja za</value>
+  </data>
+  <data name="SemaforForm.NextMeasurementIn" xml:space="preserve">
+    <value>Do naslednje meritve</value>
+  </data>
+  <data name="SemaforForm.MachineNotActive" xml:space="preserve">
+    <value>Stroj ni aktiven</value>
+  </data>
 </root>
