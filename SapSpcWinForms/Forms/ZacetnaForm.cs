@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -88,6 +89,10 @@ namespace SapSpcWinForms
         private Panel _attributePanel;
         private readonly Color _accentColor = Color.FromArgb(0, 96, 160);
         private readonly Color _panelBackground = Color.FromArgb(241, 247, 252);
+        private readonly Color _primaryHoverColor = Color.FromArgb(0, 114, 188);
+        private readonly Color _primaryPressedColor = Color.FromArgb(0, 78, 131);
+        private readonly Color _secondaryHoverColor = Color.FromArgb(239, 247, 255);
+        private readonly Color _secondaryPressedColor = Color.FromArgb(220, 238, 255);
 
         private ListBox _dodIzborListBox;
         private Label _dodIzborLabel;
@@ -409,15 +414,21 @@ namespace SapSpcWinForms
             rightPanel.BackColor = Color.WhiteSmoke;
             rightPanel.Padding = new Padding(8, 4, 8, 8);
 
+            StyleCardPanel(topPanel);
+            StyleCardPanel(_variablePanel);
+            StyleCardPanel(_attributePanel);
+
             StyleListBox(machinesList);
             StyleListBox(codesList);
             StyleGrid(KaraktiGrid);
             StyleGrid(attriGrid);
 
-            foreach (var button in new[] { TransferButton, TransferWithPedalButton, PrekinButton, SAPButton, MeritveButton, LegendaSideButton, SemaforSideButton, GrafButton, KonecSideButton })
+            foreach (var button in new[] { TransferButton, TransferWithPedalButton, PrekinButton, MeritveButton, LegendaSideButton, SemaforSideButton, GrafButton })
             {
-                StyleButton(button);
+                StyleSecondaryButton(button);
             }
+
+            StylePrimaryButton(SAPButton);
 
             variabilneTitleLabel.BackColor = Color.FromArgb(217, 233, 246);
             variabilneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
@@ -425,7 +436,7 @@ namespace SapSpcWinForms
             atributivneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
         }
 
-        private void StyleButton(Button button)
+        private void StylePrimaryButton(Button button)
         {
             if (button == null)
                 return;
@@ -437,13 +448,120 @@ namespace SapSpcWinForms
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             button.Height = Math.Max(button.Height, 38);
             button.Width = 196;
-            button.Padding = new Padding(6);
+            button.Padding = new Padding(8, 6, 8, 6);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
+            StyleButtonIcon(button, SystemIcons.Shield);
 
             button.EnabledChanged -= ActionButton_EnabledChanged;
             button.EnabledChanged += ActionButton_EnabledChanged;
+            WireButtonInteractionHandlers(button);
             ApplyActionButtonState(button);
+        }
+
+        private void StyleSecondaryButton(Button button)
+        {
+            if (button == null)
+                return;
+
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 1;
+            button.FlatAppearance.BorderColor = _accentColor;
+            button.BackColor = Color.White;
+            button.ForeColor = _accentColor;
+            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            button.Height = Math.Max(button.Height, 38);
+            button.Width = 196;
+            button.Padding = new Padding(8, 6, 8, 6);
+            button.Cursor = Cursors.Hand;
+            button.UseVisualStyleBackColor = false;
+
+            if (button == TransferButton)
+                StyleButtonIcon(button, SystemIcons.Information);
+            else if (button == TransferWithPedalButton)
+                StyleButtonIcon(button, SystemIcons.WinLogo);
+            else if (button == PrekinButton)
+                StyleButtonIcon(button, SystemIcons.Error);
+            else if (button == MeritveButton)
+                StyleButtonIcon(button, SystemIcons.Application);
+            else if (button == LegendaSideButton)
+                StyleButtonIcon(button, SystemIcons.Question);
+            else if (button == SemaforSideButton)
+                StyleButtonIcon(button, SystemIcons.Warning);
+            else if (button == GrafButton)
+                StyleButtonIcon(button, SystemIcons.Asterisk);
+
+            button.EnabledChanged -= ActionButton_EnabledChanged;
+            button.EnabledChanged += ActionButton_EnabledChanged;
+            WireButtonInteractionHandlers(button);
+            ApplyActionButtonState(button);
+        }
+
+        private void StyleButtonIcon(Button button, Icon icon)
+        {
+            if (button == null || icon == null)
+                return;
+
+            button.Image = new Bitmap(icon.ToBitmap(), new Size(16, 16));
+            button.ImageAlign = ContentAlignment.MiddleLeft;
+            button.TextImageRelation = TextImageRelation.ImageBeforeText;
+        }
+
+        private void WireButtonInteractionHandlers(Button button)
+        {
+            if (button == null)
+                return;
+
+            button.MouseEnter -= ActionButton_MouseEnter;
+            button.MouseEnter += ActionButton_MouseEnter;
+            button.MouseLeave -= ActionButton_MouseLeave;
+            button.MouseLeave += ActionButton_MouseLeave;
+            button.MouseDown -= ActionButton_MouseDown;
+            button.MouseDown += ActionButton_MouseDown;
+            button.MouseUp -= ActionButton_MouseUp;
+            button.MouseUp += ActionButton_MouseUp;
+        }
+
+        private void ActionButton_MouseEnter(object sender, EventArgs e)
+        {
+            if (!(sender is Button button) || !button.Enabled)
+                return;
+
+            if (button == SAPButton)
+            {
+                button.BackColor = _primaryHoverColor;
+                return;
+            }
+
+            button.BackColor = _secondaryHoverColor;
+        }
+
+        private void ActionButton_MouseLeave(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+                ApplyActionButtonState(button);
+        }
+
+        private void ActionButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!(sender is Button button) || !button.Enabled || e.Button != MouseButtons.Left)
+                return;
+
+            if (button == SAPButton)
+            {
+                button.BackColor = _primaryPressedColor;
+                return;
+            }
+
+            button.BackColor = _secondaryPressedColor;
+        }
+
+        private void ActionButton_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (!(sender is Button button) || !button.Enabled)
+                return;
+
+            ActionButton_MouseEnter(sender, EventArgs.Empty);
         }
 
         private void ActionButton_EnabledChanged(object sender, EventArgs e)
@@ -457,6 +575,17 @@ namespace SapSpcWinForms
             if (button == null)
                 return;
 
+            if (button == SAPButton)
+            {
+                ApplyPrimaryActionButtonState(button);
+                return;
+            }
+
+            ApplySecondaryActionButtonState(button);
+        }
+
+        private void ApplyPrimaryActionButtonState(Button button)
+        {
             if (button.Enabled)
             {
                 button.BackColor = _accentColor;
@@ -468,6 +597,50 @@ namespace SapSpcWinForms
                 button.BackColor = Color.FromArgb(188, 196, 204);
                 button.ForeColor = Color.FromArgb(90, 98, 106);
                 button.Cursor = Cursors.Default;
+            }
+        }
+
+        private void ApplySecondaryActionButtonState(Button button)
+        {
+            if (button.Enabled)
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = _accentColor;
+                button.FlatAppearance.BorderColor = _accentColor;
+                button.Cursor = Cursors.Hand;
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(246, 248, 251);
+                button.ForeColor = Color.FromArgb(128, 142, 156);
+                button.FlatAppearance.BorderColor = Color.FromArgb(188, 196, 204);
+                button.Cursor = Cursors.Default;
+            }
+        }
+
+        private void StyleCardPanel(Panel panel)
+        {
+            if (panel == null)
+                return;
+
+            panel.BackColor = Color.White;
+            panel.Paint -= CardPanel_Paint;
+            panel.Paint += CardPanel_Paint;
+        }
+
+        private void CardPanel_Paint(object sender, PaintEventArgs e)
+        {
+            if (!(sender is Panel panel))
+                return;
+
+            var rect = new Rectangle(0, 0, Math.Max(0, panel.Width - 1), Math.Max(0, panel.Height - 1));
+            if (rect.Width <= 0 || rect.Height <= 0)
+                return;
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using (var pen = new Pen(Color.FromArgb(210, 224, 236), 1f))
+            {
+                e.Graphics.DrawRectangle(pen, rect);
             }
         }
 
@@ -504,6 +677,10 @@ namespace SapSpcWinForms
             grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(204, 228, 248);
             grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(17, 31, 47);
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            grid.DefaultCellStyle.BackColor = Color.White;
+            grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 251, 255);
+            grid.RowHeadersVisible = false;
+            grid.EnableHeadersVisualStyles = false;
         }
 
         private void AdjustGridSizingForWindow()
@@ -621,9 +798,6 @@ namespace SapSpcWinForms
                 operacijeToolStripMenuItem.Enabled = true;
                 informacijeToolStripMenuItem.Enabled = true;
             }
-
-            // Gate right panel: only Konec (close) button, as in Delphi (button3)
-            if (KonecSideButton != null) KonecSideButton.Enabled = _isAdmin;
 
             // Keep original disabled state for Graf button
             if (GrafButton != null) GrafButton.Enabled = false;
@@ -1912,8 +2086,7 @@ namespace SapSpcWinForms
                 MeritveButton,
                 LegendaSideButton,
                 SemaforSideButton,
-                GrafButton,
-                KonecSideButton
+                GrafButton
             };
 
             rightPanel.SuspendLayout();
@@ -1957,9 +2130,10 @@ namespace SapSpcWinForms
                 Padding = new Padding(0, 8, 0, 16)
             };
             body.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
-            body.RowCount = 2;
+            body.RowCount = 3;
             body.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             body.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+            body.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
             var flow = new FlowLayoutPanel
             {
@@ -1974,12 +2148,20 @@ namespace SapSpcWinForms
             foreach (var c in buttons)
             {
                 if (c == null) continue;
+                if (c == SAPButton) continue;
                 c.Anchor = AnchorStyles.None;
-                c.Margin = new Padding(0, 6, 0, 6);
+                c.Margin = new Padding(0, 5, 0, 5);
                 flow.Controls.Add(c);
             }
 
             body.Controls.Add(flow, 0, 0);
+
+            if (SAPButton != null)
+            {
+                SAPButton.Anchor = AnchorStyles.Bottom;
+                SAPButton.Margin = new Padding(0, 18, 0, 0);
+                body.Controls.Add(SAPButton, 0, 2);
+            }
 
             // IMPORTANT: add Fill first, then Top (docking order)
             rightPanel.Controls.Add(body);
