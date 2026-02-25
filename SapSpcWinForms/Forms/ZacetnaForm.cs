@@ -30,6 +30,7 @@ namespace SapSpcWinForms
         private bool _nemer = true;
         private string _currentSarza;
         private string _currentKodaClean;
+        private readonly SapService _sap = new SapService();
         private readonly Dictionary<int, int> _astanjeByIndex = new Dictionary<int, int>();          // key: 1..N (machine order)
         private readonly Dictionary<int, TimeSpan> _acasByIndex = new Dictionary<int, TimeSpan>();   // key: 1..N (machine order) time-of-day, TimeSpan.Zero = no value
         private readonly Dictionary<int, int> _diffByIndex = new Dictionary<int, int>();             // pp^.diff minutes
@@ -794,13 +795,24 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show("Koda nima kontrolne are v bazi (konsar).");
-                ClearCharacteristicGrids();
-                if (GrafButton != null) GrafButton.Enabled = false;
-                // clear context
-                _currentKodaClean = null;
-                _currentSarza = null;
-                return;
+                if (!_sap.TryFetchSarzaFromSapAndCache(kd, _currentStPost.Value, out srz, out var fallbackError))
+                {
+                    MessageBox.Show(string.IsNullOrWhiteSpace(fallbackError)
+                            ? "Izbrana koda nima kontrolne are.\nProsim kontaktiraj administratorja programa."
+                            : fallbackError,
+                        "Kontrolna ara",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+
+                    ClearCharacteristicGrids();
+                    if (GrafButton != null) GrafButton.Enabled = false;
+                    // clear context
+                    _currentKodaClean = null;
+                    _currentSarza = null;
+                    return;
+                }
+
+                _currentSarza = srz;
             }
 
             var dt = StrojnaDbRepository.GetKonplanRowsForSarza(srz, _currentStPost.Value);
