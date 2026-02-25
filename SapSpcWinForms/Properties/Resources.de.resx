@@ -366,4 +366,19 @@
   <data name="SemaforForm.MachineNotActive" xml:space="preserve">
     <value>Maschine ist nicht aktiv</value>
   </data>
+  <data name="SapWrite.StatusLabel" xml:space="preserve">
+    <value>SAP-Status</value>
+  </data>
+  <data name="SapWrite.Status.Success" xml:space="preserve">
+    <value>Erfolgreich</value>
+  </data>
+  <data name="SapWrite.Status.Failure" xml:space="preserve">
+    <value>Nicht erfolgreich</value>
+  </data>
+  <data name="SapWrite.ServerLabel" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="SapWrite.RawErrorLabel" xml:space="preserve">
+    <value>Fehler (SAP)</value>
+  </data>
 </root>
