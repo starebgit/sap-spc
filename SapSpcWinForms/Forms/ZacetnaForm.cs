@@ -1402,12 +1402,13 @@ namespace SapSpcWinForms
 
         private async void TransferButton_Click(object sender, EventArgs e)
         {
+            string transferTitle = TranslationService.Translate("ZacetnaForm.Transfer.Title");
             var grid = KaraktiGrid;
             if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out var cell))
             {
                 MessageBox.Show(this,
-                    "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
-                    "Prenos meritev",
+                    TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
+                    transferTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 return;
@@ -1419,14 +1420,14 @@ namespace SapSpcWinForms
             try
             {
                 TransferButton.Enabled = false;
-                TransferButton.Text = "Prenos meritev (...)";
+                TransferButton.Text = TranslationService.Translate("ZacetnaForm.Transfer.BusyButton");
 
                 string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), _stKanal));
                 if (string.IsNullOrWhiteSpace(raw))
                 {
                     MessageBox.Show(this,
-                        "Ni prejetih podatkov iz merila v času čakanja.",
-                        "Prenos meritev",
+                        TranslationService.Translate("ZacetnaForm.Transfer.NoData"),
+                        transferTitle,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
                     return;
@@ -1435,8 +1436,8 @@ namespace SapSpcWinForms
                 if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, _stKanal, FormatMeasurement, out var parsedText))
                 {
                     MessageBox.Show(this,
-                        "Ne morem prebrati meritve iz prejetih podatkov.",
-                        "Prenos meritev",
+                        TranslationService.Translate("ZacetnaForm.Transfer.ParseFailed"),
+                        transferTitle,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning);
                     return;
@@ -1447,8 +1448,8 @@ namespace SapSpcWinForms
             catch (Exception ex)
             {
                 MessageBox.Show(this,
-                    "Napaka pri branju COM porta:\n" + ex.Message,
-                    "Prenos meritev",
+                    TranslationService.Translate("ZacetnaForm.Transfer.ReadError") + "\n" + ex.Message,
+                    transferTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
@@ -1465,8 +1466,8 @@ namespace SapSpcWinForms
             if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out _))
             {
                 MessageBox.Show(this,
-                    "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
-                    "Prenos s stopalko",
+                    TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
+                    TranslationService.Translate("ZacetnaForm.TransferWithPedal.Title"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 StopPrenosStopalka();
@@ -1479,12 +1480,16 @@ namespace SapSpcWinForms
         private void WirePrenosStopalkaPrekiniButtons()
         {
             _prenosStopalkaButton =
+                AppUtils.FindControl<Button>(this, "TransferWithPedalButton") ??
                 AppUtils.FindControl<Button>(this, "PrenosStopalkaButton") ??
-                AppUtils.FindFirstButtonByTextContains(this, "stopalk");
+                AppUtils.FindFirstButtonByTextContains(this, "stopalk") ??
+                AppUtils.FindFirstButtonByTextContains(this, "pedal");
 
             _prekiniButton =
+                AppUtils.FindControl<Button>(this, "PrekinButton") ??
                 AppUtils.FindControl<Button>(this, "PrekiniButton") ??
-                AppUtils.FindFirstButtonByTextContains(this, "Prekini");
+                AppUtils.FindFirstButtonByTextContains(this, "Prekini") ??
+                AppUtils.FindFirstButtonByTextContains(this, "Cancel");
 
             if (_prenosStopalkaButton != null)
             {
@@ -1507,13 +1512,15 @@ namespace SapSpcWinForms
         {
             if (_prenosStopalkaRunning) return;
 
+            string pedalTitle = TranslationService.Translate("ZacetnaForm.TransferWithPedal.Title");
+
             var cell = KaraktiGrid?.CurrentCell;
             var colName = cell?.OwningColumn?.Name ?? "";
             if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show(this,
-                    "Najprej klikni celico v stolpcu Vzorec (Vzorec1, Vzorec2, ...).",
-                    "Prenos s stopalko",
+                    TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
+                    pedalTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 return;
@@ -1541,8 +1548,8 @@ namespace SapSpcWinForms
             {
                 StopPrenosStopalka();
                 MessageBox.Show(this,
-                    "Napaka pri odpiranju COM porta:\n" + ex.Message,
-                    "Prenos s stopalko",
+                    TranslationService.Translate("ZacetnaForm.TransferWithPedal.OpenError") + "\n" + ex.Message,
+                    pedalTitle,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
