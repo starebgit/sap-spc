@@ -62,10 +62,20 @@
       <DependentUpon>AdminPasswordForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Classes\DomainModels.cs" />
+    <Compile Include="Classes\GrafPoint.cs" />
+    <Compile Include="Classes\GrafRequest.cs" />
     <Compile Include="Classes\MerilnoMestoState.cs" />
+    <Compile Include="Classes\SapAnaliza.cs" />
+    <Compile Include="Classes\SapAtribVar.cs" />
     <Compile Include="Classes\SapEval.cs" />
+    <Compile Include="Classes\SapEvaluac.cs" />
+    <Compile Include="Classes\SapKaraktVar.cs" />
+    <Compile Include="Classes\SapKarMer.cs" />
     <Compile Include="Classes\SapMer.cs" />
+    <Compile Include="Classes\SapPrijava.cs" />
+    <Compile Include="Classes\SapRezultat.cs" />
     <Compile Include="Classes\SapWritePayload.cs" />
+    <Compile Include="Classes\SemaforRow.cs" />
     <Compile Include="Forms\DodatkiForm.cs">
       <SubType>Form</SubType>
     </Compile>

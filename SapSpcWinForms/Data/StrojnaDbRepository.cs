@@ -442,9 +442,9 @@ namespace SapSpcWinForms.Data
             }
         }
 
-        public static List<GrafiForm.GrafPoint> FetchGrafPoints(string koda, string karakt)
+        public static List<GrafPoint> FetchGrafPoints(string koda, string karakt)
         {
-            var list = new List<GrafiForm.GrafPoint>();
+            var list = new List<GrafPoint>();
 
             string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
             using (var conn = new OleDbConnection(connStr))
@@ -470,7 +470,7 @@ namespace SapSpcWinForms.Data
                     {
                         var dt = Convert.ToDateTime(r["datum"]);
                         var v = Convert.ToDouble(r["vrednost"]);
-                        list.Add(new GrafiForm.GrafPoint { When = dt, Value = v });
+                        list.Add(new GrafPoint { When = dt, Value = v });
                     }
                 }
             }

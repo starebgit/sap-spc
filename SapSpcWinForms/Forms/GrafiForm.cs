@@ -9,25 +9,6 @@ namespace SapSpcWinForms
 {
     public sealed class GrafiForm : Form
     {
-        public sealed class GrafPoint
-        {
-            public double Value { get; set; }
-            public DateTime When { get; set; }
-            public int Vzorec { get; set; }
-        }
-
-        public sealed class GrafRequest
-        {
-            public string Title { get; set; }
-            public int StVz { get; set; }     // Delphi stvz
-            public double Sr { get; set; }    // predpis
-            public double Sp { get; set; }    // spmeja
-            public double Zg { get; set; }    // zgmeja
-            public double Avr { get; set; }   // average
-            public double Std { get; set; }   // std dev
-            public List<GrafPoint> Points { get; set; } = new List<GrafPoint>();
-        }
-
         private readonly PictureBox[] _plots = new PictureBox[4];
         private readonly PictureBox _legend = new PictureBox();
         private readonly List<GrafRequest> _graphs;
