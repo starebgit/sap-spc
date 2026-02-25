@@ -369,8 +369,13 @@ namespace SapSpcWinForms.Data
                     int ids = Convert.ToInt32(idsObj);
 
                     string sx = idstroja.ToString();
-                    if (sx == "408203500") return TryGetTmlCas(145, conn);
-                    if (sx == "408203600") return TryGetTmlCas(180, conn);
+                    // Legacy Delphi had a special branch for machine IDs 408203500/408203600
+                    // that queried tmlmeritve.[čas]. That table/column no longer exists in
+                    // current strojna DB environments, so the query produced repeated
+                    // OleDbException on each timer tick. Keep the normal GenCasovni path
+                    // for all machines to avoid exception spam.
+                    // if (sx == "408203500") return TryGetTmlCas(145, conn);
+                    // if (sx == "408203600") return TryGetTmlCas(180, conn);
 
                     cmd.Parameters.Clear();
                     cmd.CommandText =
