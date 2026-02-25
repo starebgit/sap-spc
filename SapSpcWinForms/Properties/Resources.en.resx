@@ -381,4 +381,316 @@
   <data name="SapWrite.RawErrorLabel" xml:space="preserve">
     <value>Error (SAP)</value>
   </data>
+  <data name="UkrepiForm.Text" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="UkrepiForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}</value>
+  </data>
+  <data name="UkrepiForm.NewEntryButton" xml:space="preserve">
+    <value>+ New entry</value>
+  </data>
+  <data name="UkrepiForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="UkrepiForm.DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="UkrepiForm.SaveError" xml:space="preserve">
+    <value>Error saving changes:</value>
+  </data>
+  <data name="UkrepiForm.SavePrompt" xml:space="preserve">
+    <value>Save changes in table ukrepi?</value>
+  </data>
+  <data name="UkrepiForm.SaveTitle" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="UkrepiForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete the selected action?</value>
+  </data>
+  <data name="UkrepiForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="UkrepiForm.AdminOnly" xml:space="preserve">
+    <value>Action entry is allowed only for administrators.</value>
+  </data>
+  <data name="UkrepiForm.NotAllowedTitle" xml:space="preserve">
+    <value>Not allowed</value>
+  </data>
+  <data name="UkrepiForm.NewDialog.Text" xml:space="preserve">
+    <value>New action</value>
+  </data>
+  <data name="UkrepiForm.NewDialog.Required" xml:space="preserve">
+    <value>Field 'ukrep' is required.</value>
+  </data>
+  <data name="MerilaForm.Text" xml:space="preserve">
+    <value>Gauges</value>
+  </data>
+  <data name="MerilaForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}</value>
+  </data>
+  <data name="MerilaForm.NewEntryButton" xml:space="preserve">
+    <value>+ New gauge</value>
+  </data>
+  <data name="MerilaForm.NoStation" xml:space="preserve">
+    <value>No measurement station selected.</value>
+  </data>
+  <data name="MerilaForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="MerilaForm.DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MerilaForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete the selected gauge?</value>
+  </data>
+  <data name="MerilaForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="MerilaForm.AdminOnly" xml:space="preserve">
+    <value>Gauge entry is allowed only for administrators.</value>
+  </data>
+  <data name="MerilaForm.NotAllowedTitle" xml:space="preserve">
+    <value>Not allowed</value>
+  </data>
+  <data name="MerilaForm.SaveError" xml:space="preserve">
+    <value>Error saving changes:</value>
+  </data>
+  <data name="MerilaForm.NewDialog.Text" xml:space="preserve">
+    <value>New gauge</value>
+  </data>
+  <data name="MerilneMetodeForm.Text" xml:space="preserve">
+    <value>Measurement methods</value>
+  </data>
+  <data name="MerilneMetodeForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}</value>
+  </data>
+  <data name="MerilneMetodeForm.NewEntryButton" xml:space="preserve">
+    <value>+ New entry</value>
+  </data>
+  <data name="MerilneMetodeForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="MerilneMetodeForm.DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="MerilneMetodeForm.SaveError" xml:space="preserve">
+    <value>Error saving changes:</value>
+  </data>
+  <data name="MerilneMetodeForm.SavePrompt" xml:space="preserve">
+    <value>Save changes in table metode?</value>
+  </data>
+  <data name="MerilneMetodeForm.SaveTitle" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MerilneMetodeForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete the selected method?</value>
+  </data>
+  <data name="MerilneMetodeForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="MerilneMetodeForm.AdminOnly" xml:space="preserve">
+    <value>Method entry is allowed only for administrators.</value>
+  </data>
+  <data name="MerilneMetodeForm.NotAllowedTitle" xml:space="preserve">
+    <value>Not allowed</value>
+  </data>
+  <data name="MerilneMetodeForm.NewDialog.Text" xml:space="preserve">
+    <value>New method</value>
+  </data>
+  <data name="MerilneMetodeForm.NewDialog.Required" xml:space="preserve">
+    <value>Method is required.</value>
+  </data>
+  <data name="DodatneKodeForm.Text" xml:space="preserve">
+    <value>Additional codes</value>
+  </data>
+  <data name="DodatneKodeForm.Header" xml:space="preserve">
+    <value>Code: {0}</value>
+  </data>
+  <data name="DodatneKodeForm.AddButton" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="DodatneKodeForm.DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DodatneKodeForm.MissingConn" xml:space="preserve">
+    <value>Manjka connection string 'StrojnaDb' v App.config.</value>
+  </data>
+  <data name="DodatneKodeForm.InputPrompt" xml:space="preserve">
+    <value>Enter additional code name:</value>
+  </data>
+  <data name="DodatneKodeForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete the selected additional code?</value>
+  </data>
+  <data name="DodatneKodeForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="DodatneKodeForm.SaveError" xml:space="preserve">
+    <value>Error saving changes:</value>
+  </data>
+  <data name="DodatneKodeForm.InputTitle" xml:space="preserve">
+    <value>Input</value>
+  </data>
+  <data name="SqlMeritveForm.Text" xml:space="preserve">
+    <value>Measurements (server)</value>
+  </data>
+  <data name="SqlMeritveForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}  (idpost={1})</value>
+  </data>
+  <data name="SqlMeritveForm.DeleteButton" xml:space="preserve">
+    <value>Delete selected</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.From" xml:space="preserve">
+    <value>From:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.To" xml:space="preserve">
+    <value>To:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Koda" xml:space="preserve">
+    <value>Code:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Sarza" xml:space="preserve">
+    <value>Batch:</value>
+  </data>
+  <data name="SqlMeritveForm.Filter.Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="SqlMeritveForm.Col.ZapSt" xml:space="preserve">
+    <value>Seq. no.</value>
+  </data>
+  <data name="SqlMeritveForm.Col.Pozicija" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="SqlMeritveForm.Col.StVzorca" xml:space="preserve">
+    <value>Sample no.</value>
+  </data>
+  <data name="SqlMeritveForm.Col.Meritve" xml:space="preserve">
+    <value>Measurements</value>
+  </data>
+  <data name="SqlMeritveForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete?</value>
+  </data>
+  <data name="SqlMeritveForm.ConfirmTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="KontrolniPlaniForm.Text" xml:space="preserve">
+    <value>Control plans</value>
+  </data>
+  <data name="KontrolniPlaniForm.SelectStationFirst" xml:space="preserve">
+    <value>First select a measurement station.</value>
+  </data>
+  <data name="KontrolniPlaniForm.Header" xml:space="preserve">
+    <value>Measurement station: {0}</value>
+  </data>
+  <data name="KontrolniPlaniForm.ShowIncomplete" xml:space="preserve">
+    <value>Show incomplete batches</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.EditCode" xml:space="preserve">
+    <value>Code editing</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.NewCode" xml:space="preserve">
+    <value>New code</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ChangeBatch" xml:space="preserve">
+    <value>Change control batch</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeleteCode" xml:space="preserve">
+    <value>Delete code</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.MeasurementFrequency" xml:space="preserve">
+    <value>Measurement frequency</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.EditPlan" xml:space="preserve">
+    <value>Control plan editing</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ImportPlan" xml:space="preserve">
+    <value>Import control plan</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.ChangeChannel" xml:space="preserve">
+    <value>Change channel</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeleteCharacteristic" xml:space="preserve">
+    <value>Delete characteristic</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.DeletePlan" xml:space="preserve">
+    <value>Delete control plan</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.Addons" xml:space="preserve">
+    <value>Add-ons</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.Operations" xml:space="preserve">
+    <value>Operations</value>
+  </data>
+  <data name="KontrolniPlaniForm.Menu.CheckBatch" xml:space="preserve">
+    <value>Check batch</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Activity" xml:space="preserve">
+    <value>activity</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Frequency" xml:space="preserve">
+    <value>meas. freq.</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.TimeForMeasurement" xml:space="preserve">
+    <value>measurement time</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.SampleSize" xml:space="preserve">
+    <value>Sample size</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.LowerLimit" xml:space="preserve">
+    <value>lower limit</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.UpperLimit" xml:space="preserve">
+    <value>upper limit</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.ChannelNumber" xml:space="preserve">
+    <value>channel no.</value>
+  </data>
+  <data name="KontrolniPlaniForm.Col.Method" xml:space="preserve">
+    <value>Method</value>
+  </data>
+  <data name="KontrolniPlaniForm.AdminImportOnly" xml:space="preserve">
+    <value>Only admin can import a control plan.</value>
+  </data>
+  <data name="KontrolniPlaniForm.NoBatchInRow" xml:space="preserve">
+    <value>Selected row has no control batch (sarza).</value>
+  </data>
+  <data name="KontrolniPlaniForm.ChannelDialog.Text" xml:space="preserve">
+    <value>Channel no.</value>
+  </data>
+  <data name="KontrolniPlaniForm.ChannelDialog.Prompt" xml:space="preserve">
+    <value>Enter channel number:</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePrompt" xml:space="preserve">
+    <value>Do you really want to delete?</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCharacteristicTitle" xml:space="preserve">
+    <value>Delete characteristic</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePlanPrompt" xml:space="preserve">
+    <value>Do you really want to delete the whole plan?</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeletePlanTitle" xml:space="preserve">
+    <value>Delete control plan</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Text" xml:space="preserve">
+    <value>Measurement frequency</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Frequency" xml:space="preserve">
+    <value>Measurement frequency:</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.Time" xml:space="preserve">
+    <value>Time for measurement:</value>
+  </data>
+  <data name="KontrolniPlaniForm.FrequencyDialog.ApplyAll" xml:space="preserve">
+    <value>Apply to all</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCodeTitle" xml:space="preserve">
+    <value>Delete code</value>
+  </data>
+  <data name="KontrolniPlaniForm.DeleteCodeError" xml:space="preserve">
+    <value>Error deleting code:</value>
+  </data>
 </root>

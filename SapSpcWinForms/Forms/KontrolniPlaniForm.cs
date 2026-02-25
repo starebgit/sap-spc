@@ -36,7 +36,7 @@ namespace SapSpcWinForms
             _stPost = stPost;
             _mestoOpis = mestoOpis ?? "";
 
-            Text = "Kontrolni plani";
+            Text = TranslationService.Translate("KontrolniPlaniForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             var wa = Screen.FromPoint(Cursor.Position).WorkingArea;
             Width = Math.Min((int)(1500 * 1.3), wa.Width);   // +30%, capped to screen
@@ -48,7 +48,7 @@ namespace SapSpcWinForms
             {
                 if (!_stPost.HasValue || _stPost.Value <= 0)
                 {
-                    MessageBox.Show(this, "Najprej izberi merilno mesto (postaja).", "Kontrolni plani",
+                    MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.SelectStationFirst"), TranslationService.Translate("KontrolniPlaniForm.Text"),
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Close();
                     return;
@@ -78,14 +78,14 @@ namespace SapSpcWinForms
             {
                 AutoSize = true,
                 Font = new Font("Segoe UI", 11f, FontStyle.Bold),
-                Text = $"Merilno mesto: {_mestoOpis}"
+                Text = string.Format(TranslationService.Translate("KontrolniPlaniForm.Header"), _mestoOpis)
             };
             header.Controls.Add(title);
 
             // Checkbox for nekončane šarže
             _chkNekoncane.AutoSize = true;
             _chkNekoncane.Checked = true; // default = show only (koncan <> 'Y')
-            _chkNekoncane.Text = "Prikaži nekončane šarže";
+            _chkNekoncane.Text = TranslationService.Translate("KontrolniPlaniForm.ShowIncomplete");
             _chkNekoncane.Top = 12;
             header.Controls.Add(_chkNekoncane);
             header.Resize += (_, __) =>
@@ -104,27 +104,27 @@ namespace SapSpcWinForms
             _menu.GripStyle = ToolStripGripStyle.Hidden;
             MainMenuStrip = _menu;
 
-            var urejanjeKode = new ToolStripMenuItem("Urejanje kode");
+            var urejanjeKode = new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.EditCode"));
             // requested wiring
             urejanjeKode.DropDownItems.Clear();
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Nova koda", null, (_, __) => NovaKoda()));
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Sprememba kontrolne šarže", null, (_, __) => SpremembaKontrolneSarze()));
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Briši kodo", null, (_, __) => BrisiKodo()));
-            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem("Frekvenca meritev", null, (_, __) => FrekvencaMeritev()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.NewCode"), null, (_, __) => NovaKoda()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.ChangeBatch"), null, (_, __) => SpremembaKontrolneSarze()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.DeleteCode"), null, (_, __) => BrisiKodo()));
+            urejanjeKode.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.MeasurementFrequency"), null, (_, __) => FrekvencaMeritev()));
 
-            var urejanjePlana = new ToolStripMenuItem("Urejanje kont. plana");
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Prenos kont. plana", null, (_, __) => PrenosKontrolnegaPlana()));
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Sprememba kanala", null, (_, __) => SpremembaKanala()));
+            var urejanjePlana = new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.EditPlan"));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.ImportPlan"), null, (_, __) => PrenosKontrolnegaPlana()));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.ChangeChannel"), null, (_, __) => SpremembaKanala()));
             // Replaced stub handlers
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Briši karakteristiko", null, (_, __) => BrisiKarakteristiko()));
-            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem("Briši kontrolni plan", null, (_, __) => BrisiKontrolniPlan()));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.DeleteCharacteristic"), null, (_, __) => BrisiKarakteristiko()));
+            urejanjePlana.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.DeletePlan"), null, (_, __) => BrisiKontrolniPlan()));
 
             // Replace Vpogled menu with only Dodatki
-            var vpogled = new ToolStripMenuItem("Vpogled");
-            vpogled.DropDownItems.Add(new ToolStripMenuItem("Dodatki", null, (_, __) => OpenDodatki()));
+            var vpogled = new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.View"));
+            vpogled.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.Addons"), null, (_, __) => OpenDodatki()));
 
-            var operacije = new ToolStripMenuItem("Operacije");
-            operacije.DropDownItems.Add(new ToolStripMenuItem("Preveri šaržo", null, (_, __) => PreveriSarzoMenu()));
+            var operacije = new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.Operations"));
+            operacije.DropDownItems.Add(new ToolStripMenuItem(TranslationService.Translate("KontrolniPlaniForm.Menu.CheckBatch"), null, (_, __) => PreveriSarzoMenu()));
 
             _menu.Items.AddRange(new ToolStripItem[] { urejanjeKode, urejanjePlana, vpogled, operacije });
 
@@ -206,9 +206,9 @@ namespace SapSpcWinForms
             ApplyDelphiLayout(_konsarGrid,
                 "ident", "koda", "sarza", "razmik", "idpost", "koncan", "merdiff", "mertraj");
 
-            if (_konsarGrid.Columns["koncan"] != null) _konsarGrid.Columns["koncan"].HeaderText = "aktivnost";
-            if (_konsarGrid.Columns["merdiff"] != null) _konsarGrid.Columns["merdiff"].HeaderText = "frek. meritev";
-            if (_konsarGrid.Columns["mertraj"] != null) _konsarGrid.Columns["mertraj"].HeaderText = "čas za meritev";
+            if (_konsarGrid.Columns["koncan"] != null) _konsarGrid.Columns["koncan"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.Activity");
+            if (_konsarGrid.Columns["merdiff"] != null) _konsarGrid.Columns["merdiff"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.Frequency");
+            if (_konsarGrid.Columns["mertraj"] != null) _konsarGrid.Columns["mertraj"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.TimeForMeasurement");
         }
 
         private void SelectFirstRow()
@@ -265,11 +265,11 @@ namespace SapSpcWinForms
             }
 
             // rename headers
-            if (_konplanGrid.Columns["stvz"] != null)    _konplanGrid.Columns["stvz"].HeaderText = "Vel. vzorca";
-            if (_konplanGrid.Columns["spmeja"] != null)  _konplanGrid.Columns["spmeja"].HeaderText = "spodnja meja";
-            if (_konplanGrid.Columns["zgmeja"] != null)  _konplanGrid.Columns["zgmeja"].HeaderText = "zgornja meja";
-            if (_konplanGrid.Columns["stkanal"] != null) _konplanGrid.Columns["stkanal"].HeaderText = "št. kanala";
-            if (_konplanGrid.Columns["kanal"] != null)   _konplanGrid.Columns["kanal"].HeaderText = "Metoda";
+            if (_konplanGrid.Columns["stvz"] != null)    _konplanGrid.Columns["stvz"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.SampleSize");
+            if (_konplanGrid.Columns["spmeja"] != null)  _konplanGrid.Columns["spmeja"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.LowerLimit");
+            if (_konplanGrid.Columns["zgmeja"] != null)  _konplanGrid.Columns["zgmeja"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.UpperLimit");
+            if (_konplanGrid.Columns["stkanal"] != null) _konplanGrid.Columns["stkanal"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.ChannelNumber");
+            if (_konplanGrid.Columns["kanal"] != null)   _konplanGrid.Columns["kanal"].HeaderText = TranslationService.Translate("KontrolniPlaniForm.Col.Method");
 
             // order columns left->right like Delphi (pic2)
             void Idx(string name, int i)
@@ -295,7 +295,7 @@ namespace SapSpcWinForms
         {
             if (!_isAdmin)
             {
-                MessageBox.Show(this, "Samo admin lahko prenese kontrolni plan.", "Kontrolni plani",
+                MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.AdminImportOnly"), TranslationService.Translate("KontrolniPlaniForm.Text"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -311,7 +311,7 @@ namespace SapSpcWinForms
             var srz = (srzObj == null || srzObj == DBNull.Value) ? "" : srzObj.ToString();
             if (string.IsNullOrWhiteSpace(srz))
             {
-                MessageBox.Show(this, "Izbrani zapis nima kontrolne šarže (sarza).", "Kontrolni plani",
+                MessageBox.Show(this, TranslationService.Translate("KontrolniPlaniForm.NoBatchInRow"), TranslationService.Translate("KontrolniPlaniForm.Text"),
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -620,7 +620,7 @@ namespace SapSpcWinForms
         {
             using (var f = new Form
             {
-                Text = "Št. kanala",
+                Text = TranslationService.Translate("KontrolniPlaniForm.ChannelDialog.Text"),
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -629,7 +629,7 @@ namespace SapSpcWinForms
                 ClientSize = new Size(260, 120)
             })
             {
-                var lbl = new Label { Left = 12, Top = 14, AutoSize = true, Text = "Vpiši št. kanala:" };
+                var lbl = new Label { Left = 12, Top = 14, AutoSize = true, Text = TranslationService.Translate("KontrolniPlaniForm.ChannelDialog.Prompt") };
                 var nud = new NumericUpDown
                 {
                     Left = 12, Top = 40, Width = 120,
@@ -655,8 +655,8 @@ namespace SapSpcWinForms
             if (_konplanGrid.CurrentRow == null) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares želiš izbrisati?",
-                "Briši karakteristiko",
+                TranslationService.Translate("KontrolniPlaniForm.DeletePrompt"),
+                TranslationService.Translate("KontrolniPlaniForm.DeleteCharacteristicTitle"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -682,8 +682,8 @@ namespace SapSpcWinForms
             if (!idsar.HasValue) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares želiš izbrisati celoten plan?",
-                "Briši kontrolni plan",
+                TranslationService.Translate("KontrolniPlaniForm.DeletePlanPrompt"),
+                TranslationService.Translate("KontrolniPlaniForm.DeletePlanTitle"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
 
@@ -768,7 +768,7 @@ namespace SapSpcWinForms
         {
             using (var f = new Form
             {
-                Text = "Frekvenca meritev",
+                Text = TranslationService.Translate("KontrolniPlaniForm.FrequencyDialog.Text"),
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 MinimizeBox = false,
@@ -777,10 +777,10 @@ namespace SapSpcWinForms
                 ClientSize = new Size(360, 185)
             })
             {
-                var lbl1 = new Label { Left = 12, Top = 18, AutoSize = true, Text = "Frekvenca meritev:" };
+                var lbl1 = new Label { Left = 12, Top = 18, AutoSize = true, Text = TranslationService.Translate("KontrolniPlaniForm.FrequencyDialog.Frequency") };
                 var txt1 = new TextBox { Left = 170, Top = 14, Width = 165, Text = frk.ToString() };
 
-                var lbl2 = new Label { Left = 12, Top = 54, AutoSize = true, Text = "Čas za meritev:" };
+                var lbl2 = new Label { Left = 12, Top = 54, AutoSize = true, Text = TranslationService.Translate("KontrolniPlaniForm.FrequencyDialog.Time") };
                 var txt2 = new TextBox { Left = 170, Top = 50, Width = 165, Text = trj.ToString() };
 
                 var chkAll = new CheckBox
@@ -788,7 +788,7 @@ namespace SapSpcWinForms
                     Left = 12,
                     Top = 84,
                     AutoSize = true,
-                    Text = "Prepiši vse",
+                    Text = TranslationService.Translate("KontrolniPlaniForm.FrequencyDialog.ApplyAll"),
                     Checked = prepisVse
                 };
 
@@ -823,8 +823,8 @@ namespace SapSpcWinForms
             if (!idsar.HasValue) return;
 
             var ok = MessageBox.Show(this,
-                "Ali zares želiš izbrisati?",
-                "Briši kodo",
+                TranslationService.Translate("KontrolniPlaniForm.DeletePrompt"),
+                TranslationService.Translate("KontrolniPlaniForm.DeleteCodeTitle"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 

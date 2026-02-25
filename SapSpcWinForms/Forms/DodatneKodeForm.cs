@@ -22,7 +22,7 @@ namespace SapSpcWinForms
         public DodatneKodeForm(string koda)
         {
             _koda = koda;
-            Text = "Dodatne kode";
+            Text = TranslationService.Translate("DodatneKodeForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 500;
             Height = 400;
@@ -38,7 +38,7 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = $"Koda: {_koda}",
+                Text = string.Format(TranslationService.Translate("DodatneKodeForm.Header"), _koda),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -63,7 +63,7 @@ namespace SapSpcWinForms
             };
             _btnAdd = new Button
             {
-                Text = "Dodaj",
+                Text = TranslationService.Translate("DodatneKodeForm.AddButton"),
                 Width = 100,
                 Height = 30,
                 BackColor = Color.FromArgb(46, 204, 113),
@@ -76,7 +76,7 @@ namespace SapSpcWinForms
 
             _btnDelete = new Button
             {
-                Text = "Izbriši",
+                Text = TranslationService.Translate("DodatneKodeForm.DeleteButton"),
                 Width = 100,
                 Height = 30,
                 BackColor = Color.FromArgb(231, 76, 60),
@@ -106,7 +106,7 @@ namespace SapSpcWinForms
             var connString = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connString))
             {
-                MessageBox.Show("Manjka connection string 'StrojnaDb' v App.config.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("DodatneKodeForm.MissingConn"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
@@ -128,7 +128,7 @@ namespace SapSpcWinForms
 
         private void BtnAdd_Click(object sender, EventArgs e)
         {
-            using (var dlg = new InputBoxDialog("Vnesi naziv dodatne kode:"))
+            using (var dlg = new InputBoxDialog(TranslationService.Translate("DodatneKodeForm.InputPrompt")))
             {
                 if (dlg.ShowDialog(this) == DialogResult.OK)
                 {
@@ -151,7 +151,7 @@ namespace SapSpcWinForms
         {
             if (_grid.SelectedRows.Count > 0)
             {
-                var res = MessageBox.Show("Ali zares želiš izbrisati izbrano dodatno kodo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var res = MessageBox.Show(TranslationService.Translate("DodatneKodeForm.DeletePrompt"), TranslationService.Translate("DodatneKodeForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                 {
                     foreach (DataGridViewRow row in _grid.SelectedRows)
@@ -193,7 +193,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message, "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("DodatneKodeForm.SaveError") + "\n" + ex.Message, TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
@@ -207,7 +207,7 @@ namespace SapSpcWinForms
         private Button _btnCancel;
         public InputBoxDialog(string prompt)
         {
-            Text = "Vnos";
+            Text = TranslationService.Translate("DodatneKodeForm.InputTitle");
             FormBorderStyle = FormBorderStyle.FixedDialog;
             StartPosition = FormStartPosition.CenterParent;
             MaximizeBox = false;
@@ -221,8 +221,8 @@ namespace SapSpcWinForms
             var label = new Label { Text = prompt, Dock = DockStyle.Top, Height = 32, TextAlign = ContentAlignment.MiddleLeft };
             _tbInput = new TextBox { Dock = DockStyle.Top, Margin = new Padding(8), Height = 28 };
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Height = 40 };
-            _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-            _btnCancel = new Button { Text = "Prekliči", DialogResult = DialogResult.Cancel, AutoSize = true };
+            _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+            _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
             _btnOk.Click += Ok_Click;
             buttons.Controls.Add(_btnOk);
             buttons.Controls.Add(_btnCancel);

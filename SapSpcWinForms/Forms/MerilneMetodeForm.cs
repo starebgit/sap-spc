@@ -26,7 +26,7 @@ namespace SapSpcWinForms
             _isAdmin = isAdmin;
             _idPostFilter = idPostFilter;
             _merilnoMestoOpis = merilnoMestoOpis;
-            Text = "Merilne metode";
+            Text = TranslationService.Translate("MerilneMetodeForm.Text");
             StartPosition = FormStartPosition.CenterParent;
             Width = 900;
             Height = 600;
@@ -41,7 +41,7 @@ namespace SapSpcWinForms
                 Height = 32,
                 Font = new Font("Segoe UI", 11F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(0, 64, 128),
-                Text = $"Merilno mesto: {_merilnoMestoOpis ?? ""}",
+                Text = string.Format(TranslationService.Translate("MerilneMetodeForm.Header"), _merilnoMestoOpis ?? ""),
                 TextAlign = ContentAlignment.MiddleLeft,
                 Padding = new Padding(12, 8, 8, 8)
             };
@@ -77,7 +77,7 @@ namespace SapSpcWinForms
                 {
                     Dock = DockStyle.Fill,
                     Height = 40,
-                    Text = "+ Nov vnos",
+                    Text = TranslationService.Translate("MerilneMetodeForm.NewEntryButton"),
                     Enabled = _isAdmin,
                     BackColor = Color.FromArgb(46, 204, 113),
                     ForeColor = Color.White,
@@ -106,7 +106,7 @@ namespace SapSpcWinForms
             var connString = ConfigurationManager.ConnectionStrings["StrojnaDb"]?.ConnectionString;
             if (string.IsNullOrWhiteSpace(connString))
             {
-                MessageBox.Show("Manjka connection string 'StrojnaDb' v App.config.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.MissingConn"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
@@ -155,7 +155,7 @@ namespace SapSpcWinForms
                 {
                     Name = DeleteColName,
                     HeaderText = "",
-                    Text = "Izbriši",
+                    Text = TranslationService.Translate("MerilneMetodeForm.DeleteButton"),
                     UseColumnTextForButtonValue = true,
                     Width = 60,
                     ReadOnly = true,
@@ -177,7 +177,7 @@ namespace SapSpcWinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Napaka pri shranjevanju sprememb:\n" + ex.Message, "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.SaveError") + "\n" + ex.Message, TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -186,7 +186,7 @@ namespace SapSpcWinForms
             if (_table == null) return;
             if (_table.GetChanges() != null)
             {
-                var result = MessageBox.Show("Shranim spremembe v tabeli metode?", "Shrani", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                var result = MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.SavePrompt"), TranslationService.Translate("MerilneMetodeForm.SaveTitle"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (result == DialogResult.Cancel)
                 {
                     e.Cancel = true;
@@ -220,7 +220,7 @@ namespace SapSpcWinForms
             if (row == null || row.IsNewRow) return;
             var drv = row.DataBoundItem as DataRowView;
             if (drv == null) return;
-            var res = MessageBox.Show("Ali zares želiš izbrisati izbrano metodo?", "Potrditev", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var res = MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.DeletePrompt"), TranslationService.Translate("MerilneMetodeForm.ConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (res != DialogResult.Yes) return;
             drv.Row.Delete();
             SaveChanges();
@@ -229,7 +229,7 @@ namespace SapSpcWinForms
 
         private void BtnNovVnos_Click(object sender, EventArgs e)
         {
-            if (!_isAdmin) { MessageBox.Show("Vpis metode je dovoljen samo administratorju.", "Ni dovoljeno", MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
+            if (!_isAdmin) { MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.AdminOnly"), TranslationService.Translate("MerilneMetodeForm.NotAllowedTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information); return; }
             if (_table == null) return;
             using (var dlg = new NovaMetodaDialog(_idPostFilter))
             {
@@ -258,7 +258,7 @@ namespace SapSpcWinForms
 
             public NovaMetodaDialog(int? idPostPreset)
             {
-                Text = "Nova metoda";
+                Text = TranslationService.Translate("MerilneMetodeForm.NewDialog.Text");
                 FormBorderStyle = FormBorderStyle.FixedDialog;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = false;
@@ -291,8 +291,8 @@ namespace SapSpcWinForms
                 grid.Controls.Add(_tbOpis, 1, r++);
 
                 var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(12), Height = 52 };
-                _btnOk = new Button { Text = "V redu", DialogResult = DialogResult.OK, AutoSize = true };
-                _btnCancel = new Button { Text = "Prekliči", DialogResult = DialogResult.Cancel, AutoSize = true };
+                _btnOk = new Button { Text = TranslationService.Translate("Common.Ok"), DialogResult = DialogResult.OK, AutoSize = true };
+                _btnCancel = new Button { Text = TranslationService.Translate("Common.Cancel"), DialogResult = DialogResult.Cancel, AutoSize = true };
                 _btnOk.Click += Ok_Click;
                 buttons.Controls.Add(_btnOk);
                 buttons.Controls.Add(_btnCancel);
@@ -306,7 +306,7 @@ namespace SapSpcWinForms
             private void Ok_Click(object sender, EventArgs e)
             {
                 var metoda = (_tbMetoda.Text ?? "").Trim();
-                if (string.IsNullOrWhiteSpace(metoda)) { MessageBox.Show("Metoda je obvezna.", "Napaka", MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
+                if (string.IsNullOrWhiteSpace(metoda)) { MessageBox.Show(TranslationService.Translate("MerilneMetodeForm.NewDialog.Required"), TranslationService.Translate("Common.ErrorTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning); DialogResult = DialogResult.None; return; }
                 Value = new MetodaInput
                 {
                     IdPost = (int)_numIdPost.Value,
