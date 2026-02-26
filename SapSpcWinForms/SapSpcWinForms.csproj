@@ -32,6 +32,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Deploy\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DeployOnBuild>true</DeployOnBuild>
+    <DeployTargetDir>R:\06_PTC2\35_Strojna_meritve\SapSpc Nova</DeployTargetDir>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="sapnco, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -204,5 +216,20 @@
     </Content>
   </ItemGroup>
   <ItemGroup />
+
+  <Target Name="DeployToNetworkShare" AfterTargets="Build" Condition="'$(DeployOnBuild)' == 'true' and Exists('$(TargetPath)')">
+    <ItemGroup>
+      <DeployFiles Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)**\*.pdb;$(TargetDir)**\*.xml;$(TargetDir)**\*.vshost.exe;$(TargetDir)**\*.vshost.exe.config" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Deploying build output to $(DeployTargetDir)" />
+    <MakeDir Directories="$(DeployTargetDir)" Condition="'$(DeployTargetDir)' != ''" />
+    <Copy
+      SourceFiles="@(DeployFiles)"
+      DestinationFiles="@(DeployFiles->'$(DeployTargetDir)\%(RecursiveDir)%(Filename)%(Extension)')"
+      SkipUnchangedFiles="true"
+      Condition="'$(DeployTargetDir)' != ''" />
+  </Target>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
