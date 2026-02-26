@@ -131,9 +131,9 @@ namespace SapSpcWinForms
             _bottomPanel = new Panel
             {
                 Dock = DockStyle.Bottom,
-                Height = 44,
+                Height = 56,
                 BackColor = Color.White,
-                Padding = new Padding(12, 10, 12, 12)
+                Padding = new Padding(12, 8, 12, 8)
             };
 
             _btnNovStroj = new Button
