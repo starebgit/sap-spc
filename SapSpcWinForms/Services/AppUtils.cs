@@ -152,8 +152,8 @@ namespace SapSpcWinForms.Utils
             if (double.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out d)) return true;
             if (double.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out d)) return true;
 
-            var sl = CultureInfo.GetCultureInfo("sl-SI");
-            if (double.TryParse(s.Replace('.', ','), NumberStyles.Any, sl, out d)) return true;
+            var slCulture = CultureInfo.GetCultureInfo("sl-SI");
+            if (double.TryParse(s.Replace('.', ','), NumberStyles.Any, slCulture, out d)) return true;
 
             return false;
         }
