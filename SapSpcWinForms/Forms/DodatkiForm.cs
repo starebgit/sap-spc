@@ -61,7 +61,7 @@ namespace SapSpcWinForms
             var buttons = new FlowLayoutPanel
             {
                 Dock = DockStyle.Top,
-                Height = 44,
+                Height = 56,
                 Padding = new Padding(12, 8, 12, 8),
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false
