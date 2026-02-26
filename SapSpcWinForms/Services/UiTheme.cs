@@ -71,9 +71,9 @@ namespace SapSpcWinForms.Utils
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderSize = 0;
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            button.Padding = new Padding(4, 2, 4, 2);
-            var minimumTextHeight = TextRenderer.MeasureText((button.Text ?? string.Empty) + " ", button.Font).Height + button.Padding.Vertical + 6;
-            button.Height = Math.Max(button.Height, Math.Max(30, minimumTextHeight));
+            button.Padding = new Padding(4, 3, 4, 3);
+            var minimumTextHeight = TextRenderer.MeasureText((button.Text ?? string.Empty) + " ", button.Font).Height + button.Padding.Vertical + 10;
+            button.Height = Math.Max(button.Height, Math.Max(36, minimumTextHeight));
             button.UseVisualStyleBackColor = false;
             button.TextAlign = ContentAlignment.MiddleCenter;
             button.TextImageRelation = TextImageRelation.ImageBeforeText;
