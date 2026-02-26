@@ -17,7 +17,7 @@ namespace SapSpcWinForms
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            TranslationService.InitializeFromSettings();
+            TranslationService.SetCulture("sl");
             // start the new ZacetnaForm instead of original Form1 for the WPF port
             Application.Run(new ZacetnaForm());
         }
