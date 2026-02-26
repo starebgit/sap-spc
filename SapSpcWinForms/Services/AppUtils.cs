@@ -132,6 +132,23 @@ namespace SapSpcWinForms.Utils
             d = 0;
             if (string.IsNullOrWhiteSpace(s)) return false;
 
+            s = s.Trim();
+
+            // User input frequently mixes decimal separators ('.' on numpad/mobile keyboards,
+            // ',' in Slovenian UI). Parse by intent first so values like "1.5" in sl-SI are not
+            // interpreted as 15 (dot as thousands separator).
+            bool hasDot = s.IndexOf('.') >= 0;
+            bool hasComma = s.IndexOf(',') >= 0;
+
+            if (hasDot && !hasComma)
+                return double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out d);
+
+            if (hasComma && !hasDot)
+            {
+                var sl = CultureInfo.GetCultureInfo("sl-SI");
+                if (double.TryParse(s, NumberStyles.Any, sl, out d)) return true;
+            }
+
             if (double.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out d)) return true;
             if (double.TryParse(s.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out d)) return true;
 
