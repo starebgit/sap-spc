@@ -1329,7 +1329,8 @@ namespace SapSpcWinForms
                 Name = "Graf",
                 HeaderText = "Graf",
                 Width = 60,
-                ThreeState = false
+                ThreeState = false,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
             };
             KaraktiGrid.Columns.Add(grafCol);
             KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preračun", Width = 80, Visible = false });
@@ -1361,7 +1362,13 @@ namespace SapSpcWinForms
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250 });
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false }); // ADD
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVzor", HeaderText = "t. vzor.", Width = 100 });
-            var vsiDobriCol = new DataGridViewCheckBoxColumn { Name = "VsiDobri", HeaderText = "Vsi dobri", Width = 100 };
+            var vsiDobriCol = new DataGridViewCheckBoxColumn
+            {
+                Name = "VsiDobri",
+                HeaderText = "Vsi dobri",
+                Width = 100,
+                DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
+            };
             attriGrid.Columns.Add(vsiDobriCol);
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StSlabih", HeaderText = "t. slabih", Width = 100 });
         }
