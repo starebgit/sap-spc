@@ -122,6 +122,8 @@ namespace SapSpcWinForms.Services
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
             cell.Value = measurement;
+            grid.EndEdit();
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
             MoveToNextVzorecCell(grid, cell.RowIndex, cell.ColumnIndex);
         }
 
@@ -130,17 +132,28 @@ namespace SapSpcWinForms.Services
             if (grid == null || row < 0 || row >= grid.Rows.Count || grid.ColumnCount <= 0)
                 return;
 
+            if (curCol < 0 || curCol >= grid.ColumnCount)
+                return;
+
+            if (!grid.Columns[curCol].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return;
+
             int nextRow = row + 1;
             int nextCol = curCol;
 
+            // Normal case: continue down in the same Vzorec column.
             if (nextRow >= grid.Rows.Count)
-                return;
+            {
+                // Bottom reached in this column -> continue at top of next Vzorec column.
+                nextCol = FindNextVzorecColumnIndex(grid, curCol + 1);
+                if (nextCol < 0)
+                {
+                    ExitGridAfterLastVzorecCell(grid, row, curCol);
+                    return;
+                }
 
-            if (nextCol < 0 || nextCol >= grid.ColumnCount)
-                return;
-
-            if (!grid.Columns[nextCol].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                return;
+                nextRow = 0;
+            }
 
             if (nextCol >= 0 && nextRow >= 0 && nextRow < grid.Rows.Count)
             {
@@ -152,6 +165,40 @@ namespace SapSpcWinForms.Services
                     grid.BeginEdit(true);
                 }
             }
+        }
+
+
+        private static void ExitGridAfterLastVzorecCell(DataGridView grid, int row, int col)
+        {
+            if (grid == null)
+                return;
+
+            grid.EndEdit();
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            grid.ClearSelection();
+
+            try
+            {
+                if (grid.Parent != null)
+                    grid.Parent.SelectNextControl(grid, true, true, true, true);
+            }
+            catch
+            {
+                // Keep Delphi-like tolerant behavior: if focus handoff fails, keep current position.
+            }
+        }
+        private static int FindNextVzorecColumnIndex(DataGridView grid, int startIndex)
+        {
+            if (grid == null)
+                return -1;
+
+            for (int col = Math.Max(0, startIndex); col < grid.ColumnCount; col++)
+            {
+                if (grid.Columns[col].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                    return col;
+            }
+
+            return -1;
         }
 
         public static SerialPort CreateConfiguredSerialPort(string comPort, int baud)
