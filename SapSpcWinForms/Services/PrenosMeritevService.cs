@@ -147,7 +147,10 @@ namespace SapSpcWinForms.Services
                 // Bottom reached in this column -> continue at top of next Vzorec column.
                 nextCol = FindNextVzorecColumnIndex(grid, curCol + 1);
                 if (nextCol < 0)
+                {
+                    ExitGridAfterLastVzorecCell(grid, row, curCol);
                     return;
+                }
 
                 nextRow = 0;
             }
@@ -164,6 +167,26 @@ namespace SapSpcWinForms.Services
             }
         }
 
+
+        private static void ExitGridAfterLastVzorecCell(DataGridView grid, int row, int col)
+        {
+            if (grid == null)
+                return;
+
+            grid.EndEdit();
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            grid.ClearSelection();
+
+            try
+            {
+                if (grid.Parent != null)
+                    grid.Parent.SelectNextControl(grid, true, true, true, true);
+            }
+            catch
+            {
+                // Keep Delphi-like tolerant behavior: if focus handoff fails, keep current position.
+            }
+        }
         private static int FindNextVzorecColumnIndex(DataGridView grid, int startIndex)
         {
             if (grid == null)
