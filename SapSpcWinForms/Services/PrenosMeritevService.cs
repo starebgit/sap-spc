@@ -67,6 +67,37 @@ namespace SapSpcWinForms.Services
             return double.TryParse(token.Replace('.', ','), NumberStyles.Any, new CultureInfo("sl-SI"), out value);
         }
 
+        private static bool TryConsumeDelimitedCommaMeasurement(StringBuilder buffer, out double value)
+        {
+            value = 0;
+            if (buffer == null || buffer.Length == 0)
+                return false;
+
+            string raw = buffer.ToString();
+            int secondComma = raw.LastIndexOf(',');
+            while (secondComma > 0)
+            {
+                int firstComma = raw.LastIndexOf(',', secondComma - 1);
+                if (firstComma < 0)
+                    return false;
+
+                string token = raw.Substring(firstComma + 1, secondComma - firstComma - 1).Replace(" ", "").Trim();
+                if (token.Length > 0 &&
+                    (double.TryParse(token.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out value) ||
+                     double.TryParse(token.Replace('.', ','), NumberStyles.Any, new CultureInfo("sl-SI"), out value)))
+                {
+                    int removeLen = Math.Min(secondComma + 1, buffer.Length);
+                    if (removeLen > 0)
+                        buffer.Remove(0, removeLen);
+                    return true;
+                }
+
+                secondComma = firstComma;
+            }
+
+            return false;
+        }
+
         public static bool IsVzorecCell(DataGridViewCell cell)
         {
             var colName = cell?.OwningColumn?.Name ?? "";
@@ -390,7 +421,9 @@ namespace SapSpcWinForms.Services
                 return false;
 
             if (!AppUtils.TryParseLast04AFrame(buffer, out value, out int endIdx, out _))
-                return false;
+            {
+                return TryConsumeDelimitedCommaMeasurement(buffer, out value);
+            }
 
             if (endIdx > 0 && endIdx <= buffer.Length)
                 buffer.Remove(0, endIdx);
