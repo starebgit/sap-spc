@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
@@ -21,6 +22,40 @@ namespace SapSpcWinForms.Services
                 return s;
 
             return s.Substring(0, maxLen) + "...";
+        }
+
+        public static int ResolveStKanalFromMeriloDelphiLike(string meriloValue, int fallbackStKanal)
+        {
+            var tx = (meriloValue ?? "").Trim();
+            if (tx.Length <= 2 && int.TryParse(tx, out int parsed) && parsed >= 1 && parsed <= 10)
+                return parsed;
+
+            return fallbackStKanal;
+        }
+
+        private static bool TryParseDelimitedCommaMeasurement(string raw, out double value)
+        {
+            value = 0;
+            if (string.IsNullOrWhiteSpace(raw))
+                return false;
+
+            int p1 = raw.IndexOf(',');
+            if (p1 < 0 || p1 + 1 >= raw.Length)
+                return false;
+
+            string tail = raw.Substring(p1 + 1);
+            int p2 = tail.IndexOf(',');
+            if (p2 < 0)
+                return false;
+
+            string token = tail.Substring(0, p2).Replace(" ", "").Trim();
+            if (token.Length == 0)
+                return false;
+
+            if (double.TryParse(token.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out value))
+                return true;
+
+            return double.TryParse(token.Replace('.', ','), NumberStyles.Any, new CultureInfo("sl-SI"), out value);
         }
 
         public static bool IsVzorecCell(DataGridViewCell cell)
@@ -125,6 +160,14 @@ namespace SapSpcWinForms.Services
                 DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
                     $"transferId={transferId ?? "n/a"}; serial opened and input buffer discarded");
 
+                if (stKanal <= 8)
+                {
+                    string cmd = $"10{stKanal}1100001001\r";
+                    sp.Write(cmd);
+                    DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                        $"transferId={transferId ?? "n/a"}; active poll command sent for stKanal={stKanal}; cmd='{SanitizeRawForLog(cmd, 80)}'");
+                }
+
                 while (sw.Elapsed < timeout)
                 {
                     string chunk = null;
@@ -156,6 +199,13 @@ namespace SapSpcWinForms.Services
                             {
                                 DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
                                     $"transferId={transferId ?? "n/a"}; stopping read due to complete 04A frame; elapsedMs={sw.ElapsedMilliseconds}");
+                                break;
+                            }
+
+                            if (TryParseDelimitedCommaMeasurement(sb.ToString(), out _))
+                            {
+                                DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                                    $"transferId={transferId ?? "n/a"}; stopping read due to complete comma-delimited response; elapsedMs={sw.ElapsedMilliseconds}");
                                 break;
                             }
                         }
@@ -192,9 +242,12 @@ namespace SapSpcWinForms.Services
             {
                 if (!AppUtils.TryParseLast04AFrame(raw, out double value, out _, out _))
                 {
-                    DiagnosticLog.Warn("PrenosMeritevService.TryParseMeasurementForKanal",
-                        $"transferId={transferId ?? "n/a"}; failed 04A parse for stKanal={stKanal}; raw='{SanitizeRawForLog(raw)}'");
-                    return false;
+                    if (!TryParseDelimitedCommaMeasurement(raw, out value))
+                    {
+                        DiagnosticLog.Warn("PrenosMeritevService.TryParseMeasurementForKanal",
+                            $"transferId={transferId ?? "n/a"}; failed 04A and comma-delimited parse for stKanal={stKanal}; raw='{SanitizeRawForLog(raw)}'");
+                        return false;
+                    }
                 }
 
                 parsedText = formatter(value);

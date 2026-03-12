@@ -1775,19 +1775,26 @@ namespace SapSpcWinForms
             }
 
             string meriloValue = grid?.Rows[cell.RowIndex]?.Cells["Merilo"]?.Value?.ToString() ?? "";
+            int effectiveStKanal = PrenosMeritevService.ResolveStKanalFromMeriloDelphiLike(meriloValue, _stKanal);
+            if (effectiveStKanal != _stKanal)
+            {
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; stKanal overridden from Merilo; previous={_stKanal}; effective={effectiveStKanal}");
+            }
+            _stKanal = effectiveStKanal;
             string rowComValue = GetRowComValue(cell.RowIndex);
             string comPort = ComPortService.ResolveComPortDelphiLike(rowComValue, _currentStPost);
             string oldText = TransferButton.Text;
 
             DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
-                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; resolvedCom='{comPort}'; stKanalUsed={_stKanal}");
+                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; resolvedCom='{comPort}'; stKanalUsed={effectiveStKanal}");
 
             try
             {
                 TransferButton.Enabled = false;
                 TransferButton.Text = TranslationService.Translate("ZacetnaForm.Transfer.BusyButton");
 
-                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), _stKanal, transferId));
+                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), effectiveStKanal, transferId));
                 if (string.IsNullOrWhiteSpace(raw))
                 {
                     DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
@@ -1800,10 +1807,10 @@ namespace SapSpcWinForms
                     return;
                 }
 
-                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, _stKanal, FormatMeasurement, out var parsedText, transferId))
+                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, effectiveStKanal, FormatMeasurement, out var parsedText, transferId))
                 {
                     DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
-                        $"transferId={transferId}; parse failed for stKanal={_stKanal}");
+                        $"transferId={transferId}; parse failed for stKanal={effectiveStKanal}");
                     MessageBox.Show(this,
                         TranslationService.Translate("ZacetnaForm.Transfer.ParseFailed"),
                         transferTitle,
