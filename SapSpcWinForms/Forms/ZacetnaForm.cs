@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -81,6 +82,10 @@ namespace SapSpcWinForms
         private readonly object _prenosLock = new object();
         private readonly StringBuilder _prenosBuf = new StringBuilder();
         private int _prenosBusy;
+        private int _prenosStopalkaStKanal;
+        private int _prenosStopalkaExpectedCount;
+        private int _prenosStopalkaAppliedCount;
+        private string _prenosStopalkaComPort = string.Empty;
 
         // Buttons
         private Button _prenosStopalkaButton;
@@ -1936,6 +1941,19 @@ namespace SapSpcWinForms
 
             int rowIndex = cell.RowIndex;
             string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(rowIndex), _currentStPost);
+            string meriloValue = KaraktiGrid?.Rows[rowIndex]?.Cells["Merilo"]?.Value?.ToString() ?? "";
+            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(meriloValue, out var meriloChannel))
+            {
+                meriloChannel = _stKanal;
+            }
+
+            _stKanal = meriloChannel;
+            _prenosStopalkaStKanal = meriloChannel;
+            _prenosStopalkaComPort = comPort;
+            _prenosStopalkaAppliedCount = 0;
+            _prenosStopalkaExpectedCount = CountContiguousRowsWithSameMerilo(rowIndex, meriloValue);
+            if (_prenosStopalkaExpectedCount <= 0)
+                _prenosStopalkaExpectedCount = 1;
 
             try
             {
@@ -1944,6 +1962,15 @@ namespace SapSpcWinForms
                 _prenosStopalkaPort.DataReceived += PrenosStopalkaPort_DataReceived;
                 _prenosStopalkaPort.Open();
                 _prenosStopalkaPort.DiscardInBuffer();
+
+                if (_prenosStopalkaStKanal <= 8)
+                {
+                    string stMer = _prenosStopalkaExpectedCount.ToString("000", CultureInfo.InvariantCulture);
+                    string cmd = $"20{_prenosStopalkaStKanal}1103001{stMer}\r";
+                    _prenosStopalkaPort.Write(cmd);
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
+                }
             }
             catch (Exception ex)
             {
@@ -1968,6 +1995,10 @@ namespace SapSpcWinForms
             {
                 if (_prenosStopalkaPort != null)
                 {
+                    if (_prenosStopalkaPort.IsOpen && !string.IsNullOrWhiteSpace(_prenosStopalkaComPort))
+                    {
+                        _prenosStopalkaPort.Write("1011100001001\r");
+                    }
                     _prenosStopalkaPort.DataReceived -= PrenosStopalkaPort_DataReceived;
                     if (_prenosStopalkaPort.IsOpen) _prenosStopalkaPort.Close();
                     _prenosStopalkaPort.Dispose();
@@ -1978,6 +2009,9 @@ namespace SapSpcWinForms
                 Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.PortClose", ex);
             }
             _prenosStopalkaPort = null;
+            _prenosStopalkaComPort = string.Empty;
+            _prenosStopalkaExpectedCount = 0;
+            _prenosStopalkaAppliedCount = 0;
 
             lock (_prenosLock) _prenosBuf.Clear();
 
@@ -2024,12 +2058,41 @@ namespace SapSpcWinForms
                 }
 
                 if (IsHandleCreated)
-                    BeginInvoke((Action)(() => ApplyPrenosValueToCurrentCell(value)));
+                {
+                    BeginInvoke((Action)(() =>
+                    {
+                        ApplyPrenosValueToCurrentCell(value);
+                        _prenosStopalkaAppliedCount++;
+                        if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)
+                        {
+                            StopPrenosStopalka();
+                        }
+                    }));
+                }
             }
             finally
             {
                 System.Threading.Interlocked.Exchange(ref _prenosBusy, 0);
             }
+        }
+
+        private int CountContiguousRowsWithSameMerilo(int startRow, string meriloValue)
+        {
+            if (KaraktiGrid == null || startRow < 0 || startRow >= KaraktiGrid.Rows.Count)
+                return 0;
+
+            int count = 0;
+            string currentMerilo = (meriloValue ?? string.Empty).Trim();
+            for (int row = startRow; row < KaraktiGrid.Rows.Count; row++)
+            {
+                string rowMerilo = KaraktiGrid.Rows[row].Cells["Merilo"]?.Value?.ToString()?.Trim() ?? string.Empty;
+                if (!string.Equals(currentMerilo, rowMerilo, StringComparison.Ordinal))
+                    break;
+
+                count++;
+            }
+
+            return count;
         }
 
         private string GetRowComValue(int rowIndex)
