@@ -2004,6 +2004,9 @@ namespace SapSpcWinForms
                 $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
             ShowStopalkaDebugPopup($"START\nrow={rowIndex}, col={colName}, com={comPort}, kanal={_prenosStopalkaStKanal}");
 
+            Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
+
             try
             {
                 _prenosStopalkaPort = PrenosMeritevService.CreateConfiguredSerialPort(comPort, COM_BAUD);
@@ -2020,6 +2023,11 @@ namespace SapSpcWinForms
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
                     ShowStopalkaDebugPopup($"SEND CMD\n{cmd.Replace("\r", "\\r")}");
+                }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
                 }
                 else
                 {
