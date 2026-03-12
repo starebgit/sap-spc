@@ -149,38 +149,6 @@ namespace SapSpcWinForms.Services
             };
         }
 
-        public static string[] GetAvailableComPortsOrdered()
-        {
-            return SerialPort.GetPortNames()
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(p => p.Trim().ToUpperInvariant())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(p => p.Length > 3 && int.TryParse(p.Substring(3), out var n) ? n : int.MaxValue)
-                .ThenBy(p => p, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-        }
-
-        public static string ResolveComPortForTransfer(string requestedComPort, out bool usedFallback, out string fallbackReason)
-        {
-            usedFallback = false;
-            fallbackReason = string.Empty;
-
-            var requested = (requestedComPort ?? string.Empty).Trim().ToUpperInvariant();
-            var available = GetAvailableComPortsOrdered();
-            if (available.Length == 0)
-                return requested;
-
-            if (!string.IsNullOrWhiteSpace(requested) && available.Contains(requested, StringComparer.OrdinalIgnoreCase))
-                return requested;
-
-            var com3 = available.FirstOrDefault(p => string.Equals(p, "COM3", StringComparison.OrdinalIgnoreCase));
-            var fallback = com3 ?? available[0];
-
-            usedFallback = true;
-            fallbackReason = $"requested='{requestedComPort}'; fallback='{fallback}'; available=[{string.Join(",", available)}]";
-            return fallback;
-        }
-
         public static string ReadSingleMeasurementRaw(string comPort, int baud, TimeSpan timeout, int stKanal, string transferId = null, bool detailedLogging = false)
         {
             var sw = Stopwatch.StartNew();
@@ -200,7 +168,7 @@ namespace SapSpcWinForms.Services
                 }
                 catch (IOException ex)
                 {
-                    var available = GetAvailableComPortsOrdered();
+                    var available = SerialPort.GetPortNames();
                     throw new IOException(
                         $"Configured port '{comPort}' is not available. Available ports: {(available.Length == 0 ? "<none>" : string.Join(", ", available))}.",
                         ex);
@@ -214,6 +182,7 @@ namespace SapSpcWinForms.Services
                 {
                     string cmd = $"10{stKanal}1100001001\r";
                     sp.Write(cmd);
+                    Thread.Sleep(500);
                     DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
                         $"transferId={transferId ?? "n/a"}; active poll command sent for stKanal={stKanal}; cmd='{SanitizeRawForLog(cmd, 80)}'");
                 }
