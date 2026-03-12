@@ -152,6 +152,8 @@ namespace SapSpcWinForms
                 GrafButton.Click += GrafButton_Click;
 
             WirePrenosStopalkaPrekiniButtons();
+            HideStopalkaButtonsInUi();
+            StartPrenosStopalka(showSampleCellWarning: false);
             StartSemaforRefreshLoop();
             ObnoviSemafor();
             this.FormClosing += (s, e) =>
@@ -1943,7 +1945,6 @@ namespace SapSpcWinForms
             if (_prenosStopalkaButton != null)
             {
                 _prenosStopalkaButton.Click -= PrenosStopalkaButton_Click;
-                _prenosStopalkaButton.Click += PrenosStopalkaButton_Click;
             }
 
             if (_prekiniButton != null)
@@ -1952,6 +1953,24 @@ namespace SapSpcWinForms
                 // Keep the button inactive so users are guided to the simplified one-shot flow.
                 _prekiniButton.Click -= PrekiniButton_Click;
                 _prekiniButton.Enabled = false;
+            }
+        }
+
+        private void HideStopalkaButtonsInUi()
+        {
+            // Requested behavior: these two buttons should not be visible in UI.
+            if (_prenosStopalkaButton != null)
+            {
+                _prenosStopalkaButton.Visible = false;
+                _prenosStopalkaButton.Enabled = false;
+                _prenosStopalkaButton.TabStop = false;
+            }
+
+            if (_prekiniButton != null)
+            {
+                _prekiniButton.Visible = false;
+                _prekiniButton.Enabled = false;
+                _prekiniButton.TabStop = false;
             }
         }
 
@@ -1966,7 +1985,7 @@ namespace SapSpcWinForms
 
         private void PrekiniButton_Click(object sender, EventArgs e) => StopPrenosStopalka();
 
-        private void StartPrenosStopalka()
+        private void StartPrenosStopalka(bool showSampleCellWarning = true)
         {
             if (_prenosStopalkaRunning) return;
 
@@ -1978,11 +1997,14 @@ namespace SapSpcWinForms
             {
                 Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                     $"ignored start because current cell is invalid; hasCell={cell != null}; col='{colName}'");
-                MessageBox.Show(this,
-                    TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
-                    pedalTitle,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                if (showSampleCellWarning)
+                {
+                    MessageBox.Show(this,
+                        TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
+                        pedalTitle,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
                 return;
             }
 
@@ -2029,16 +2051,6 @@ namespace SapSpcWinForms
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
                     ShowStopalkaDebugPopup($"SEND CMD\n{cmd.Replace("\r", "\\r")}");
-                }
-                else
-                {
-                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
-                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
-                }
-                else
-                {
-                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
-                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
                 }
                 else
                 {
@@ -2147,7 +2159,6 @@ namespace SapSpcWinForms
 
                 if (IsHandleCreated)
                 {
-                    _prenosStopalkaRunning = false;
                     BeginInvoke((Action)(() =>
                     {
                         var nowUtc = DateTime.UtcNow;
@@ -2162,31 +2173,17 @@ namespace SapSpcWinForms
                             }
                         }
 
-                        var beforeCell = KaraktiGrid?.CurrentCell;
-                        int beforeRow = beforeCell?.RowIndex ?? -1;
-                        int beforeCol = beforeCell?.ColumnIndex ?? -1;
-
-                        ApplyPrenosValueToCurrentCell(value);
-
-                        var afterCell = KaraktiGrid?.CurrentCell;
-                        int afterRow = afterCell?.RowIndex ?? -1;
-                        int afterCol = afterCell?.ColumnIndex ?? -1;
-                        bool movedToNextRow = (afterRow != beforeRow) || (afterCol != beforeCol);
-
-                        ShowStopalkaDebugPopup($"PARSED VALUE\nvalue={value}\nraw='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'\nmoved={movedToNextRow}");
+                        ShowStopalkaDebugPopup($"PEDAL TRIGGER\nvalue={value}\nraw='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'");
 
                         _prenosStopalkaAppliedCount++;
                         _prenosStopalkaLastApplyUtc = nowUtc;
                         _prenosStopalkaLastValue = value;
                         Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; movedToNextRow={movedToNextRow}");
+                            $"pedal trigger received; value={value}; triggerCount={_prenosStopalkaAppliedCount}; forwarding to TransferButton_Click");
 
-                        if (!movedToNextRow)
-                        {
-                            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                                "bottom reached; stopping stopalka transfer");
-                            StopPrenosStopalka("bottom_reached", showPopup: true);
-                        }
+                        // Requested behavior: physical pedal should behave as pressing
+                        // "Prenos meritve".
+                        TransferButton_Click(this, EventArgs.Empty);
                     }));
                 }
             }
