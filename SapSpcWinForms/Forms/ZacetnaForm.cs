@@ -1948,13 +1948,22 @@ namespace SapSpcWinForms
 
             if (_prekiniButton != null)
             {
+                // Legacy stopalka continuous-transfer flow is intentionally disabled.
+                // Keep the button inactive so users are guided to the simplified one-shot flow.
                 _prekiniButton.Click -= PrekiniButton_Click;
-                _prekiniButton.Click += PrekiniButton_Click;
                 _prekiniButton.Enabled = false;
             }
         }
 
-        private void PrenosStopalkaButton_Click(object sender, EventArgs e) => StartPrenosStopalka();
+        private async void PrenosStopalkaButton_Click(object sender, EventArgs e)
+        {
+            // Simplified behavior requested by production: "Prenos s stopalko" now uses
+            // exactly the same single-measurement transfer flow as "Prenos meritve".
+            // Legacy serial stopalka flow is left in place below for traceability.
+            await Task.Yield();
+            TransferButton_Click(sender, e);
+        }
+
         private void PrekiniButton_Click(object sender, EventArgs e) => StopPrenosStopalka();
 
         private void StartPrenosStopalka()
