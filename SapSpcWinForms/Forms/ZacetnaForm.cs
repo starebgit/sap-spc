@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -42,6 +43,8 @@ namespace SapSpcWinForms
         private readonly Dictionary<int, bool> _machineActiveByIndex = new Dictionary<int, bool>();  // Delphi strvkl[i]
         private const int DefaultIntervalDiffMinutes = StrojnaDbRepository.DefaultIntervalDiffMinutes;
         private const int DefaultIntervalTrajMinutes = StrojnaDbRepository.DefaultIntervalTrajMinutes;
+        private const int DetailedTransferLogBudget = 30;
+        private int _detailedTransferLogsRemaining = DetailedTransferLogBudget;
 
         private readonly TimeSpan[] _zacIzm = new[]
         {
@@ -79,6 +82,10 @@ namespace SapSpcWinForms
         private readonly object _prenosLock = new object();
         private readonly StringBuilder _prenosBuf = new StringBuilder();
         private int _prenosBusy;
+        private int _prenosStopalkaStKanal;
+        private int _prenosStopalkaExpectedCount;
+        private int _prenosStopalkaAppliedCount;
+        private string _prenosStopalkaComPort = string.Empty;
 
         // Buttons
         private Button _prenosStopalkaButton;
@@ -1756,9 +1763,16 @@ namespace SapSpcWinForms
         private async void TransferButton_Click(object sender, EventArgs e)
         {
             string transferTitle = TranslationService.Translate("ZacetnaForm.Transfer.Title");
+            string transferId = Guid.NewGuid().ToString("N").Substring(0, 10);
             var grid = KaraktiGrid;
+
+            DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                $"transferId={transferId}; click received; currentStKanal={_stKanal}; currentStPost={_currentStPost?.ToString() ?? "n/a"}");
+
             if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out var cell))
             {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; aborted because current cell is not a Vzorec cell");
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
                     transferTitle,
@@ -1767,17 +1781,49 @@ namespace SapSpcWinForms
                 return;
             }
 
-            string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
+            string meriloValue = grid?.Rows[cell.RowIndex]?.Cells["Merilo"]?.Value?.ToString() ?? "";
+            int effectiveStKanal = _stKanal;
+            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(meriloValue, out var meriloChannel))
+            {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; invalid/non-numeric Merilo='{meriloValue}', falling back to previous stKanal={_stKanal}");
+            }
+            else
+            {
+                effectiveStKanal = meriloChannel;
+            }
+
+            bool detailedLogging = _detailedTransferLogsRemaining > 0;
+            if (detailedLogging)
+            {
+                _detailedTransferLogsRemaining--;
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; detailed diagnostics enabled for this transfer; remainingDetailedBudget={_detailedTransferLogsRemaining}");
+            }
+
+            if (effectiveStKanal != _stKanal)
+            {
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; stKanal overridden from Merilo; previous={_stKanal}; effective={effectiveStKanal}");
+            }
+            _stKanal = effectiveStKanal;
+            string rowComValue = GetRowComValue(cell.RowIndex);
+            string comPort = ComPortService.ResolveComPortDelphiLike(rowComValue, _currentStPost);
             string oldText = TransferButton.Text;
+
+            DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; resolvedCom='{comPort}'; stKanalUsed={effectiveStKanal}");
 
             try
             {
                 TransferButton.Enabled = false;
                 TransferButton.Text = TranslationService.Translate("ZacetnaForm.Transfer.BusyButton");
 
-                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), _stKanal));
+                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), effectiveStKanal, transferId, detailedLogging));
                 if (string.IsNullOrWhiteSpace(raw))
                 {
+                    DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                        $"transferId={transferId}; no data read from device");
                     MessageBox.Show(this,
                         TranslationService.Translate("ZacetnaForm.Transfer.NoData"),
                         transferTitle,
@@ -1786,8 +1832,10 @@ namespace SapSpcWinForms
                     return;
                 }
 
-                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, _stKanal, FormatMeasurement, out var parsedText))
+                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, effectiveStKanal, FormatMeasurement, out var parsedText, transferId, detailedLogging))
                 {
+                    DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                        $"transferId={transferId}; parse failed for stKanal={effectiveStKanal}");
                     MessageBox.Show(this,
                         TranslationService.Translate("ZacetnaForm.Transfer.ParseFailed"),
                         transferTitle,
@@ -1797,9 +1845,12 @@ namespace SapSpcWinForms
                 }
 
                 PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, parsedText);
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; measurement applied successfully; parsedText='{parsedText}'");
             }
             catch (Exception ex)
             {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click", ex);
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.ReadError") + "\n" + ex.Message,
                     transferTitle,
@@ -1810,6 +1861,8 @@ namespace SapSpcWinForms
             {
                 TransferButton.Enabled = true;
                 TransferButton.Text = oldText;
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; transfer flow finalized");
             }
         }
 
@@ -1888,6 +1941,19 @@ namespace SapSpcWinForms
 
             int rowIndex = cell.RowIndex;
             string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(rowIndex), _currentStPost);
+            string meriloValue = KaraktiGrid?.Rows[rowIndex]?.Cells["Merilo"]?.Value?.ToString() ?? "";
+            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(meriloValue, out var meriloChannel))
+            {
+                meriloChannel = _stKanal;
+            }
+
+            _stKanal = meriloChannel;
+            _prenosStopalkaStKanal = meriloChannel;
+            _prenosStopalkaComPort = comPort;
+            _prenosStopalkaAppliedCount = 0;
+            _prenosStopalkaExpectedCount = CountContiguousRowsWithSameMerilo(rowIndex, meriloValue);
+            if (_prenosStopalkaExpectedCount <= 0)
+                _prenosStopalkaExpectedCount = 1;
 
             try
             {
@@ -1896,6 +1962,15 @@ namespace SapSpcWinForms
                 _prenosStopalkaPort.DataReceived += PrenosStopalkaPort_DataReceived;
                 _prenosStopalkaPort.Open();
                 _prenosStopalkaPort.DiscardInBuffer();
+
+                if (_prenosStopalkaStKanal <= 8)
+                {
+                    string stMer = _prenosStopalkaExpectedCount.ToString("000", CultureInfo.InvariantCulture);
+                    string cmd = $"20{_prenosStopalkaStKanal}1103001{stMer}\r";
+                    _prenosStopalkaPort.Write(cmd);
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
+                }
             }
             catch (Exception ex)
             {
@@ -1920,6 +1995,10 @@ namespace SapSpcWinForms
             {
                 if (_prenosStopalkaPort != null)
                 {
+                    if (_prenosStopalkaPort.IsOpen && !string.IsNullOrWhiteSpace(_prenosStopalkaComPort))
+                    {
+                        _prenosStopalkaPort.Write("1011100001001\r");
+                    }
                     _prenosStopalkaPort.DataReceived -= PrenosStopalkaPort_DataReceived;
                     if (_prenosStopalkaPort.IsOpen) _prenosStopalkaPort.Close();
                     _prenosStopalkaPort.Dispose();
@@ -1930,6 +2009,9 @@ namespace SapSpcWinForms
                 Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.PortClose", ex);
             }
             _prenosStopalkaPort = null;
+            _prenosStopalkaComPort = string.Empty;
+            _prenosStopalkaExpectedCount = 0;
+            _prenosStopalkaAppliedCount = 0;
 
             lock (_prenosLock) _prenosBuf.Clear();
 
@@ -1976,12 +2058,41 @@ namespace SapSpcWinForms
                 }
 
                 if (IsHandleCreated)
-                    BeginInvoke((Action)(() => ApplyPrenosValueToCurrentCell(value)));
+                {
+                    BeginInvoke((Action)(() =>
+                    {
+                        ApplyPrenosValueToCurrentCell(value);
+                        _prenosStopalkaAppliedCount++;
+                        if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)
+                        {
+                            StopPrenosStopalka();
+                        }
+                    }));
+                }
             }
             finally
             {
                 System.Threading.Interlocked.Exchange(ref _prenosBusy, 0);
             }
+        }
+
+        private int CountContiguousRowsWithSameMerilo(int startRow, string meriloValue)
+        {
+            if (KaraktiGrid == null || startRow < 0 || startRow >= KaraktiGrid.Rows.Count)
+                return 0;
+
+            int count = 0;
+            string currentMerilo = (meriloValue ?? string.Empty).Trim();
+            for (int row = startRow; row < KaraktiGrid.Rows.Count; row++)
+            {
+                string rowMerilo = KaraktiGrid.Rows[row].Cells["Merilo"]?.Value?.ToString()?.Trim() ?? string.Empty;
+                if (!string.Equals(currentMerilo, rowMerilo, StringComparison.Ordinal))
+                    break;
+
+                count++;
+            }
+
+            return count;
         }
 
         private string GetRowComValue(int rowIndex)
