@@ -82,6 +82,7 @@ namespace SapSpcWinForms
         private readonly object _prenosLock = new object();
         private readonly StringBuilder _prenosBuf = new StringBuilder();
         private int _prenosBusy;
+        private int _pedalTransferBusy;
         private int _prenosStopalkaStKanal;
         private int _prenosStopalkaExpectedCount;
         private int _prenosStopalkaAppliedCount;
@@ -1956,32 +1957,7 @@ namespace SapSpcWinForms
             }
         }
 
-        private void HideStopalkaButtonsInUi()
-        {
-            // Requested behavior: these two buttons should not be visible in UI.
-            if (_prenosStopalkaButton != null)
-            {
-                _prenosStopalkaButton.Visible = false;
-                _prenosStopalkaButton.Enabled = false;
-                _prenosStopalkaButton.TabStop = false;
-            }
-
-            if (_prekiniButton != null)
-            {
-                _prekiniButton.Visible = false;
-                _prekiniButton.Enabled = false;
-                _prekiniButton.TabStop = false;
-            }
-        }
-
-        private async void PrenosStopalkaButton_Click(object sender, EventArgs e)
-        {
-            // Simplified behavior requested by production: "Prenos s stopalko" now uses
-            // exactly the same single-measurement transfer flow as "Prenos meritve".
-            // Legacy serial stopalka flow is left in place below for traceability.
-            await Task.Yield();
-            TransferButton_Click(sender, e);
-        }
+        private void PrenosStopalkaButton_Click(object sender, EventArgs e) => StartPrenosStopalka();
 
         private void PrekiniButton_Click(object sender, EventArgs e) => StopPrenosStopalka();
 
@@ -2181,9 +2157,27 @@ namespace SapSpcWinForms
                         Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
                             $"pedal trigger received; value={value}; triggerCount={_prenosStopalkaAppliedCount}; forwarding to TransferButton_Click");
 
-                        // Requested behavior: physical pedal should behave as pressing
-                        // "Prenos meritve".
-                        TransferButton_Click(this, EventArgs.Empty);
+                        // While stopalka mode is active, each physical pedal press should
+                        // behave identically to clicking "Prenos meritve".
+                        if (System.Threading.Interlocked.Exchange(ref _pedalTransferBusy, 1) == 1)
+                        {
+                            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                "pedal trigger ignored because a previous transfer is still in progress");
+                            return;
+                        }
+
+                        try
+                        {
+                            if (TransferButton?.Enabled == true)
+                                TransferButton_Click(this, EventArgs.Empty);
+                            else
+                                Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                    "pedal trigger skipped because TransferButton is currently busy");
+                        }
+                        finally
+                        {
+                            System.Threading.Interlocked.Exchange(ref _pedalTransferBusy, 0);
+                        }
                     }));
                 }
             }
