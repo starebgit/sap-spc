@@ -2004,9 +2004,6 @@ namespace SapSpcWinForms
                 $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
             ShowStopalkaDebugPopup($"START\nrow={rowIndex}, col={colName}, com={comPort}, kanal={_prenosStopalkaStKanal}");
 
-            Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
-                $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
-
             try
             {
                 _prenosStopalkaPort = PrenosMeritevService.CreateConfiguredSerialPort(comPort, COM_BAUD);
@@ -2034,10 +2031,15 @@ namespace SapSpcWinForms
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
                 }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
+                }
             }
             catch (Exception ex)
             {
-                StopPrenosStopalka();
+                StopPrenosStopalka("open_error", showPopup: false);
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.TransferWithPedal.OpenError") + "\n" + ex.Message,
                     pedalTitle,
@@ -2046,11 +2048,12 @@ namespace SapSpcWinForms
             }
         }
 
-        private void StopPrenosStopalka()
+        private void StopPrenosStopalka(string reason = "manual", bool showPopup = true)
         {
             Services.DiagnosticLog.Info("ZacetnaForm.StopPrenosStopalka",
-                $"stopping stopalka transfer; running={_prenosStopalkaRunning}; com='{_prenosStopalkaComPort}'; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
-            ShowStopalkaDebugPopup($"STOP\napplied={_prenosStopalkaAppliedCount}, expected={_prenosStopalkaExpectedCount}");
+                $"stopping stopalka transfer; reason={reason}; running={_prenosStopalkaRunning}; com='{_prenosStopalkaComPort}'; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
+            if (showPopup)
+                ShowStopalkaDebugPopup($"STOP\nreason={reason}\napplied={_prenosStopalkaAppliedCount}");
             _prenosStopalkaRunning = false;
 
             try { _prenosStopalkaCts?.Cancel(); } catch (Exception ex) { Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.Cancel", ex); }
@@ -2111,8 +2114,6 @@ namespace SapSpcWinForms
 
             Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
                 $"chunk received; len={chunk.Length}; data='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'");
-            ShowStopalkaDebugPopup($"RX CHUNK\nlen={chunk.Length}\n{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}");
-
             lock (_prenosLock)
             {
                 _prenosBuf.Append(chunk);
@@ -2148,23 +2149,34 @@ namespace SapSpcWinForms
                             {
                                 Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
                                     $"duplicate measurement ignored; value={value}; deltaMs={deltaMs:0}");
-                                ShowStopalkaDebugPopup($"DUPLICATE IGNORED\nvalue={value}\ndeltaMs={deltaMs:0}");
                                 return;
                             }
                         }
 
-                        ShowStopalkaDebugPopup($"PARSED VALUE\n{value}");
+                        var beforeCell = KaraktiGrid?.CurrentCell;
+                        int beforeRow = beforeCell?.RowIndex ?? -1;
+                        int beforeCol = beforeCell?.ColumnIndex ?? -1;
+
                         ApplyPrenosValueToCurrentCell(value);
+
+                        var afterCell = KaraktiGrid?.CurrentCell;
+                        int afterRow = afterCell?.RowIndex ?? -1;
+                        int afterCol = afterCell?.ColumnIndex ?? -1;
+                        bool movedToNextRow = (afterRow != beforeRow) || (afterCol != beforeCol);
+
+                        ShowStopalkaDebugPopup($"PARSED VALUE\nvalue={value}\nraw='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'\nmoved={movedToNextRow}");
+
                         _prenosStopalkaAppliedCount++;
                         _prenosStopalkaLastApplyUtc = nowUtc;
                         _prenosStopalkaLastValue = value;
                         Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
-                        if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)
+                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; movedToNextRow={movedToNextRow}");
+
+                        if (!movedToNextRow)
                         {
                             Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                                "expected count reached; stopping stopalka transfer");
-                            StopPrenosStopalka();
+                                "bottom reached; stopping stopalka transfer");
+                            StopPrenosStopalka("bottom_reached", showPopup: true);
                         }
                     }));
                 }
