@@ -42,6 +42,8 @@ namespace SapSpcWinForms
         private readonly Dictionary<int, bool> _machineActiveByIndex = new Dictionary<int, bool>();  // Delphi strvkl[i]
         private const int DefaultIntervalDiffMinutes = StrojnaDbRepository.DefaultIntervalDiffMinutes;
         private const int DefaultIntervalTrajMinutes = StrojnaDbRepository.DefaultIntervalTrajMinutes;
+        private const int DetailedTransferLogBudget = 30;
+        private int _detailedTransferLogsRemaining = DetailedTransferLogBudget;
 
         private readonly TimeSpan[] _zacIzm = new[]
         {
@@ -1756,9 +1758,16 @@ namespace SapSpcWinForms
         private async void TransferButton_Click(object sender, EventArgs e)
         {
             string transferTitle = TranslationService.Translate("ZacetnaForm.Transfer.Title");
+            string transferId = Guid.NewGuid().ToString("N").Substring(0, 10);
             var grid = KaraktiGrid;
+
+            DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                $"transferId={transferId}; click received; currentStKanal={_stKanal}; currentStPost={_currentStPost?.ToString() ?? "n/a"}");
+
             if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out var cell))
             {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; aborted because current cell is not a Vzorec cell");
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
                     transferTitle,
@@ -1767,17 +1776,49 @@ namespace SapSpcWinForms
                 return;
             }
 
-            string comPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(cell.RowIndex), _currentStPost);
+            string meriloValue = grid?.Rows[cell.RowIndex]?.Cells["Merilo"]?.Value?.ToString() ?? "";
+            int effectiveStKanal = _stKanal;
+            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(meriloValue, out var meriloChannel))
+            {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; invalid/non-numeric Merilo='{meriloValue}', falling back to previous stKanal={_stKanal}");
+            }
+            else
+            {
+                effectiveStKanal = meriloChannel;
+            }
+
+            bool detailedLogging = _detailedTransferLogsRemaining > 0;
+            if (detailedLogging)
+            {
+                _detailedTransferLogsRemaining--;
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; detailed diagnostics enabled for this transfer; remainingDetailedBudget={_detailedTransferLogsRemaining}");
+            }
+
+            if (effectiveStKanal != _stKanal)
+            {
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; stKanal overridden from Merilo; previous={_stKanal}; effective={effectiveStKanal}");
+            }
+            _stKanal = effectiveStKanal;
+            string rowComValue = GetRowComValue(cell.RowIndex);
+            string comPort = ComPortService.ResolveComPortDelphiLike(rowComValue, _currentStPost);
             string oldText = TransferButton.Text;
+
+            DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; resolvedCom='{comPort}'; stKanalUsed={effectiveStKanal}");
 
             try
             {
                 TransferButton.Enabled = false;
                 TransferButton.Text = TranslationService.Translate("ZacetnaForm.Transfer.BusyButton");
 
-                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), _stKanal));
+                string raw = await Task.Run(() => PrenosMeritevService.ReadSingleMeasurementRaw(comPort, COM_BAUD, TimeSpan.FromSeconds(6), effectiveStKanal, transferId, detailedLogging));
                 if (string.IsNullOrWhiteSpace(raw))
                 {
+                    DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                        $"transferId={transferId}; no data read from device");
                     MessageBox.Show(this,
                         TranslationService.Translate("ZacetnaForm.Transfer.NoData"),
                         transferTitle,
@@ -1786,8 +1827,10 @@ namespace SapSpcWinForms
                     return;
                 }
 
-                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, _stKanal, FormatMeasurement, out var parsedText))
+                if (!PrenosMeritevService.TryParseMeasurementForKanal(raw, effectiveStKanal, FormatMeasurement, out var parsedText, transferId, detailedLogging))
                 {
+                    DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                        $"transferId={transferId}; parse failed for stKanal={effectiveStKanal}");
                     MessageBox.Show(this,
                         TranslationService.Translate("ZacetnaForm.Transfer.ParseFailed"),
                         transferTitle,
@@ -1797,9 +1840,12 @@ namespace SapSpcWinForms
                 }
 
                 PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, parsedText);
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; measurement applied successfully; parsedText='{parsedText}'");
             }
             catch (Exception ex)
             {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click", ex);
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.ReadError") + "\n" + ex.Message,
                     transferTitle,
@@ -1810,6 +1856,8 @@ namespace SapSpcWinForms
             {
                 TransferButton.Enabled = true;
                 TransferButton.Text = oldText;
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; transfer flow finalized");
             }
         }
 
