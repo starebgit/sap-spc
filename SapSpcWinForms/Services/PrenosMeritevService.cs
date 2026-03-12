@@ -182,9 +182,13 @@ namespace SapSpcWinForms.Services
 
             try
             {
-                // Force current edit context to close so the last-cell value is persisted
-                // even when no next Vzorec cell exists.
-                grid.CurrentCell = null;
+                // Force current edit context to close so the last-cell value is persisted.
+                // Then move focus to the first column in the same row (left side),
+                // matching the manual "click left" behavior used by operators.
+                if (row >= 0 && row < grid.Rows.Count && grid.ColumnCount > 0)
+                    grid.CurrentCell = grid.Rows[row].Cells[0];
+                else
+                    grid.CurrentCell = null;
             }
             catch
             {
