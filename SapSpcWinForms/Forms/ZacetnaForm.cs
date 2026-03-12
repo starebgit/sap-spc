@@ -1949,6 +1949,8 @@ namespace SapSpcWinForms
 
             if (_prekiniButton != null)
             {
+                // Legacy stopalka continuous-transfer flow is intentionally disabled.
+                // Keep the button inactive so users are guided to the simplified one-shot flow.
                 _prekiniButton.Click -= PrekiniButton_Click;
                 _prekiniButton.Enabled = false;
             }
