@@ -153,6 +153,8 @@ namespace SapSpcWinForms
                 GrafButton.Click += GrafButton_Click;
 
             WirePrenosStopalkaPrekiniButtons();
+            HideStopalkaButtonsInUi();
+            StartPrenosStopalka(showSampleCellWarning: false);
             StartSemaforRefreshLoop();
             ObnoviSemafor();
             this.FormClosing += (s, e) =>
@@ -1944,13 +1946,13 @@ namespace SapSpcWinForms
             if (_prenosStopalkaButton != null)
             {
                 _prenosStopalkaButton.Click -= PrenosStopalkaButton_Click;
-                _prenosStopalkaButton.Click += PrenosStopalkaButton_Click;
             }
 
             if (_prekiniButton != null)
             {
+                // Legacy stopalka continuous-transfer flow is intentionally disabled.
+                // Keep the button inactive so users are guided to the simplified one-shot flow.
                 _prekiniButton.Click -= PrekiniButton_Click;
-                _prekiniButton.Click += PrekiniButton_Click;
                 _prekiniButton.Enabled = false;
             }
         }
