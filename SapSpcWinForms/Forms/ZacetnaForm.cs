@@ -2019,6 +2019,17 @@ namespace SapSpcWinForms
                     _prenosStopalkaPort.Write(cmd);
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
+                    ShowStopalkaDebugPopup($"SEND CMD\n{cmd.Replace("\r", "\\r")}");
+                }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
+                }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
                 }
                 else
                 {
@@ -2127,6 +2138,7 @@ namespace SapSpcWinForms
 
                 if (IsHandleCreated)
                 {
+                    _prenosStopalkaRunning = false;
                     BeginInvoke((Action)(() =>
                     {
                         var nowUtc = DateTime.UtcNow;
