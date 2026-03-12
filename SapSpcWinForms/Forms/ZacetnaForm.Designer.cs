@@ -504,7 +504,7 @@ namespace SapSpcWinForms
             this.versionInfoLabel.Margin = new System.Windows.Forms.Padding(4, 1, 6, 2);
             this.versionInfoLabel.Name = "versionInfoLabel";
             this.versionInfoLabel.Size = new System.Drawing.Size(35, 24);
-            this.versionInfoLabel.Text = "v2.0";
+            this.versionInfoLabel.Text = "v2.3";
             // 
             // variabilneTitleLabel
             // 
