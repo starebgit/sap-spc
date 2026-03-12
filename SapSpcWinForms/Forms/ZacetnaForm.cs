@@ -1803,11 +1803,18 @@ namespace SapSpcWinForms
             }
             _stKanal = effectiveStKanal;
             string rowComValue = GetRowComValue(cell.RowIndex);
-            string comPort = ComPortService.ResolveComPortDelphiLike(rowComValue, _currentStPost);
+            string configuredComPort = ComPortService.ResolveComPortDelphiLike(rowComValue, _currentStPost);
+            string comPort = PrenosMeritevService.ResolveComPortForTransfer(configuredComPort, out bool usedComFallback, out string fallbackReason);
             string oldText = TransferButton.Text;
 
             DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
-                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; resolvedCom='{comPort}'; stKanalUsed={effectiveStKanal}");
+                $"transferId={transferId}; row={cell.RowIndex}; col={cell.ColumnIndex}; merilo='{meriloValue}'; rowCom='{rowComValue}'; configuredCom='{configuredComPort}'; resolvedCom='{comPort}'; stKanalUsed={effectiveStKanal}");
+
+            if (usedComFallback)
+            {
+                DiagnosticLog.Warn("ZacetnaForm.TransferButton_Click",
+                    $"transferId={transferId}; COM fallback applied; {fallbackReason}");
+            }
 
             try
             {
