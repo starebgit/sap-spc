@@ -33,6 +33,13 @@ namespace SapSpcWinForms.Services
             return fallbackStKanal;
         }
 
+        public static bool TryResolveStKanalFromMeriloDelphiLike(string meriloValue, out int stKanal)
+        {
+            stKanal = 0;
+            var tx = (meriloValue ?? "").Trim();
+            return tx.Length <= 2 && int.TryParse(tx, out stKanal) && stKanal >= 1 && stKanal <= 10;
+        }
+
         private static bool TryParseDelimitedCommaMeasurement(string raw, out double value)
         {
             value = 0;
@@ -141,7 +148,7 @@ namespace SapSpcWinForms.Services
             };
         }
 
-        public static string ReadSingleMeasurementRaw(string comPort, int baud, TimeSpan timeout, int stKanal, string transferId = null)
+        public static string ReadSingleMeasurementRaw(string comPort, int baud, TimeSpan timeout, int stKanal, string transferId = null, bool detailedLogging = false)
         {
             var sw = Stopwatch.StartNew();
             var sb = new StringBuilder();
@@ -184,8 +191,11 @@ namespace SapSpcWinForms.Services
                         sb.Append(chunk);
                         lastDataMs = sw.ElapsedMilliseconds;
 
-                        DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
-                            $"transferId={transferId ?? "n/a"}; chunk#{chunkCount}; chunkLen={chunk.Length}; totalLen={sb.Length}; elapsedMs={sw.ElapsedMilliseconds}; chunk='{SanitizeRawForLog(chunk, 120)}'");
+                        if (detailedLogging)
+                        {
+                            DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                                $"transferId={transferId ?? "n/a"}; chunk#{chunkCount}; chunkLen={chunk.Length}; totalLen={sb.Length}; elapsedMs={sw.ElapsedMilliseconds}; chunk='{SanitizeRawForLog(chunk, 120)}'");
+                        }
 
                         if (sb.Length > 2048)
                             sb.Remove(0, sb.Length - 2048);
@@ -197,15 +207,21 @@ namespace SapSpcWinForms.Services
 
                             if (hasFrameSignature && AppUtils.TryParseLast04AFrame(sb.ToString(), out _, out _, out _))
                             {
-                                DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
-                                    $"transferId={transferId ?? "n/a"}; stopping read due to complete 04A frame; elapsedMs={sw.ElapsedMilliseconds}");
+                                if (detailedLogging)
+                                {
+                                    DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                                        $"transferId={transferId ?? "n/a"}; stopping read due to complete 04A frame; elapsedMs={sw.ElapsedMilliseconds}");
+                                }
                                 break;
                             }
 
                             if (TryParseDelimitedCommaMeasurement(sb.ToString(), out _))
                             {
-                                DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
-                                    $"transferId={transferId ?? "n/a"}; stopping read due to complete comma-delimited response; elapsedMs={sw.ElapsedMilliseconds}");
+                                if (detailedLogging)
+                                {
+                                    DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                                        $"transferId={transferId ?? "n/a"}; stopping read due to complete comma-delimited response; elapsedMs={sw.ElapsedMilliseconds}");
+                                }
                                 break;
                             }
                         }
@@ -213,8 +229,11 @@ namespace SapSpcWinForms.Services
 
                     if (sb.Length > 0 && lastDataMs >= 0 && (sw.ElapsedMilliseconds - lastDataMs) > 220)
                     {
-                        DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
-                            $"transferId={transferId ?? "n/a"}; stopping read due to idle gap >220ms; elapsedMs={sw.ElapsedMilliseconds}; lastDataMs={lastDataMs}");
+                        if (detailedLogging)
+                        {
+                            DiagnosticLog.Info("PrenosMeritevService.ReadSingleMeasurementRaw",
+                                $"transferId={transferId ?? "n/a"}; stopping read due to idle gap >220ms; elapsedMs={sw.ElapsedMilliseconds}; lastDataMs={lastDataMs}");
+                        }
                         break;
                     }
 
@@ -228,7 +247,7 @@ namespace SapSpcWinForms.Services
             return sb.ToString();
         }
 
-        public static bool TryParseMeasurementForKanal(string raw, int stKanal, Func<double, string> formatter, out string parsedText, string transferId = null)
+        public static bool TryParseMeasurementForKanal(string raw, int stKanal, Func<double, string> formatter, out string parsedText, string transferId = null, bool detailedLogging = false)
         {
             parsedText = "";
             if (string.IsNullOrWhiteSpace(raw))
@@ -251,8 +270,11 @@ namespace SapSpcWinForms.Services
                 }
 
                 parsedText = formatter(value);
-                DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
-                    $"transferId={transferId ?? "n/a"}; parsed stKanal={stKanal}; value={value}; formatted='{parsedText}'");
+                if (detailedLogging)
+                {
+                    DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
+                        $"transferId={transferId ?? "n/a"}; parsed stKanal={stKanal}; value={value}; formatted='{parsedText}'");
+                }
                 return true;
             }
 
@@ -287,8 +309,11 @@ namespace SapSpcWinForms.Services
                 }
 
                 parsedText = mr.Substring(start, len).Replace('.', ',').Trim();
-                DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
-                    $"transferId={transferId ?? "n/a"}; parsed stKanal=9; formatted='{parsedText}'");
+                if (detailedLogging)
+                {
+                    DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
+                        $"transferId={transferId ?? "n/a"}; parsed stKanal=9; formatted='{parsedText}'");
+                }
                 return parsedText.Length > 0;
             }
 
@@ -332,8 +357,11 @@ namespace SapSpcWinForms.Services
                 }
 
                 parsedText = mr.Substring(start, len).Replace('.', ',').Trim();
-                DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
-                    $"transferId={transferId ?? "n/a"}; parsed stKanal=10; formatted='{parsedText}'");
+                if (detailedLogging)
+                {
+                    DiagnosticLog.Info("PrenosMeritevService.TryParseMeasurementForKanal",
+                        $"transferId={transferId ?? "n/a"}; parsed stKanal=10; formatted='{parsedText}'");
+                }
                 return parsedText.Length > 0;
             }
 
