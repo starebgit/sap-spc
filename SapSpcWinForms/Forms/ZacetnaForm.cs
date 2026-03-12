@@ -85,6 +85,10 @@ namespace SapSpcWinForms
         private int _prenosStopalkaStKanal;
         private int _prenosStopalkaExpectedCount;
         private int _prenosStopalkaAppliedCount;
+        private DateTime _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+        private double? _prenosStopalkaLastValue = null;
+        private bool _stopalkaDebugPopups = false;
+        private ToolStripMenuItem _stopalkaDebugToolStripMenuItem;
         private string _prenosStopalkaComPort = string.Empty;
 
         // Buttons
@@ -113,6 +117,7 @@ namespace SapSpcWinForms
             ConfigureResponsiveLayout(); // programmatic docking layout
             this.WindowState = FormWindowState.Maximized;
             WireUpEvents();
+            WireStopalkaDebugMenu();
             beriMeritveSettingsToolStripMenuItem.Checked = (_berMer == 0);
 
             // Subscribe to global state changes
@@ -899,6 +904,44 @@ namespace SapSpcWinForms
         {
             beriMeritveSettingsToolStripMenuItem.Checked = !beriMeritveSettingsToolStripMenuItem.Checked;
             _berMer = beriMeritveSettingsToolStripMenuItem.Checked ? 0 : 1;
+        }
+
+        private void WireStopalkaDebugMenu()
+        {
+            if (nastavitveToolStripMenuItem == null || _stopalkaDebugToolStripMenuItem != null)
+                return;
+
+            _stopalkaDebugToolStripMenuItem = new ToolStripMenuItem("Stopalka debug popupi")
+            {
+                CheckOnClick = true,
+                Checked = _stopalkaDebugPopups
+            };
+            _stopalkaDebugToolStripMenuItem.CheckedChanged += (_, __) =>
+            {
+                _stopalkaDebugPopups = _stopalkaDebugToolStripMenuItem.Checked;
+                Services.DiagnosticLog.Info("ZacetnaForm.StopalkaDebug",
+                    $"debug popups toggled; enabled={_stopalkaDebugPopups}");
+            };
+
+            nastavitveToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            nastavitveToolStripMenuItem.DropDownItems.Add(_stopalkaDebugToolStripMenuItem);
+        }
+
+        private void ShowStopalkaDebugPopup(string text)
+        {
+            if (!_stopalkaDebugPopups) return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke((Action)(() => ShowStopalkaDebugPopup(text)));
+                return;
+            }
+
+            MessageBox.Show(this,
+                text,
+                "Stopalka debug",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
 
         // --------- OPERACIJE -------------------------------------
@@ -1924,6 +1967,8 @@ namespace SapSpcWinForms
             var colName = cell?.OwningColumn?.Name ?? "";
             if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
             {
+                Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                    $"ignored start because current cell is invalid; hasCell={cell != null}; col='{colName}'");
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
                     pedalTitle,
@@ -1951,9 +1996,13 @@ namespace SapSpcWinForms
             _prenosStopalkaStKanal = meriloChannel;
             _prenosStopalkaComPort = comPort;
             _prenosStopalkaAppliedCount = 0;
-            _prenosStopalkaExpectedCount = CountContiguousRowsWithSameMerilo(rowIndex, meriloValue);
-            if (_prenosStopalkaExpectedCount <= 0)
-                _prenosStopalkaExpectedCount = 1;
+            _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+            _prenosStopalkaLastValue = null;
+            _prenosStopalkaExpectedCount = 1;
+
+            Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
+            ShowStopalkaDebugPopup($"START\nrow={rowIndex}, col={colName}, com={comPort}, kanal={_prenosStopalkaStKanal}");
 
             try
             {
@@ -1970,6 +2019,12 @@ namespace SapSpcWinForms
                     _prenosStopalkaPort.Write(cmd);
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
+                    ShowStopalkaDebugPopup($"SEND CMD\n{cmd.Replace("\r", "\\r")}");
+                }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
                 }
             }
             catch (Exception ex)
@@ -1985,6 +2040,9 @@ namespace SapSpcWinForms
 
         private void StopPrenosStopalka()
         {
+            Services.DiagnosticLog.Info("ZacetnaForm.StopPrenosStopalka",
+                $"stopping stopalka transfer; running={_prenosStopalkaRunning}; com='{_prenosStopalkaComPort}'; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
+            ShowStopalkaDebugPopup($"STOP\napplied={_prenosStopalkaAppliedCount}, expected={_prenosStopalkaExpectedCount}");
             _prenosStopalkaRunning = false;
 
             try { _prenosStopalkaCts?.Cancel(); } catch (Exception ex) { Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.Cancel", ex); }
@@ -1998,6 +2056,8 @@ namespace SapSpcWinForms
                     if (_prenosStopalkaPort.IsOpen && !string.IsNullOrWhiteSpace(_prenosStopalkaComPort))
                     {
                         _prenosStopalkaPort.Write("1011100001001\r");
+                        Services.DiagnosticLog.Info("ZacetnaForm.StopPrenosStopalka",
+                            $"stop command sent to port '{_prenosStopalkaComPort}'");
                     }
                     _prenosStopalkaPort.DataReceived -= PrenosStopalkaPort_DataReceived;
                     if (_prenosStopalkaPort.IsOpen) _prenosStopalkaPort.Close();
@@ -2012,6 +2072,8 @@ namespace SapSpcWinForms
             _prenosStopalkaComPort = string.Empty;
             _prenosStopalkaExpectedCount = 0;
             _prenosStopalkaAppliedCount = 0;
+            _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+            _prenosStopalkaLastValue = null;
 
             lock (_prenosLock) _prenosBuf.Clear();
 
@@ -2039,6 +2101,10 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrEmpty(chunk)) return;
 
+            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                $"chunk received; len={chunk.Length}; data='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'");
+            ShowStopalkaDebugPopup($"RX CHUNK\nlen={chunk.Length}\n{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}");
+
             lock (_prenosLock)
             {
                 _prenosBuf.Append(chunk);
@@ -2054,17 +2120,42 @@ namespace SapSpcWinForms
                 lock (_prenosLock)
                 {
                     if (!PrenosMeritevService.TryConsumeLast04AFrame(_prenosBuf, out value))
+                    {
+                        Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                            $"no complete frame yet; bufferLen={_prenosBuf.Length}");
                         return;
+                    }
                 }
 
                 if (IsHandleCreated)
                 {
+                    _prenosStopalkaRunning = false;
                     BeginInvoke((Action)(() =>
                     {
+                        var nowUtc = DateTime.UtcNow;
+                        if (_prenosStopalkaLastValue.HasValue)
+                        {
+                            var deltaMs = (nowUtc - _prenosStopalkaLastApplyUtc).TotalMilliseconds;
+                            if (deltaMs >= 0 && deltaMs < 180 && Math.Abs(_prenosStopalkaLastValue.Value - value) < 0.0000001d)
+                            {
+                                Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                    $"duplicate measurement ignored; value={value}; deltaMs={deltaMs:0}");
+                                ShowStopalkaDebugPopup($"DUPLICATE IGNORED\nvalue={value}\ndeltaMs={deltaMs:0}");
+                                return;
+                            }
+                        }
+
+                        ShowStopalkaDebugPopup($"PARSED VALUE\n{value}");
                         ApplyPrenosValueToCurrentCell(value);
                         _prenosStopalkaAppliedCount++;
+                        _prenosStopalkaLastApplyUtc = nowUtc;
+                        _prenosStopalkaLastValue = value;
+                        Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
                         if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)
                         {
+                            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                "expected count reached; stopping stopalka transfer");
                             StopPrenosStopalka();
                         }
                     }));

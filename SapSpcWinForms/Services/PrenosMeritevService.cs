@@ -67,6 +67,37 @@ namespace SapSpcWinForms.Services
             return double.TryParse(token.Replace('.', ','), NumberStyles.Any, new CultureInfo("sl-SI"), out value);
         }
 
+        private static bool TryConsumeDelimitedCommaMeasurement(StringBuilder buffer, out double value)
+        {
+            value = 0;
+            if (buffer == null || buffer.Length == 0)
+                return false;
+
+            string raw = buffer.ToString();
+            int secondComma = raw.LastIndexOf(',');
+            while (secondComma > 0)
+            {
+                int firstComma = raw.LastIndexOf(',', secondComma - 1);
+                if (firstComma < 0)
+                    return false;
+
+                string token = raw.Substring(firstComma + 1, secondComma - firstComma - 1).Replace(" ", "").Trim();
+                if (token.Length > 0 &&
+                    (double.TryParse(token.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out value) ||
+                     double.TryParse(token.Replace('.', ','), NumberStyles.Any, new CultureInfo("sl-SI"), out value)))
+                {
+                    int removeLen = Math.Min(secondComma + 1, buffer.Length);
+                    if (removeLen > 0)
+                        buffer.Remove(0, removeLen);
+                    return true;
+                }
+
+                secondComma = firstComma;
+            }
+
+            return false;
+        }
+
         public static bool IsVzorecCell(DataGridViewCell cell)
         {
             var colName = cell?.OwningColumn?.Name ?? "";
@@ -99,32 +130,17 @@ namespace SapSpcWinForms.Services
             if (grid == null || row < 0 || row >= grid.Rows.Count || grid.ColumnCount <= 0)
                 return;
 
-            int firstVzCol = -1;
-            for (int i = 0; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    firstVzCol = i;
-                    break;
-                }
-            }
+            int nextRow = row + 1;
+            int nextCol = curCol;
 
-            int nextCol = -1;
-            for (int i = curCol + 1; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    nextCol = i;
-                    break;
-                }
-            }
+            if (nextRow >= grid.Rows.Count)
+                return;
 
-            int nextRow = row;
-            if (nextCol < 0 && firstVzCol >= 0 && (row + 1 < grid.Rows.Count))
-            {
-                nextRow = row + 1;
-                nextCol = firstVzCol;
-            }
+            if (nextCol < 0 || nextCol >= grid.ColumnCount)
+                return;
+
+            if (!grid.Columns[nextCol].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return;
 
             if (nextCol >= 0 && nextRow >= 0 && nextRow < grid.Rows.Count)
             {
@@ -390,7 +406,9 @@ namespace SapSpcWinForms.Services
                 return false;
 
             if (!AppUtils.TryParseLast04AFrame(buffer, out value, out int endIdx, out _))
-                return false;
+            {
+                return TryConsumeDelimitedCommaMeasurement(buffer, out value);
+            }
 
             if (endIdx > 0 && endIdx <= buffer.Length)
                 buffer.Remove(0, endIdx);
