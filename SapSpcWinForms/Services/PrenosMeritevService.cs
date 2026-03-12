@@ -121,10 +121,14 @@ namespace SapSpcWinForms.Services
             grid.EndEdit();
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
-            cell.Value = measurement;
+            int rowIndex = cell.RowIndex;
+            int colIndex = cell.ColumnIndex;
+
+            grid.Rows[rowIndex].Cells[colIndex].Value = measurement;
+            grid.NotifyCurrentCellDirty(true);
             grid.EndEdit();
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            MoveToNextVzorecCell(grid, cell.RowIndex, cell.ColumnIndex);
+            MoveToNextVzorecCell(grid, rowIndex, colIndex);
         }
 
         public static void MoveToNextVzorecCell(DataGridView grid, int row, int curCol)
@@ -175,7 +179,17 @@ namespace SapSpcWinForms.Services
 
             grid.EndEdit();
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            grid.ClearSelection();
+
+            try
+            {
+                // Force current edit context to close so the last-cell value is persisted
+                // even when no next Vzorec cell exists.
+                grid.CurrentCell = null;
+            }
+            catch
+            {
+                // Some grid configurations can reject null CurrentCell; continue with best effort.
+            }
 
             try
             {
