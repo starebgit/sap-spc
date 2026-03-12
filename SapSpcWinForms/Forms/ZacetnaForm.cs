@@ -1924,6 +1924,8 @@ namespace SapSpcWinForms
             var colName = cell?.OwningColumn?.Name ?? "";
             if (cell == null || !colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
             {
+                Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                    $"ignored start because current cell is invalid; hasCell={cell != null}; col='{colName}'");
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
                     pedalTitle,
@@ -1955,6 +1957,9 @@ namespace SapSpcWinForms
             if (_prenosStopalkaExpectedCount <= 0)
                 _prenosStopalkaExpectedCount = 1;
 
+            Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                $"initializing stopalka transfer; row={rowIndex}; col='{colName}'; com='{comPort}'; merilo='{meriloValue}'; stKanal={_prenosStopalkaStKanal}; expectedCount={_prenosStopalkaExpectedCount}");
+
             try
             {
                 _prenosStopalkaPort = PrenosMeritevService.CreateConfiguredSerialPort(comPort, COM_BAUD);
@@ -1971,6 +1976,11 @@ namespace SapSpcWinForms
                     Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
                         $"stopalka started; com='{comPort}'; stKanal={_prenosStopalkaStKanal}; stMeritev={_prenosStopalkaExpectedCount}; cmd='{cmd.Replace("\r", "\\r")}'");
                 }
+                else
+                {
+                    Services.DiagnosticLog.Info("ZacetnaForm.StartPrenosStopalka",
+                        $"stopalka started without command write for stKanal={_prenosStopalkaStKanal} (Delphi-compatible behavior)");
+                }
             }
             catch (Exception ex)
             {
@@ -1985,6 +1995,8 @@ namespace SapSpcWinForms
 
         private void StopPrenosStopalka()
         {
+            Services.DiagnosticLog.Info("ZacetnaForm.StopPrenosStopalka",
+                $"stopping stopalka transfer; running={_prenosStopalkaRunning}; com='{_prenosStopalkaComPort}'; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
             _prenosStopalkaRunning = false;
 
             try { _prenosStopalkaCts?.Cancel(); } catch (Exception ex) { Services.DiagnosticLog.Warn("ZacetnaForm.StopPrenosStopalka.Cancel", ex); }
@@ -1998,6 +2010,8 @@ namespace SapSpcWinForms
                     if (_prenosStopalkaPort.IsOpen && !string.IsNullOrWhiteSpace(_prenosStopalkaComPort))
                     {
                         _prenosStopalkaPort.Write("1011100001001\r");
+                        Services.DiagnosticLog.Info("ZacetnaForm.StopPrenosStopalka",
+                            $"stop command sent to port '{_prenosStopalkaComPort}'");
                     }
                     _prenosStopalkaPort.DataReceived -= PrenosStopalkaPort_DataReceived;
                     if (_prenosStopalkaPort.IsOpen) _prenosStopalkaPort.Close();
@@ -2039,6 +2053,9 @@ namespace SapSpcWinForms
 
             if (string.IsNullOrEmpty(chunk)) return;
 
+            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                $"chunk received; len={chunk.Length}; data='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'");
+
             lock (_prenosLock)
             {
                 _prenosBuf.Append(chunk);
@@ -2054,7 +2071,11 @@ namespace SapSpcWinForms
                 lock (_prenosLock)
                 {
                     if (!PrenosMeritevService.TryConsumeLast04AFrame(_prenosBuf, out value))
+                    {
+                        Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                            $"no complete frame yet; bufferLen={_prenosBuf.Length}");
                         return;
+                    }
                 }
 
                 if (IsHandleCreated)
@@ -2063,8 +2084,12 @@ namespace SapSpcWinForms
                     {
                         ApplyPrenosValueToCurrentCell(value);
                         _prenosStopalkaAppliedCount++;
+                        Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
                         if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)
                         {
+                            Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                "expected count reached; stopping stopalka transfer");
                             StopPrenosStopalka();
                         }
                     }));
