@@ -85,6 +85,8 @@ namespace SapSpcWinForms
         private int _prenosStopalkaStKanal;
         private int _prenosStopalkaExpectedCount;
         private int _prenosStopalkaAppliedCount;
+        private DateTime _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+        private double? _prenosStopalkaLastValue = null;
         private string _prenosStopalkaComPort = string.Empty;
 
         // Buttons
@@ -1953,6 +1955,8 @@ namespace SapSpcWinForms
             _prenosStopalkaStKanal = meriloChannel;
             _prenosStopalkaComPort = comPort;
             _prenosStopalkaAppliedCount = 0;
+            _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+            _prenosStopalkaLastValue = null;
             _prenosStopalkaExpectedCount = CountContiguousRowsWithSameMerilo(rowIndex, meriloValue);
             if (_prenosStopalkaExpectedCount <= 0)
                 _prenosStopalkaExpectedCount = 1;
@@ -2026,6 +2030,8 @@ namespace SapSpcWinForms
             _prenosStopalkaComPort = string.Empty;
             _prenosStopalkaExpectedCount = 0;
             _prenosStopalkaAppliedCount = 0;
+            _prenosStopalkaLastApplyUtc = DateTime.MinValue;
+            _prenosStopalkaLastValue = null;
 
             lock (_prenosLock) _prenosBuf.Clear();
 
@@ -2082,8 +2088,22 @@ namespace SapSpcWinForms
                 {
                     BeginInvoke((Action)(() =>
                     {
+                        var nowUtc = DateTime.UtcNow;
+                        if (_prenosStopalkaLastValue.HasValue)
+                        {
+                            var deltaMs = (nowUtc - _prenosStopalkaLastApplyUtc).TotalMilliseconds;
+                            if (deltaMs >= 0 && deltaMs < 180 && Math.Abs(_prenosStopalkaLastValue.Value - value) < 0.0000001d)
+                            {
+                                Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
+                                    $"duplicate measurement ignored; value={value}; deltaMs={deltaMs:0}");
+                                return;
+                            }
+                        }
+
                         ApplyPrenosValueToCurrentCell(value);
                         _prenosStopalkaAppliedCount++;
+                        _prenosStopalkaLastApplyUtc = nowUtc;
+                        _prenosStopalkaLastValue = value;
                         Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
                             $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; expected={_prenosStopalkaExpectedCount}");
                         if (_prenosStopalkaExpectedCount > 0 && _prenosStopalkaAppliedCount >= _prenosStopalkaExpectedCount)

@@ -130,32 +130,17 @@ namespace SapSpcWinForms.Services
             if (grid == null || row < 0 || row >= grid.Rows.Count || grid.ColumnCount <= 0)
                 return;
 
-            int firstVzCol = -1;
-            for (int i = 0; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    firstVzCol = i;
-                    break;
-                }
-            }
+            int nextRow = row + 1;
+            int nextCol = curCol;
 
-            int nextCol = -1;
-            for (int i = curCol + 1; i < grid.ColumnCount; i++)
-            {
-                if (grid.Columns[i].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
-                {
-                    nextCol = i;
-                    break;
-                }
-            }
+            if (nextRow >= grid.Rows.Count)
+                return;
 
-            int nextRow = row;
-            if (nextCol < 0 && firstVzCol >= 0 && (row + 1 < grid.Rows.Count))
-            {
-                nextRow = row + 1;
-                nextCol = firstVzCol;
-            }
+            if (nextCol < 0 || nextCol >= grid.ColumnCount)
+                return;
+
+            if (!grid.Columns[nextCol].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return;
 
             if (nextCol >= 0 && nextRow >= 0 && nextRow < grid.Rows.Count)
             {
