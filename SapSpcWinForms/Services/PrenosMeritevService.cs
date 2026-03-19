@@ -110,6 +110,24 @@ namespace SapSpcWinForms.Services
             return cell != null && IsVzorecCell(cell);
         }
 
+        private static void FlushPendingCellEdit(DataGridView grid)
+        {
+            if (grid == null)
+                return;
+
+            grid.EndEdit();
+            if (grid.CurrentCell != null)
+                grid.NotifyCurrentCellDirty(true);
+
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            if (grid.DataSource is BindingSource bs)
+                bs.EndEdit();
+
+            if (grid.DataSource != null && grid.BindingContext?[grid.DataSource] is CurrencyManager cm)
+                cm.EndCurrentEdit();
+        }
+
         public static void ApplyMeasurementToCurrentCell(DataGridView grid, string measurement)
         {
             if (grid == null)
@@ -118,12 +136,10 @@ namespace SapSpcWinForms.Services
             if (!TryGetCurrentVzorecCell(grid, out var cell))
                 return;
 
-            grid.EndEdit();
-            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
+            FlushPendingCellEdit(grid);
             cell.Value = measurement;
-            grid.EndEdit();
-            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            FlushPendingCellEdit(grid);
+
             MoveToNextVzorecCell(grid, cell.RowIndex, cell.ColumnIndex);
         }
 
