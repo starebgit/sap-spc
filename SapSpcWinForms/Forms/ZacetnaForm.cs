@@ -1926,6 +1926,72 @@ namespace SapSpcWinForms
             PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, FormatMeasurement(value));
         }
 
+        private void EnsureStopalkaDeviceForCurrentCell()
+        {
+            if (!_prenosStopalkaRunning || KaraktiGrid?.CurrentCell == null)
+                return;
+
+            var cell = KaraktiGrid.CurrentCell;
+            var colName = cell.OwningColumn?.Name ?? string.Empty;
+            if (!colName.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            int rowIndex = cell.RowIndex;
+            string nextComPort = ComPortService.ResolveComPortDelphiLike(GetRowComValue(rowIndex), _currentStPost);
+            string meriloValue = KaraktiGrid.Rows[rowIndex].Cells["Merilo"]?.Value?.ToString() ?? string.Empty;
+            int nextStKanal = _prenosStopalkaStKanal;
+            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(meriloValue, out var meriloChannel))
+            {
+                meriloChannel = _stKanal;
+            }
+            nextStKanal = meriloChannel;
+
+            if (string.Equals(nextComPort, _prenosStopalkaComPort, StringComparison.OrdinalIgnoreCase)
+                && nextStKanal == _prenosStopalkaStKanal)
+            {
+                return;
+            }
+
+            Services.DiagnosticLog.Info("ZacetnaForm.EnsureStopalkaDeviceForCurrentCell",
+                $"switching stopalka device; row={rowIndex}; fromCom='{_prenosStopalkaComPort}' toCom='{nextComPort}'; fromKanal={_prenosStopalkaStKanal} toKanal={nextStKanal}");
+
+            try
+            {
+                if (_prenosStopalkaPort != null)
+                {
+                    _prenosStopalkaPort.DataReceived -= PrenosStopalkaPort_DataReceived;
+                    if (_prenosStopalkaPort.IsOpen) _prenosStopalkaPort.Close();
+                    _prenosStopalkaPort.Dispose();
+                }
+
+                _prenosStopalkaPort = PrenosMeritevService.CreateConfiguredSerialPort(nextComPort, COM_BAUD);
+                _prenosStopalkaPort.DataReceived += PrenosStopalkaPort_DataReceived;
+                _prenosStopalkaPort.Open();
+                _prenosStopalkaPort.DiscardInBuffer();
+
+                _prenosStopalkaComPort = nextComPort;
+                _prenosStopalkaStKanal = nextStKanal;
+                _stKanal = nextStKanal;
+
+                if (_prenosStopalkaStKanal <= 8)
+                {
+                    string stMer = _prenosStopalkaExpectedCount.ToString("000", CultureInfo.InvariantCulture);
+                    string cmd = $"20{_prenosStopalkaStKanal}1103001{stMer}\r";
+                    _prenosStopalkaPort.Write(cmd);
+                }
+            }
+            catch (Exception ex)
+            {
+                Services.DiagnosticLog.Warn("ZacetnaForm.EnsureStopalkaDeviceForCurrentCell", ex);
+                StopPrenosStopalka("switch_error", showPopup: false);
+                MessageBox.Show(this,
+                    TranslationService.Translate("ZacetnaForm.TransferWithPedal.OpenError") + "\n" + ex.Message,
+                    TranslationService.Translate("ZacetnaForm.TransferWithPedal.Title"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
         private void WirePrenosStopalkaPrekiniButtons()
         {
             _prenosStopalkaButton =
@@ -2166,6 +2232,10 @@ namespace SapSpcWinForms
                             Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
                                 "bottom reached; stopping stopalka transfer");
                             StopPrenosStopalka("bottom_reached", showPopup: true);
+                        }
+                        else
+                        {
+                            EnsureStopalkaDeviceForCurrentCell();
                         }
                     }));
                 }
