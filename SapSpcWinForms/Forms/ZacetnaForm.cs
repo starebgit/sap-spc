@@ -2144,6 +2144,8 @@ namespace SapSpcWinForms
 
             lock (_prenosLock) _prenosBuf.Clear();
 
+            CommitAndLeaveLastVzorecCell();
+
             if (IsHandleCreated)
             {
                 BeginInvoke((Action)(() =>
@@ -2152,6 +2154,71 @@ namespace SapSpcWinForms
                     if (_prekiniButton != null) _prekiniButton.Enabled = false;
                 }));
             }
+        }
+
+        private void CommitAndLeaveLastVzorecCell()
+        {
+            var grid = KaraktiGrid;
+            var currentCell = grid?.CurrentCell;
+            if (grid == null || currentCell == null || !PrenosMeritevService.IsVzorecCell(currentCell))
+                return;
+
+            try
+            {
+                grid.EndEdit();
+                grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+            catch (Exception ex)
+            {
+                Services.DiagnosticLog.Warn("ZacetnaForm.CommitAndLeaveLastVzorecCell.Commit", ex);
+            }
+
+            int lastVzorecCol = GetLastVzorecColumnIndex(grid);
+            int lastRow = grid.Rows.Count - 1;
+            bool isLastVzorecCell = currentCell.RowIndex == lastRow && currentCell.ColumnIndex == lastVzorecCol;
+            if (!isLastVzorecCell)
+                return;
+
+            int firstVzorecCol = GetFirstVzorecColumnIndex(grid);
+            if (firstVzorecCol < 0 || grid.Rows.Count == 0)
+                return;
+
+            var targetCell = grid.Rows[0].Cells[firstVzorecCol];
+            if (targetCell == null || targetCell.ReadOnly)
+                return;
+
+            grid.CurrentCell = targetCell;
+            grid.Focus();
+            Services.DiagnosticLog.Info("ZacetnaForm.CommitAndLeaveLastVzorecCell",
+                $"left last vzorec cell; moved focus to row=0; col={firstVzorecCol}");
+        }
+
+        private static int GetFirstVzorecColumnIndex(DataGridView grid)
+        {
+            if (grid == null)
+                return -1;
+
+            for (int col = 0; col < grid.ColumnCount; col++)
+            {
+                if (grid.Columns[col].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                    return col;
+            }
+
+            return -1;
+        }
+
+        private static int GetLastVzorecColumnIndex(DataGridView grid)
+        {
+            if (grid == null)
+                return -1;
+
+            for (int col = grid.ColumnCount - 1; col >= 0; col--)
+            {
+                if (grid.Columns[col].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                    return col;
+            }
+
+            return -1;
         }
 
         private void PrenosStopalkaPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
