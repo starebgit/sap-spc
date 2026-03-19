@@ -1805,6 +1805,13 @@ namespace SapSpcWinForms
 
         private async void TransferButton_Click(object sender, EventArgs e)
         {
+            if (_prenosStopalkaRunning)
+            {
+                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
+                    "ignored click because transfer with pedal is active");
+                return;
+            }
+
             string transferTitle = TranslationService.Translate("ZacetnaForm.Transfer.Title");
             string transferId = Guid.NewGuid().ToString("N").Substring(0, 10);
             var grid = KaraktiGrid;
@@ -1993,6 +2000,7 @@ namespace SapSpcWinForms
 
             _prenosStopalkaRunning = true;
             if (_prenosStopalkaButton != null) _prenosStopalkaButton.Enabled = false;
+            if (TransferButton != null) TransferButton.Enabled = false;
             if (_prekiniButton != null) _prekiniButton.Enabled = true;
 
             _prenosStopalkaCts?.Dispose();
@@ -2097,6 +2105,7 @@ namespace SapSpcWinForms
                 BeginInvoke((Action)(() =>
                 {
                     if (_prenosStopalkaButton != null) _prenosStopalkaButton.Enabled = true;
+                    if (TransferButton != null) TransferButton.Enabled = true;
                     if (_prekiniButton != null) _prekiniButton.Enabled = false;
                 }));
             }
