@@ -14,14 +14,6 @@ namespace SapSpcWinForms.Services
 {
     public static class PrenosMeritevService
     {
-        public struct CellWriteResult
-        {
-            public bool WroteValue { get; set; }
-            public bool ReachedColumnBottomAfterWrite { get; set; }
-            public int RowIndex { get; set; }
-            public int ColumnIndex { get; set; }
-        }
-
         private static string SanitizeRawForLog(string input, int maxLen = 320)
         {
             if (string.IsNullOrEmpty(input))
@@ -118,24 +110,6 @@ namespace SapSpcWinForms.Services
             return cell != null && IsVzorecCell(cell);
         }
 
-        private static void FlushPendingCellEdit(DataGridView grid)
-        {
-            if (grid == null)
-                return;
-
-            grid.EndEdit();
-            if (grid.CurrentCell != null)
-                grid.NotifyCurrentCellDirty(true);
-
-            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
-            if (grid.DataSource is BindingSource bs)
-                bs.EndEdit();
-
-            if (grid.DataSource != null && grid.BindingContext?[grid.DataSource] is CurrencyManager cm)
-                cm.EndCurrentEdit();
-        }
-
         public static void ApplyMeasurementToCurrentCell(DataGridView grid, string measurement)
         {
             if (grid == null)
@@ -144,55 +118,13 @@ namespace SapSpcWinForms.Services
             if (!TryGetCurrentVzorecCell(grid, out var cell))
                 return;
 
-            FlushPendingCellEdit(grid);
-            cell.Value = measurement;
-            FlushPendingCellEdit(grid);
+            grid.EndEdit();
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
+            cell.Value = measurement;
+            grid.EndEdit();
+            grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
             MoveToNextVzorecCell(grid, cell.RowIndex, cell.ColumnIndex);
-        }
-
-        public static CellWriteResult WriteMeasurementAndMoveDownOnly(DataGridView grid, string measurement)
-        {
-            var result = new CellWriteResult
-            {
-                WroteValue = false,
-                ReachedColumnBottomAfterWrite = false,
-                RowIndex = -1,
-                ColumnIndex = -1
-            };
-
-            if (grid == null)
-                return result;
-
-            if (!TryGetCurrentVzorecCell(grid, out var cell))
-                return result;
-
-            int row = cell.RowIndex;
-            int col = cell.ColumnIndex;
-            result.RowIndex = row;
-            result.ColumnIndex = col;
-
-            FlushPendingCellEdit(grid);
-            cell.Value = measurement;
-            FlushPendingCellEdit(grid);
-            result.WroteValue = true;
-
-            int nextRow = row + 1;
-            if (nextRow >= grid.Rows.Count)
-            {
-                result.ReachedColumnBottomAfterWrite = true;
-                return result;
-            }
-
-            var targetRow = grid.Rows[nextRow];
-            if (targetRow != null && col >= 0 && col < targetRow.Cells.Count)
-            {
-                grid.CurrentCell = targetRow.Cells[col];
-                grid.Focus();
-                grid.BeginEdit(true);
-            }
-
-            return result;
         }
 
         public static void MoveToNextVzorecCell(DataGridView grid, int row, int curCol)

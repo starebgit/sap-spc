@@ -1805,13 +1805,6 @@ namespace SapSpcWinForms
 
         private async void TransferButton_Click(object sender, EventArgs e)
         {
-            if (_prenosStopalkaRunning)
-            {
-                DiagnosticLog.Info("ZacetnaForm.TransferButton_Click",
-                    "ignored click because transfer with pedal is active");
-                return;
-            }
-
             string transferTitle = TranslationService.Translate("ZacetnaForm.Transfer.Title");
             string transferId = Guid.NewGuid().ToString("N").Substring(0, 10);
             var grid = KaraktiGrid;
@@ -1916,35 +1909,21 @@ namespace SapSpcWinForms
             }
         }
 
-        private PrenosMeritevService.CellWriteResult ApplyPrenosValueToCurrentCell(string measurementText)
+        private void ApplyPrenosValueToCurrentCell(double value)
         {
-            var emptyResult = new PrenosMeritevService.CellWriteResult
-            {
-                WroteValue = false,
-                ReachedColumnBottomAfterWrite = false,
-                RowIndex = -1,
-                ColumnIndex = -1
-            };
-
             var grid = KaraktiGrid;
             if (!PrenosMeritevService.TryGetCurrentVzorecCell(grid, out _))
             {
-                Services.DiagnosticLog.Warn("ZacetnaForm.ApplyPrenosValueToCurrentCell",
-                    "current cell is not a Vzorec cell; stopping stopalka to avoid silent data loss");
                 MessageBox.Show(this,
                     TranslationService.Translate("ZacetnaForm.Transfer.SampleCellRequired"),
                     TranslationService.Translate("ZacetnaForm.TransferWithPedal.Title"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
                 StopPrenosStopalka();
-                return emptyResult;
+                return;
             }
 
-            var writeResult = PrenosMeritevService.WriteMeasurementAndMoveDownOnly(grid, measurementText);
-            Services.DiagnosticLog.Info("ZacetnaForm.ApplyPrenosValueToCurrentCell",
-                $"writeResult wrote={writeResult.WroteValue}; bottom={writeResult.ReachedColumnBottomAfterWrite}; row={writeResult.RowIndex}; col={writeResult.ColumnIndex}; value='{measurementText}'");
-
-            return writeResult;
+            PrenosMeritevService.ApplyMeasurementToCurrentCell(grid, FormatMeasurement(value));
         }
 
         private void WirePrenosStopalkaPrekiniButtons()
@@ -2000,7 +1979,6 @@ namespace SapSpcWinForms
 
             _prenosStopalkaRunning = true;
             if (_prenosStopalkaButton != null) _prenosStopalkaButton.Enabled = false;
-            if (TransferButton != null) TransferButton.Enabled = false;
             if (_prekiniButton != null) _prekiniButton.Enabled = true;
 
             _prenosStopalkaCts?.Dispose();
@@ -2105,7 +2083,6 @@ namespace SapSpcWinForms
                 BeginInvoke((Action)(() =>
                 {
                     if (_prenosStopalkaButton != null) _prenosStopalkaButton.Enabled = true;
-                    if (TransferButton != null) TransferButton.Enabled = true;
                     if (_prekiniButton != null) _prekiniButton.Enabled = false;
                 }));
             }
@@ -2165,39 +2142,30 @@ namespace SapSpcWinForms
                             }
                         }
 
-                        string measurementText = FormatMeasurement(value);
-                        var currentCell = KaraktiGrid?.CurrentCell;
-                        int currentRow = currentCell?.RowIndex ?? -1;
-                        string rowMerilo = string.Empty;
-                        if (currentRow >= 0 && KaraktiGrid != null && currentRow < KaraktiGrid.Rows.Count && KaraktiGrid.Columns.Contains("Merilo"))
-                        {
-                            rowMerilo = KaraktiGrid.Rows[currentRow].Cells["Merilo"]?.Value?.ToString()?.Trim() ?? string.Empty;
-                            if (!PrenosMeritevService.TryResolveStKanalFromMeriloDelphiLike(rowMerilo, out _))
-                            {
-                                measurementText = "0";
-                                Services.DiagnosticLog.Warn("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                                    $"invalid/unresolved merilo on current row -> writing 0; row={currentRow}; merilo='{rowMerilo}'");
-                            }
-                        }
+                        var beforeCell = KaraktiGrid?.CurrentCell;
+                        int beforeRow = beforeCell?.RowIndex ?? -1;
+                        int beforeCol = beforeCell?.ColumnIndex ?? -1;
 
-                        var writeResult = ApplyPrenosValueToCurrentCell(measurementText);
+                        ApplyPrenosValueToCurrentCell(value);
 
-                        ShowStopalkaDebugPopup($"PARSED VALUE\nvalue={measurementText}\nraw='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'\nwrote={writeResult.WroteValue}\nbottom={writeResult.ReachedColumnBottomAfterWrite}");
+                        var afterCell = KaraktiGrid?.CurrentCell;
+                        int afterRow = afterCell?.RowIndex ?? -1;
+                        int afterCol = afterCell?.ColumnIndex ?? -1;
+                        bool movedToNextRow = (afterRow != beforeRow) || (afterCol != beforeCol);
 
-                        if (writeResult.WroteValue)
-                        {
-                            _prenosStopalkaAppliedCount++;
-                            _prenosStopalkaLastApplyUtc = nowUtc;
-                            _prenosStopalkaLastValue = value;
-                        }
+                        ShowStopalkaDebugPopup($"PARSED VALUE\nvalue={value}\nraw='{chunk.Replace("\r", "\\r").Replace("\n", "\\n")}'\nmoved={movedToNextRow}");
+
+                        _prenosStopalkaAppliedCount++;
+                        _prenosStopalkaLastApplyUtc = nowUtc;
+                        _prenosStopalkaLastValue = value;
                         Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                            $"measurement applied; value={measurementText}; parsedNumeric={value}; applied={_prenosStopalkaAppliedCount}; wrote={writeResult.WroteValue}; bottom={writeResult.ReachedColumnBottomAfterWrite}; rowMerilo='{rowMerilo}'");
+                            $"measurement applied; value={value}; applied={_prenosStopalkaAppliedCount}; movedToNextRow={movedToNextRow}");
 
-                        if (writeResult.WroteValue && writeResult.ReachedColumnBottomAfterWrite)
+                        if (!movedToNextRow)
                         {
                             Services.DiagnosticLog.Info("ZacetnaForm.PrenosStopalkaPort_DataReceived",
-                                "last row in current Vzorec column was written; triggering Prekini");
-                            StopPrenosStopalka("column_completed_after_write", showPopup: true);
+                                "bottom reached; stopping stopalka transfer");
+                            StopPrenosStopalka("bottom_reached", showPopup: true);
                         }
                     }));
                 }
