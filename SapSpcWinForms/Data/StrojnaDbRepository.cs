@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using SapSpcWinForms.Utils;
@@ -580,6 +581,117 @@ namespace SapSpcWinForms.Data
             }
 
             return list;
+        }
+
+        public static int SaveSapMeasurementsToSql(
+            int idpost,
+            string koda,
+            string sarza,
+            string orodje,
+            string idstroj,
+            string merilec,
+            IEnumerable<SapKarMer> karList)
+        {
+            if (karList == null)
+                throw new ArgumentNullException(nameof(karList));
+
+            var items = karList.ToList();
+            if (items.Count == 0)
+                throw new InvalidOperationException("Karakteristike za zapis v SQL ne obstajajo.");
+
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            {
+                conn.Open();
+                using (var tx = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        int idmer;
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.Transaction = tx;
+                            cmd.CommandText =
+                                "INSERT INTO glavmer (idpost, koda, sarza, idstroj, merilec, orodja, datum) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                            cmd.Parameters.AddWithValue("@p1", idpost);
+                            cmd.Parameters.AddWithValue("@p2", (koda ?? "").Trim());
+                            cmd.Parameters.AddWithValue("@p3", (sarza ?? "").Trim());
+                            cmd.Parameters.AddWithValue("@p4", (idstroj ?? "").Trim());
+                            cmd.Parameters.AddWithValue("@p5", (merilec ?? "").Trim());
+                            cmd.Parameters.AddWithValue("@p6", (orodje ?? "").Trim());
+                            cmd.Parameters.AddWithValue("@p7", DateTime.Now);
+                            cmd.ExecuteNonQuery();
+
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = "SELECT @@IDENTITY";
+                            idmer = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        using (var cmd = conn.CreateCommand())
+                        {
+                            cmd.Transaction = tx;
+                            cmd.CommandText =
+                                "INSERT INTO karmer (idmer, karakt, naziv, ukrep, vrednost, zapvz, slabi) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                            foreach (var pp in items)
+                            {
+                                bool include = string.Equals(pp.skupi, "X", StringComparison.OrdinalIgnoreCase) || pp.stevilVz == 1;
+                                if (!include)
+                                    continue;
+
+                                cmd.Parameters.Clear();
+                                cmd.Parameters.AddWithValue("@p1", idmer);
+                                cmd.Parameters.AddWithValue("@p2", (pp.stkar ?? "").Trim());
+                                cmd.Parameters.AddWithValue("@p3", (pp.imeKar ?? "").Trim());
+                                cmd.Parameters.AddWithValue("@p4", (pp.opom ?? "").Trim());
+
+                                if (string.Equals(pp.skupi, "X", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (TryParseMeritevValue(pp.merit, out var val))
+                                        cmd.Parameters.AddWithValue("@p5", val);
+                                    else
+                                        cmd.Parameters.AddWithValue("@p5", DBNull.Value);
+
+                                    cmd.Parameters.AddWithValue("@p6", pp.stevilVz);
+                                    cmd.Parameters.AddWithValue("@p7", DBNull.Value);
+                                }
+                                else
+                                {
+                                    cmd.Parameters.AddWithValue("@p5", DBNull.Value);
+                                    cmd.Parameters.AddWithValue("@p6", pp.stevilVz);
+                                    cmd.Parameters.AddWithValue("@p7", pp.stevnp);
+                                }
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+
+                        tx.Commit();
+                        return idmer;
+                    }
+                    catch
+                    {
+                        tx.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        private static bool TryParseMeritevValue(string raw, out decimal value)
+        {
+            value = 0m;
+            var s = (raw ?? "").Trim();
+            if (s.Length == 0)
+                return false;
+
+            s = s.Replace(',', '.');
+            if (decimal.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+                return true;
+
+            return decimal.TryParse(s, NumberStyles.Float, CultureInfo.CurrentCulture, out value);
         }
     }
 }
