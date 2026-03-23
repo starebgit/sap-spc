@@ -1709,7 +1709,8 @@ namespace SapSpcWinForms
 
         private void KaraktiGrid_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            if (e.Control is not TextBox textBox)
+            var textBox = e.Control as TextBox;
+            if (textBox == null)
                 return;
 
             textBox.KeyDown -= KaraktiGridEditingTextBox_KeyDown;
