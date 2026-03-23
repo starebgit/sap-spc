@@ -2615,6 +2615,7 @@ namespace SapSpcWinForms
 
                 if (ok)
                 {
+                    TrySaveSapMeasurementsToSql(p, karList);
                     ZapisSemaforOnSapClick();
                     RefreshAfterSuccessfulSapWrite();
                 }
@@ -2637,6 +2638,40 @@ namespace SapSpcWinForms
 
             var shortName = Regex.Match(host.ToUpperInvariant(), @"[A-Z]\d[A-Z]");
             return shortName.Success ? shortName.Value : host;
+        }
+
+        private void TrySaveSapMeasurementsToSql(SapWritePayload payload, List<SapKarMer> karList)
+        {
+            if (payload == null || karList == null || karList.Count == 0)
+                return;
+            if (!_currentStPost.HasValue || !_selectedMachineId.HasValue)
+                return;
+
+            string koda = (codesList.SelectedItem?.ToString() ?? _currentKodaClean ?? "").Trim();
+            if (string.IsNullOrWhiteSpace(koda))
+                return;
+
+            try
+            {
+                StrojnaDbRepository.SaveSapMeasurementsToSql(
+                    idpost: _currentStPost.Value,
+                    koda: koda,
+                    sarza: payload.Sarza ?? "",
+                    orodje: payload.Orodje ?? "",
+                    idstroj: _selectedMachineId.Value.ToString(),
+                    merilec: payload.Merilec ?? "",
+                    karList: karList
+                );
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "SAP zapis je bil uspešen, lokalni SQL zapis meritev pa ni uspel:\n" + ex.Message,
+                    "SQL zapis meritev",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+            }
         }
 
         private void ZapisSemaforOnSapClick()
