@@ -1455,9 +1455,11 @@ namespace SapSpcWinForms
             // IMPORTANT: avoid double-subscribing if InitializeCharacteristicGrids is ever called again
             attriGrid.CellValueChanged -= AttriGrid_CellValueChanged;
             attriGrid.CurrentCellDirtyStateChanged -= AttriGrid_CurrentCellDirtyStateChanged;
+            attriGrid.KeyDown -= AttriGrid_KeyDown;
 
             attriGrid.CellValueChanged += AttriGrid_CellValueChanged;
             attriGrid.CurrentCellDirtyStateChanged += AttriGrid_CurrentCellDirtyStateChanged;
+            attriGrid.KeyDown += AttriGrid_KeyDown;
         }
 
         private void AttriGrid_CurrentCellDirtyStateChanged(object sender, EventArgs e)
@@ -1476,6 +1478,37 @@ namespace SapSpcWinForms
 
             if (cell?.Value is bool b && b)
                 row.Cells["StSlabih"].Value = 0;
+        }
+
+        private void AttriGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            var grid = attriGrid;
+            var cell = grid?.CurrentCell;
+            if (grid == null || cell == null)
+                return;
+
+            if (cell.RowIndex < 0 || cell.ColumnIndex < 0)
+                return;
+
+            var colName = grid.Columns[cell.ColumnIndex].Name;
+            if (!string.Equals(colName, "StVzor", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(colName, "StSlabih", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+
+            int targetRow = cell.RowIndex < grid.Rows.Count - 1 ? cell.RowIndex + 1 : 0;
+            var targetCell = grid.Rows[targetRow].Cells[cell.ColumnIndex];
+            if (targetCell.ReadOnly)
+                return;
+
+            grid.EndEdit();
+            grid.CurrentCell = targetCell;
+            grid.BeginEdit(true);
         }
 
         private void MeritveButton_Click(object sender, EventArgs e)
@@ -1584,6 +1617,7 @@ namespace SapSpcWinForms
         // === GRAF COLUMN BEHAVIOR ===
         private void WireGrafColumnBehavior()
         {
+            KaraktiGrid.KeyDown -= KaraktiGrid_KeyDown;
             KaraktiGrid.CurrentCellDirtyStateChanged += KaraktiGrid_CurrentCellDirtyStateChanged;
             KaraktiGrid.CellValueChanged += KaraktiGrid_CellValueChanged;
             KaraktiGrid.CellDoubleClick += KaraktiGrid_CellDoubleClick;
