@@ -1622,7 +1622,10 @@ namespace SapSpcWinForms
             KaraktiGrid.CellValueChanged += KaraktiGrid_CellValueChanged;
             KaraktiGrid.CellDoubleClick += KaraktiGrid_CellDoubleClick;
             KaraktiGrid.CellFormatting += KaraktiGrid_CellFormatting;
+            KaraktiGrid.KeyDown -= KaraktiGrid_KeyDown;
             KaraktiGrid.KeyDown += KaraktiGrid_KeyDown;
+            KaraktiGrid.EditingControlShowing -= KaraktiGrid_EditingControlShowing;
+            KaraktiGrid.EditingControlShowing += KaraktiGrid_EditingControlShowing;
         }
         private void KaraktiGrid_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
@@ -1697,16 +1700,43 @@ namespace SapSpcWinForms
             if (e.KeyCode != Keys.Enter)
                 return;
 
-            var grid = KaraktiGrid;
-            var cell = grid?.CurrentCell;
-            if (grid == null || cell == null)
-                return;
-
-            if (!grid.Columns[cell.ColumnIndex].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+            if (!MoveToNextVzorecCell())
                 return;
 
             e.Handled = true;
             e.SuppressKeyPress = true;
+        }
+
+        private void KaraktiGrid_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (e.Control is not TextBox textBox)
+                return;
+
+            textBox.KeyDown -= KaraktiGridEditingTextBox_KeyDown;
+            textBox.KeyDown += KaraktiGridEditingTextBox_KeyDown;
+        }
+
+        private void KaraktiGridEditingTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Enter)
+                return;
+
+            if (!MoveToNextVzorecCell())
+                return;
+
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+
+        private bool MoveToNextVzorecCell()
+        {
+            var grid = KaraktiGrid;
+            var cell = grid?.CurrentCell;
+            if (grid == null || cell == null)
+                return false;
+
+            if (!grid.Columns[cell.ColumnIndex].Name.StartsWith("Vzorec", StringComparison.OrdinalIgnoreCase))
+                return false;
 
             int targetRow = cell.RowIndex;
             int targetCol = cell.ColumnIndex;
@@ -1730,11 +1760,21 @@ namespace SapSpcWinForms
 
             var targetCell = grid.Rows[targetRow].Cells[targetCol];
             if (targetCell.ReadOnly)
-                return;
+                return false;
 
-            grid.EndEdit();
+            try
+            {
+                grid.EndEdit();
+                grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+            catch
+            {
+                // ignore commit errors and still attempt navigation
+            }
+
             grid.CurrentCell = targetCell;
             grid.BeginEdit(true);
+            return true;
         }
 
         private void GrafButton_Click(object sender, EventArgs e)
