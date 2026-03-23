@@ -79,6 +79,30 @@ namespace SapSpcWinForms
             return sb.ToString();
         }
 
+        private static string GetReturnTableMessage(IRfcTable retTab)
+        {
+            if (retTab == null || retTab.RowCount == 0) return null;
+            var r0 = retTab[0];
+            return $"{GetString1(r0, 1)}/{GetString1(r0, 4)}";
+        }
+
+        private static bool HasHardErrorInReturnTable(IRfcTable retTab)
+        {
+            if (retTab == null) return false;
+            for (int i = 0; i < retTab.RowCount; i++)
+            {
+                var row = retTab[i];
+                var type = (GetString(row, "TYPE", fallbackIndex: 0) ?? "").Trim();
+                if (type.Equals("E", StringComparison.OrdinalIgnoreCase) ||
+                    type.Equals("A", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // Delphi: beriOperac(srz, ListOpr)
         public List<string> BeriOperac(string srz)
         {
@@ -788,17 +812,18 @@ namespace SapSpcWinForms
                 string typ = GetString1(ret, 1);
 
                 // RETURNTABLE message (Delphi reads row 1)
-                string msg = null;
                 var retTab = SafeGetTable(fn, "RETURNTABLE");
-                if (retTab != null && retTab.RowCount > 0)
-                {
-                    var r0 = retTab[0];
-                    msg = $"{GetString1(r0, 1)}/{GetString1(r0, 4)}";
-                }
+                string msg = GetReturnTableMessage(retTab);
+                bool hasReturnTableHardError = HasHardErrorInReturnTable(retTab);
 
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
                     return (false, msg ?? "SAP returned error (RETURN.TYPE='E').");
+                }
+
+                if (hasReturnTableHardError)
+                {
+                    return (false, msg ?? "SAP returned error in RETURNTABLE (TYPE='E' or 'A').");
                 }
 
                 var commit = dest.Repository.CreateFunction("BAPI_TRANSACTION_COMMIT");
@@ -806,6 +831,15 @@ namespace SapSpcWinForms
                 commit.Invoke(dest);
 
                 return (true, msg);
+            }
+            catch (RfcCommunicationException ex)
+            {
+                var prijava = SapSession.GetActivePrijava();
+                var host = (prijava?.Streznik ?? "").Trim();
+                var sysNo = prijava?.Sysnnum.ToString().PadLeft(2, '0') ?? "n/a";
+                var details = $"SAP communication error to {host} (sysnr {sysNo}) - {ex.Message}";
+                DiagnosticLog.Warn("SapService.Zapis.RfcCommunicationException", ex);
+                return (false, details);
             }
             finally
             {
