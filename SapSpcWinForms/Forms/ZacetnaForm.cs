@@ -2816,11 +2816,25 @@ namespace SapSpcWinForms
             {
                 idx = machinesList.SelectedIndex + 1; // 1-based like Delphi
                 if (!_machineIdByIndex.TryGetValue(idx, out machineId))
+                {
+                    MessageBox.Show(
+                        "Semafor ni bil posodobljen: ni izbranega stroja.",
+                        "Semafor",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
                     return;
+                }
             }
 
             if (machineId <= 0)
+            {
+                MessageBox.Show(
+                    "Semafor ni bil posodobljen: ni izbranega stroja.",
+                    "Semafor",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
                 return;
+            }
 
             if (idx > 0)
             {
