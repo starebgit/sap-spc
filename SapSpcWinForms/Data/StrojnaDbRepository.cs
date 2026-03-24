@@ -417,8 +417,9 @@ namespace SapSpcWinForms.Data
                     return last;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                SapSpcWinForms.Services.DiagnosticLog.Warn("StrojnaDbRepository.TryGetLastMeasurementTimeOfDay", ex);
                 return TimeSpan.Zero;
             }
         }

@@ -252,9 +252,13 @@ namespace SapSpcWinForms
                     // time info
                     if (row.Status < 5)
                     {
-                        string label = (row.Status == 3)
-                            ? TranslationService.Translate("SemaforForm.LateBy")
-                            : TranslationService.Translate("SemaforForm.NextMeasurementIn");
+                        string label;
+                        if (row.Status == 3)
+                            label = TranslationService.Translate("SemaforForm.LateBy");
+                        else if (row.Status == 1)
+                            label = TranslationService.Translate("SemaforForm.MeasurementDone");
+                        else
+                            label = TranslationService.Translate("SemaforForm.NextMeasurementIn");
                         string timeTxt = FormatRemaining(row);
 
                         var y1 = e.CellBounds.Top + rowH / 6;

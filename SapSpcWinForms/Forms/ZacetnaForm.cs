@@ -2797,23 +2797,45 @@ namespace SapSpcWinForms
 
         private void ZapisSemaforOnSapClick()
         {
-            if (!_currentStPost.HasValue || machinesList.SelectedIndex < 0)
+            if (!_currentStPost.HasValue)
                 return;
 
-            int idx = machinesList.SelectedIndex + 1; // 1-based like Delphi
-            if (!_machineIdByIndex.TryGetValue(idx, out var machineId))
+            int machineId;
+            int idx = -1;
+
+            if (_selectedMachineId.HasValue)
+            {
+                machineId = _selectedMachineId.Value;
+                idx = _machineIdByIndex
+                    .Where(kv => kv.Value == machineId)
+                    .Select(kv => kv.Key)
+                    .DefaultIfEmpty(-1)
+                    .First();
+            }
+            else
+            {
+                idx = machinesList.SelectedIndex + 1; // 1-based like Delphi
+                if (!_machineIdByIndex.TryGetValue(idx, out machineId))
+                    return;
+            }
+
+            if (machineId <= 0)
                 return;
 
-            _astanjeByIndex[idx] = 1;
-            _acasByIndex[idx] = DateTime.Now.TimeOfDay;
+            if (idx > 0)
+            {
+                _astanjeByIndex[idx] = 1;
+                _acasByIndex[idx] = DateTime.Now.TimeOfDay;
+            }
 
             try
             {
                 StrojnaDbRepository.ZapisSemafor(_currentStPost.Value, machineId);
             }
-            catch
+            catch (Exception ex)
             {
-                // keep SAP flow non-blocking like Delphi
+                // keep SAP flow non-blocking like Delphi, but log details for diagnostics.
+                Services.DiagnosticLog.Warn("ZacetnaForm.ZapisSemaforOnSapClick", ex);
             }
         }
 

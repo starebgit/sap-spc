@@ -360,6 +360,9 @@
   <data name="SemaforForm.LateBy" xml:space="preserve">
     <value>Messung ist verspätet um</value>
   </data>
+  <data name="SemaforForm.MeasurementDone" xml:space="preserve">
+    <value>Messung durchgeführt</value>
+  </data>
   <data name="SemaforForm.NextMeasurementIn" xml:space="preserve">
     <value>Bis zur nächsten Messung</value>
   </data>
