@@ -1,5 +1,6 @@
 using System;
 using SAP.Middleware.Connector;
+using SapSpcWinForms.Services;
 
 namespace SapSpcWinForms
 {
@@ -10,6 +11,7 @@ namespace SapSpcWinForms
         public const string DestinationName = "SAPSPC_DEST";
         private static bool _destRegistered;
         private static readonly object _destLock = new object();
+        private static readonly DbDestinationConfig _dbDestinationConfig = new DbDestinationConfig();
 
         public static SapPrijava GetActivePrijava()
         {
@@ -31,6 +33,16 @@ namespace SapSpcWinForms
             return RfcDestinationManager.GetDestination(DestinationName);
         }
 
+        public static void SetSelectedPrijava(int ident)
+        {
+            lock (_destLock)
+            {
+                SelectedPrijavaIdent = ident;
+                CurrentPrijava = null;
+                RebindDestinationConfigurationLocked();
+            }
+        }
+
         public static string GetPlant()
         {
             var p = GetActivePrijava();
@@ -46,10 +58,24 @@ namespace SapSpcWinForms
             lock (_destLock)
             {
                 if (_destRegistered) return;
-
-                RfcDestinationManager.RegisterDestinationConfiguration(new DbDestinationConfig());
-                _destRegistered = true;
+                RebindDestinationConfigurationLocked();
             }
+        }
+
+        private static void RebindDestinationConfigurationLocked()
+        {
+            try
+            {
+                if (_destRegistered)
+                    RfcDestinationManager.UnregisterDestinationConfiguration(_dbDestinationConfig);
+            }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SapSession.RebindDestinationConfiguration.Unregister", ex);
+            }
+
+            RfcDestinationManager.RegisterDestinationConfiguration(_dbDestinationConfig);
+            _destRegistered = true;
         }
 
         private sealed class DbDestinationConfig : IDestinationConfiguration

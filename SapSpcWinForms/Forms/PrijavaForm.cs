@@ -192,8 +192,7 @@ namespace SapSpcWinForms
                 return;
             }
 
-            SapSession.SelectedPrijavaIdent = _selectedId.Value;
-            SapSession.CurrentPrijava = null; // reset cache (we'll fill later)
+            SapSession.SetSelectedPrijava(_selectedId.Value);
 
             DialogResult = DialogResult.OK;
             Close();
