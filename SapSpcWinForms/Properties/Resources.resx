@@ -360,9 +360,6 @@
   <data name="SemaforForm.LateBy" xml:space="preserve">
     <value>Meritev zamuja za</value>
   </data>
-  <data name="SemaforForm.MeasurementDone" xml:space="preserve">
-    <value>Meritev opravljena</value>
-  </data>
   <data name="SemaforForm.NextMeasurementIn" xml:space="preserve">
     <value>Do naslednje meritve</value>
   </data>
