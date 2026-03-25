@@ -4,7 +4,7 @@ using System.Configuration;
 using SapSpcWinForms.Data;
 using System.Data.OleDb;
 using System.Globalization;
-using System.Linq;
+using System.Text.RegularExpressions;
 using SAP.Middleware.Connector;
 using SapSpcWinForms.Services;
 
@@ -80,51 +80,58 @@ namespace SapSpcWinForms
             return sb.ToString();
         }
 
-        private static string BuildSapReturnMessage(IRfcFunction fn)
+        private static int? ExtractRejectedValueNumber(string message)
         {
-            if (fn == null) return "";
+            if (string.IsNullOrWhiteSpace(message)) return null;
+            var m = Regex.Match(message, @"vrednost\s+0*(\d+)", RegexOptions.IgnoreCase);
+            if (!m.Success) return null;
+            return int.TryParse(m.Groups[1].Value, out var n) ? n : (int?)null;
+        }
 
-            var parts = new List<string>();
-
+        private static void LogRejectedValueCandidates(IRfcTable singleResults, IRfcTable sampleResults, int rejectedNo)
+        {
             try
             {
-                var ret = fn.GetStructure("RETURN");
-                var typ = (ret.GetString("TYPE") ?? "").Trim();
-                var id = (ret.GetString("ID") ?? "").Trim();
-                var no = (ret.GetString("NUMBER") ?? "").Trim();
-                var msg = (ret.GetString("MESSAGE") ?? "").Trim();
+                var token = rejectedNo.ToString("D4");
+                var lines = new List<string>();
 
-                var head = $"{typ}/{id}";
-                if (!string.IsNullOrWhiteSpace(no)) head += $" {no}";
-                if (!string.IsNullOrWhiteSpace(msg)) head += $" - {msg}";
-                if (!string.IsNullOrWhiteSpace(head.Trim('/').Trim()))
-                    parts.Add(head);
-            }
-            catch { /* ignore */ }
-
-            try
-            {
-                var tab = fn.GetTable("RETURNTABLE");
-                for (int i = 0; i < tab.RowCount; i++)
+                if (singleResults != null)
                 {
-                    var r = tab[i];
-                    var typ = SafeGetField(r, "TYPE").Trim();
-                    var id = SafeGetField(r, "ID").Trim();
-                    var no = SafeGetField(r, "NUMBER").Trim();
-                    var msg = SafeGetField(r, "MESSAGE").Trim();
-
-                    if (string.IsNullOrWhiteSpace(typ + id + no + msg))
-                        continue;
-
-                    var line = $"{typ}/{id}";
-                    if (!string.IsNullOrWhiteSpace(no)) line += $" {no}";
-                    if (!string.IsNullOrWhiteSpace(msg)) line += $" - {msg}";
-                    parts.Add(line);
+                    for (int i = 0; i < singleResults.RowCount; i++)
+                    {
+                        var r = singleResults[i];
+                        var resNo = SafeGetField(r, "RES_NO").Trim();
+                        var inspSample = SafeGetField(r, "INSPSAMPLE").Trim();
+                        if (string.Equals(resNo, token, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(inspSample, token, StringComparison.OrdinalIgnoreCase))
+                        {
+                            lines.Add($"SINGLE_RESULTS row={i + 1} INSPCHAR='{SafeGetField(r, "INSPCHAR").Trim()}' INSPSAMPLE='{inspSample}' RES_NO='{resNo}'");
+                        }
+                    }
                 }
-            }
-            catch { /* ignore */ }
 
-            return string.Join(Environment.NewLine, parts.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct());
+                if (sampleResults != null)
+                {
+                    for (int i = 0; i < sampleResults.RowCount; i++)
+                    {
+                        var r = sampleResults[i];
+                        var inspSample = SafeGetField(r, "INSPSAMPLE").Trim();
+                        if (string.Equals(inspSample, token, StringComparison.OrdinalIgnoreCase))
+                        {
+                            lines.Add($"SAMPLE_RESULTS row={i + 1} INSPCHAR='{SafeGetField(r, "INSPCHAR").Trim()}' INSPSAMPLE='{inspSample}'");
+                        }
+                    }
+                }
+
+                if (lines.Count > 0)
+                    DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", string.Join(Environment.NewLine, lines));
+                else
+                    DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", $"No candidate rows found for token '{token}'.");
+            }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", ex);
+            }
         }
 
         // Delphi: beriOperac(srz, ListOpr)
@@ -877,7 +884,10 @@ namespace SapSpcWinForms
 
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
-                    DiagnosticLog.Warn("SapService.Zapis.ReturnError", DumpReturn(fn));
+                    var detailedMsg = SafeGetField(retTab != null && retTab.RowCount > 0 ? retTab[0] : null, "MESSAGE");
+                    var rejectedNo = ExtractRejectedValueNumber(detailedMsg);
+                    if (rejectedNo.HasValue)
+                        LogRejectedValueCandidates(singleResults, sampleResults, rejectedNo.Value);
                     return (false, msg ?? "SAP returned error (RETURN.TYPE='E').");
                 }
 
