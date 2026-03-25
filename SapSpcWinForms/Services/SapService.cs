@@ -658,6 +658,82 @@ namespace SapSpcWinForms
             return sb.ToString();
         }
 
+        private static string SafeGetFieldFromRow(IRfcStructure row, string fieldName, int fallbackOneBasedIndex = 0)
+        {
+            if (row == null) return "";
+
+            if (!string.IsNullOrWhiteSpace(fieldName))
+            {
+                try
+                {
+                    var s = row.GetString(fieldName);
+                    if (s != null) return s.Trim();
+                }
+                catch { /* fallback */ }
+            }
+
+            if (fallbackOneBasedIndex > 0)
+            {
+                try
+                {
+                    var s = row.GetString(fallbackOneBasedIndex - 1);
+                    return (s ?? "").Trim();
+                }
+                catch { /* ignore */ }
+            }
+
+            return "";
+        }
+
+        private static string BuildResultRowMapDiagnostics(IRfcTable singleResults, IRfcTable sampleResults, int maxRows = 200)
+        {
+            if (singleResults == null) return "singleResults=<null>";
+
+            var sampleKeySet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (sampleResults != null)
+            {
+                for (int i = 0; i < sampleResults.RowCount; i++)
+                {
+                    var smp = sampleResults[i];
+                    var c = SafeGetFieldFromRow(smp, "INSPCHAR", 3);
+                    var s = SafeGetFieldFromRow(smp, "INSPSAMPLE", 4);
+                    sampleKeySet.Add($"{c}|{s}");
+                }
+            }
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"singleRows={singleResults.RowCount}, sampleRows={(sampleResults?.RowCount ?? 0)}, showing up to {maxRows}");
+
+            int rows = Math.Min(singleResults.RowCount, Math.Max(0, maxRows));
+            for (int i = 0; i < rows; i++)
+            {
+                var sr = singleResults[i];
+
+                var inspChar = SafeGetFieldFromRow(sr, "INSPCHAR", 3);
+                var inspSample = SafeGetFieldFromRow(sr, "INSPSAMPLE", 4);
+                var resNo = SafeGetFieldFromRow(sr, "RES_NO", 5);
+                var lastRes = SafeGetFieldFromRow(sr, "LAST_RES", 7);
+                var resValue = SafeGetFieldFromRow(sr, "RES_VALUE", 10);
+                var code1 = SafeGetFieldFromRow(sr, "CODE1", 28);
+                var codeGrp1 = SafeGetFieldFromRow(sr, "CODE_GRP1", 29);
+
+                bool hasSample = sampleKeySet.Contains($"{inspChar}|{inspSample}");
+
+                sb.Append("#").Append(i + 1).Append(": ")
+                  .Append("INSPCHAR='").Append(inspChar).Append("' ")
+                  .Append("INSPSAMPLE='").Append(inspSample).Append("' ")
+                  .Append("RES_NO='").Append(resNo).Append("' ")
+                  .Append("LAST_RES='").Append(lastRes).Append("' ")
+                  .Append("RES_VALUE='").Append(resValue).Append("' ")
+                  .Append("CODE1='").Append(code1).Append("' ")
+                  .Append("CODE_GRP1='").Append(codeGrp1).Append("' ")
+                  .Append("sampleRowExists=").Append(hasSample ? "Y" : "N")
+                  .AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
         private static bool TryParseSapDate(string sapDats, out DateTime dt)
         {
             return DateTime.TryParseExact(
@@ -865,6 +941,7 @@ namespace SapSpcWinForms
                 DiagnosticLog.Info("SapService.Zapis.CHAR_RESULTS", DumpPreviewRows(charResults));
                 DiagnosticLog.Info("SapService.Zapis.SINGLE_RESULTS", DumpPreviewRows(singleResults));
                 DiagnosticLog.Info("SapService.Zapis.SAMPLE_RESULTS", DumpPreviewRows(sampleResults));
+                DiagnosticLog.Info("SapService.Zapis.RESULT_MAP", BuildResultRowMapDiagnostics(singleResults, sampleResults));
 
                 fn.Invoke(dest);
 
