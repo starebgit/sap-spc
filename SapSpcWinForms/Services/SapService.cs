@@ -5,6 +5,7 @@ using SapSpcWinForms.Data;
 using System.Data.OleDb;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using SAP.Middleware.Connector;
 using SapSpcWinForms.Services;
 
@@ -125,6 +126,64 @@ namespace SapSpcWinForms
             catch { /* ignore */ }
 
             return string.Join(Environment.NewLine, parts.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct());
+        }
+
+        private static int? ExtractRejectedValueNumber(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message)) return null;
+
+            // Example SAP text:
+            // "Posam. vrednost 0008 za št. potrditve ... ni bila prevzeta"
+            var m = Regex.Match(message, @"vrednost\s+0*(\d+)", RegexOptions.IgnoreCase);
+            if (!m.Success) return null;
+
+            return int.TryParse(m.Groups[1].Value, out var n) ? n : (int?)null;
+        }
+
+        private static void LogRejectedValueCandidates(IRfcTable singleResults, IRfcTable sampleResults, int rejectedNo)
+        {
+            try
+            {
+                var token = rejectedNo.ToString("D4");
+                var lines = new List<string>();
+
+                if (singleResults != null)
+                {
+                    for (int i = 0; i < singleResults.RowCount; i++)
+                    {
+                        var r = singleResults[i];
+                        var resNo = SafeGetField(r, "RES_NO").Trim();
+                        var inspSample = SafeGetField(r, "INSPSAMPLE").Trim();
+                        if (string.Equals(resNo, token, StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(inspSample, token, StringComparison.OrdinalIgnoreCase))
+                        {
+                            lines.Add($"SINGLE_RESULTS row={i + 1} INSPCHAR='{SafeGetField(r, "INSPCHAR").Trim()}' INSPSAMPLE='{inspSample}' RES_NO='{resNo}'");
+                        }
+                    }
+                }
+
+                if (sampleResults != null)
+                {
+                    for (int i = 0; i < sampleResults.RowCount; i++)
+                    {
+                        var r = sampleResults[i];
+                        var inspSample = SafeGetField(r, "INSPSAMPLE").Trim();
+                        if (string.Equals(inspSample, token, StringComparison.OrdinalIgnoreCase))
+                        {
+                            lines.Add($"SAMPLE_RESULTS row={i + 1} INSPCHAR='{SafeGetField(r, "INSPCHAR").Trim()}' INSPSAMPLE='{inspSample}'");
+                        }
+                    }
+                }
+
+                if (lines.Count > 0)
+                    DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", string.Join(Environment.NewLine, lines));
+                else
+                    DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", $"No candidate rows found for token '{token}'.");
+            }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SapService.Zapis.RejectedValueCandidates", ex);
+            }
         }
 
         // Delphi: beriOperac(srz, ListOpr)
@@ -898,6 +957,9 @@ namespace SapSpcWinForms
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
                     DiagnosticLog.Warn("SapService.Zapis.ReturnError", DumpReturn(fn));
+                    var rejectedNo = ExtractRejectedValueNumber(msg);
+                    if (rejectedNo.HasValue)
+                        LogRejectedValueCandidates(singleResults, sampleResults, rejectedNo.Value);
                     return (false, msg ?? "SAP returned error (RETURN.TYPE='E').");
                 }
 
