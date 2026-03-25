@@ -2916,8 +2916,11 @@ namespace SapSpcWinForms
                 double zg = AppUtils.ParseDoubleLoose(row.Cells["ZgMeja"].Value);
 
                 SapMer lastForChar = null;
+                int stvzForRow = AppUtils.ToIntSafe(row.Cells["StVz"].Value);
+                if (stvzForRow <= 0) stvzForRow = stcl;       // fallback for old/incomplete local data
+                if (stvzForRow > stcl) stvzForRow = stcl;     // safety clamp to available Vzorec columns
 
-                for (int kk = 1; kk <= stcl; kk++)
+                for (int kk = 1; kk <= stvzForRow; kk++)
                 {
                     var col = vzCols[kk - 1];
                     string ss = (row.Cells[col.Name].Value?.ToString() ?? "").Trim();
@@ -2997,7 +3000,11 @@ namespace SapSpcWinForms
                     Op = ""
                 };
 
-                for (int kk = 1; kk <= stvp; kk++)
+                int stvpForRow = AppUtils.ToIntSafe(row.Cells["StVzor"].Value);
+                if (stvpForRow <= 0) stvpForRow = stvp;       // fallback for old/incomplete local data
+                if (stvpForRow <= 0) stvpForRow = 1;
+
+                for (int kk = 1; kk <= stvpForRow; kk++)
                 {
                     stMerCounter++;
 
