@@ -488,6 +488,21 @@ namespace SapSpcWinForms
             return kd;
         }
 
+        private static bool UseLegacySampleNumbering()
+        {
+            try
+            {
+                var raw = ConfigurationManager.AppSettings["Sap.LegacySampleNumbering"];
+                return string.Equals((raw ?? "").Trim(), "1", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals((raw ?? "").Trim(), "true", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals((raw ?? "").Trim(), "yes", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         // Delphi: getkarakt(kd,srz,listkar1,listkar2)
         public (List<SapKaraktVar> variabilne, List<SapAtribVar> atributivne) GetKarakt(string kd, string srz)
         {
@@ -745,6 +760,8 @@ namespace SapSpcWinForms
 
             // Delphi mm counter (kept for parity)
             int mm = 1;
+            bool legacyNumbering = UseLegacySampleNumbering();
+            DiagnosticLog.Info("SapService.Zapis.NumberingMode", legacyNumbering ? "legacy (Delphi-like)" : "per-character");
 
             for (int kk = 1; kk <= (karlist?.Count ?? 0); kk++)
             {
@@ -775,12 +792,11 @@ namespace SapSpcWinForms
                     SetValue1(sr, 1, srz.Trim());
                     SetValue1(sr, 2, opr.Trim());
                     SetValue1(sr, 3, stkr);
-                    // IMPORTANT:
-                    // SAP expects sample/result numbering per characteristic, not global across all rows.
-                    // Using global counters (e.g. 000008 for INSPCHAR 0034) can trigger
-                    // "Posam. vrednost 0008 ... ni bila prevzeta".
-                    SetValue1(sr, 4, pv.stevilVz);
-                    SetValue1(sr, 5, pv.stevilVz);
+                    // Numbering mode:
+                    // - per-character (default): safer for systems rejecting global sample numbers
+                    // - legacy: Delphi-like numbering for compatibility/rollback
+                    SetValue1(sr, 4, legacyNumbering ? pv.stMer : pv.stevilVz);
+                    SetValue1(sr, 5, legacyNumbering ? kk : pv.stevilVz);
                     SetValue1(sr, 7, "X");
                     SetValue1(sr, 16, merl ?? "");
 
@@ -804,7 +820,7 @@ namespace SapSpcWinForms
                         SetValue1(smp, 1, srz.Trim());
                         SetValue1(smp, 2, opr.Trim());
                         SetValue1(smp, 3, stkr);
-                        SetValue1(smp, 4, pv.stevilVz);
+                        SetValue1(smp, 4, legacyNumbering ? kk : pv.stevilVz);
                         SetValue1(smp, 6, "X");
                         SetValue1(smp, 7, "X");
                         SetValue1(smp, 25, merl ?? "");
@@ -833,7 +849,7 @@ namespace SapSpcWinForms
                     SetValue1(smp, 1, srz.Trim());
                     SetValue1(smp, 2, opr.Trim());
                     SetValue1(smp, 3, stkr);
-                    SetValue1(smp, 4, pv.stevilVz);
+                    SetValue1(smp, 4, legacyNumbering ? kk : pv.stevilVz);
                     SetValue1(smp, 6, "X");
                     SetValue1(smp, 7, "X");
                     SetValue1(smp, 13, slabi);
