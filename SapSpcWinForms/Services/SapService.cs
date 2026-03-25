@@ -4,6 +4,7 @@ using System.Configuration;
 using SapSpcWinForms.Data;
 using System.Data.OleDb;
 using System.Globalization;
+using System.Linq;
 using SAP.Middleware.Connector;
 using SapSpcWinForms.Services;
 
@@ -77,6 +78,53 @@ namespace SapSpcWinForms
             }
 
             return sb.ToString();
+        }
+
+        private static string BuildSapReturnMessage(IRfcFunction fn)
+        {
+            if (fn == null) return "";
+
+            var parts = new List<string>();
+
+            try
+            {
+                var ret = fn.GetStructure("RETURN");
+                var typ = (ret.GetString("TYPE") ?? "").Trim();
+                var id = (ret.GetString("ID") ?? "").Trim();
+                var no = (ret.GetString("NUMBER") ?? "").Trim();
+                var msg = (ret.GetString("MESSAGE") ?? "").Trim();
+
+                var head = $"{typ}/{id}";
+                if (!string.IsNullOrWhiteSpace(no)) head += $" {no}";
+                if (!string.IsNullOrWhiteSpace(msg)) head += $" - {msg}";
+                if (!string.IsNullOrWhiteSpace(head.Trim('/').Trim()))
+                    parts.Add(head);
+            }
+            catch { /* ignore */ }
+
+            try
+            {
+                var tab = fn.GetTable("RETURNTABLE");
+                for (int i = 0; i < tab.RowCount; i++)
+                {
+                    var r = tab[i];
+                    var typ = SafeGetField(r, "TYPE").Trim();
+                    var id = SafeGetField(r, "ID").Trim();
+                    var no = SafeGetField(r, "NUMBER").Trim();
+                    var msg = SafeGetField(r, "MESSAGE").Trim();
+
+                    if (string.IsNullOrWhiteSpace(typ + id + no + msg))
+                        continue;
+
+                    var line = $"{typ}/{id}";
+                    if (!string.IsNullOrWhiteSpace(no)) line += $" {no}";
+                    if (!string.IsNullOrWhiteSpace(msg)) line += $" - {msg}";
+                    parts.Add(line);
+                }
+            }
+            catch { /* ignore */ }
+
+            return string.Join(Environment.NewLine, parts.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct());
         }
 
         // Delphi: beriOperac(srz, ListOpr)
@@ -824,14 +872,8 @@ namespace SapSpcWinForms
                 var ret = SafeGetStructure(fn, "RETURN");
                 string typ = GetString1(ret, 1);
 
-                // RETURNTABLE message (Delphi reads row 1)
-                string msg = null;
-                var retTab = SafeGetTable(fn, "RETURNTABLE");
-                if (retTab != null && retTab.RowCount > 0)
-                {
-                    var r0 = retTab[0];
-                    msg = $"{GetString1(r0, 1)}/{GetString1(r0, 4)}";
-                }
+                // Prefer explicit text message over old "TYPE/MSGV1" short format.
+                string msg = BuildSapReturnMessage(fn);
 
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
