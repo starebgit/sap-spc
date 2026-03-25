@@ -577,6 +577,39 @@ namespace SapSpcWinForms
             catch { /* ignore */ }
         }
 
+        private static string DumpPreviewRows(IRfcTable table, int maxRows = 12)
+        {
+            if (table == null) return "<null>";
+
+            var md = table.Metadata?.LineType;
+            if (md == null) return "<no metadata>";
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"rows={table.RowCount}, showing up to {maxRows}");
+
+            int rows = Math.Min(table.RowCount, Math.Max(0, maxRows));
+            for (int i = 0; i < rows; i++)
+            {
+                var r = table[i];
+                sb.Append($"#{i + 1}: ");
+
+                for (int c = 0; c < md.FieldCount; c++)
+                {
+                    var name = md[c].Name;
+                    string v;
+                    try { v = (r.GetString(c) ?? "").Trim(); }
+                    catch { v = "<err>"; }
+
+                    if (v.Length > 80) v = v.Substring(0, 80) + "...";
+                    sb.Append(name).Append("='").Append(v).Append("' ");
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
         private static bool TryParseSapDate(string sapDats, out DateTime dt)
         {
             return DateTime.TryParseExact(
@@ -781,6 +814,10 @@ namespace SapSpcWinForms
             SAP.Middleware.Connector.RfcSessionManager.BeginContext(dest);
             try
             {
+                DiagnosticLog.Info("SapService.Zapis.CHAR_RESULTS", DumpPreviewRows(charResults));
+                DiagnosticLog.Info("SapService.Zapis.SINGLE_RESULTS", DumpPreviewRows(singleResults));
+                DiagnosticLog.Info("SapService.Zapis.SAMPLE_RESULTS", DumpPreviewRows(sampleResults));
+
                 fn.Invoke(dest);
 
                 // RETURN structure check (Delphi: RETURN.value[1] == 'E')
@@ -798,6 +835,7 @@ namespace SapSpcWinForms
 
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
+                    DiagnosticLog.Warn("SapService.Zapis.ReturnError", DumpReturn(fn));
                     return (false, msg ?? "SAP returned error (RETURN.TYPE='E').");
                 }
 
