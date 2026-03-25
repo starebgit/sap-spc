@@ -4,6 +4,7 @@ using System.Configuration;
 using SapSpcWinForms.Data;
 using System.Data.OleDb;
 using System.Globalization;
+using System.Linq;
 using SAP.Middleware.Connector;
 using SapSpcWinForms.Services;
 
@@ -77,6 +78,53 @@ namespace SapSpcWinForms
             }
 
             return sb.ToString();
+        }
+
+        private static string BuildSapReturnMessage(IRfcFunction fn)
+        {
+            if (fn == null) return "";
+
+            var parts = new List<string>();
+
+            try
+            {
+                var ret = fn.GetStructure("RETURN");
+                var typ = (ret.GetString("TYPE") ?? "").Trim();
+                var id = (ret.GetString("ID") ?? "").Trim();
+                var no = (ret.GetString("NUMBER") ?? "").Trim();
+                var msg = (ret.GetString("MESSAGE") ?? "").Trim();
+
+                var head = $"{typ}/{id}";
+                if (!string.IsNullOrWhiteSpace(no)) head += $" {no}";
+                if (!string.IsNullOrWhiteSpace(msg)) head += $" - {msg}";
+                if (!string.IsNullOrWhiteSpace(head.Trim('/').Trim()))
+                    parts.Add(head);
+            }
+            catch { /* ignore */ }
+
+            try
+            {
+                var tab = fn.GetTable("RETURNTABLE");
+                for (int i = 0; i < tab.RowCount; i++)
+                {
+                    var r = tab[i];
+                    var typ = SafeGetField(r, "TYPE").Trim();
+                    var id = SafeGetField(r, "ID").Trim();
+                    var no = SafeGetField(r, "NUMBER").Trim();
+                    var msg = SafeGetField(r, "MESSAGE").Trim();
+
+                    if (string.IsNullOrWhiteSpace(typ + id + no + msg))
+                        continue;
+
+                    var line = $"{typ}/{id}";
+                    if (!string.IsNullOrWhiteSpace(no)) line += $" {no}";
+                    if (!string.IsNullOrWhiteSpace(msg)) line += $" - {msg}";
+                    parts.Add(line);
+                }
+            }
+            catch { /* ignore */ }
+
+            return string.Join(Environment.NewLine, parts.Where(p => !string.IsNullOrWhiteSpace(p)).Distinct());
         }
 
         // Delphi: beriOperac(srz, ListOpr)
@@ -577,6 +625,39 @@ namespace SapSpcWinForms
             catch { /* ignore */ }
         }
 
+        private static string DumpPreviewRows(IRfcTable table, int maxRows = 12)
+        {
+            if (table == null) return "<null>";
+
+            var md = table.Metadata?.LineType;
+            if (md == null) return "<no metadata>";
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"rows={table.RowCount}, showing up to {maxRows}");
+
+            int rows = Math.Min(table.RowCount, Math.Max(0, maxRows));
+            for (int i = 0; i < rows; i++)
+            {
+                var r = table[i];
+                sb.Append($"#{i + 1}: ");
+
+                for (int c = 0; c < md.FieldCount; c++)
+                {
+                    var name = md[c].Name;
+                    string v;
+                    try { v = (r.GetString(c) ?? "").Trim(); }
+                    catch { v = "<err>"; }
+
+                    if (v.Length > 80) v = v.Substring(0, 80) + "...";
+                    sb.Append(name).Append("='").Append(v).Append("' ");
+                }
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
         private static bool TryParseSapDate(string sapDats, out DateTime dt)
         {
             return DateTime.TryParseExact(
@@ -694,8 +775,12 @@ namespace SapSpcWinForms
                     SetValue1(sr, 1, srz.Trim());
                     SetValue1(sr, 2, opr.Trim());
                     SetValue1(sr, 3, stkr);
-                    SetValue1(sr, 4, pv.stMer);
-                    SetValue1(sr, 5, kk);
+                    // IMPORTANT:
+                    // SAP expects sample/result numbering per characteristic, not global across all rows.
+                    // Using global counters (e.g. 000008 for INSPCHAR 0034) can trigger
+                    // "Posam. vrednost 0008 ... ni bila prevzeta".
+                    SetValue1(sr, 4, pv.stevilVz);
+                    SetValue1(sr, 5, pv.stevilVz);
                     SetValue1(sr, 7, "X");
                     SetValue1(sr, 16, merl ?? "");
 
@@ -719,7 +804,7 @@ namespace SapSpcWinForms
                         SetValue1(smp, 1, srz.Trim());
                         SetValue1(smp, 2, opr.Trim());
                         SetValue1(smp, 3, stkr);
-                        SetValue1(smp, 4, kk);
+                        SetValue1(smp, 4, pv.stevilVz);
                         SetValue1(smp, 6, "X");
                         SetValue1(smp, 7, "X");
                         SetValue1(smp, 25, merl ?? "");
@@ -748,7 +833,7 @@ namespace SapSpcWinForms
                     SetValue1(smp, 1, srz.Trim());
                     SetValue1(smp, 2, opr.Trim());
                     SetValue1(smp, 3, stkr);
-                    SetValue1(smp, 4, kk);
+                    SetValue1(smp, 4, pv.stevilVz);
                     SetValue1(smp, 6, "X");
                     SetValue1(smp, 7, "X");
                     SetValue1(smp, 13, slabi);
@@ -781,23 +866,22 @@ namespace SapSpcWinForms
             SAP.Middleware.Connector.RfcSessionManager.BeginContext(dest);
             try
             {
+                DiagnosticLog.Info("SapService.Zapis.CHAR_RESULTS", DumpPreviewRows(charResults));
+                DiagnosticLog.Info("SapService.Zapis.SINGLE_RESULTS", DumpPreviewRows(singleResults));
+                DiagnosticLog.Info("SapService.Zapis.SAMPLE_RESULTS", DumpPreviewRows(sampleResults));
+
                 fn.Invoke(dest);
 
                 // RETURN structure check (Delphi: RETURN.value[1] == 'E')
                 var ret = SafeGetStructure(fn, "RETURN");
                 string typ = GetString1(ret, 1);
 
-                // RETURNTABLE message (Delphi reads row 1)
-                string msg = null;
-                var retTab = SafeGetTable(fn, "RETURNTABLE");
-                if (retTab != null && retTab.RowCount > 0)
-                {
-                    var r0 = retTab[0];
-                    msg = $"{GetString1(r0, 1)}/{GetString1(r0, 4)}";
-                }
+                // Prefer explicit text message over old "TYPE/MSGV1" short format.
+                string msg = BuildSapReturnMessage(fn);
 
                 if (string.Equals(typ, "E", StringComparison.OrdinalIgnoreCase))
                 {
+                    DiagnosticLog.Warn("SapService.Zapis.ReturnError", DumpReturn(fn));
                     return (false, msg ?? "SAP returned error (RETURN.TYPE='E').");
                 }
 
