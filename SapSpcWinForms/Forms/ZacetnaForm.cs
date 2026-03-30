@@ -22,6 +22,8 @@ namespace SapSpcWinForms
 {
     public partial class ZacetnaForm : Form
     {
+        private const float GlobalUiScaleFactor = 1.3f;
+        private bool _uiScaled;
         private int _berMer = 1; // 0 = read measurements
         private bool _isAdmin = false;
         private int? _currentStPost = null;
@@ -168,6 +170,18 @@ namespace SapSpcWinForms
 
             LayoutTopPanelContent();
             AdjustGridSizingForWindow();
+            ApplyGlobalUiScale();
+        }
+
+        private void ApplyGlobalUiScale()
+        {
+            if (_uiScaled)
+                return;
+
+            SuspendLayout();
+            Scale(new SizeF(GlobalUiScaleFactor, GlobalUiScaleFactor));
+            ResumeLayout(true);
+            _uiScaled = true;
         }
 
         private void OnMerilnoMestoStateChanged()
