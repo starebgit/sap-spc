@@ -172,6 +172,18 @@ namespace SapSpcWinForms
 
             LayoutTopPanelContent();
             AdjustGridSizingForWindow();
+            ApplyGlobalUiScale();
+        }
+
+        private void ApplyGlobalUiScale()
+        {
+            if (_uiScaled)
+                return;
+
+            SuspendLayout();
+            Scale(new SizeF(GlobalUiScaleFactor, GlobalUiScaleFactor));
+            ResumeLayout(true);
+            _uiScaled = true;
         }
 
         private void OnMerilnoMestoStateChanged()
