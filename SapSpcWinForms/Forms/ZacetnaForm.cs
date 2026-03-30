@@ -22,8 +22,7 @@ namespace SapSpcWinForms
 {
     public partial class ZacetnaForm : Form
     {
-        private const float GlobalUiScaleFactor = 1.3f;
-        private bool _uiScaled;
+        private const float UiFontScaleFactor = 1.3f;
         private int _berMer = 1; // 0 = read measurements
         private bool _isAdmin = false;
         private int? _currentStPost = null;
@@ -115,6 +114,9 @@ namespace SapSpcWinForms
         {
             _isAdmin = true; // Always start as admin, like Delphi
             InitializeComponent();   // must be first
+            Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+            menuStrip.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
+            versionInfoLabel.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
             InitializeDodIzborControls(); // Add DodIzbor controls
             ConfigureResponsiveLayout(); // programmatic docking layout
             this.WindowState = FormWindowState.Maximized;
@@ -285,7 +287,7 @@ namespace SapSpcWinForms
                     Name = "merilnoMestoLabel",
                     AutoSize = true,
                     Location = new Point(12, 10),
-                    Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                    Font = new Font("Segoe UI", 9F * UiFontScaleFactor, FontStyle.Regular),
                     ForeColor = Color.Black,
                     BackColor = Color.Transparent,
                     Text = "Merilno mesto:"
@@ -299,7 +301,7 @@ namespace SapSpcWinForms
                     Name = "merilnoMestoOpisLabel",
                     AutoSize = true,
                     Location = new Point(12, 32),
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Font = new Font("Segoe UI", 10F * UiFontScaleFactor, FontStyle.Bold),
                     ForeColor = Color.FromArgb(0, 64, 128),
                     BackColor = Color.Transparent
                 };
@@ -315,7 +317,7 @@ namespace SapSpcWinForms
                     Name = "operatorLabel",
                     AutoSize = true,
                     Text = "Operater:",
-                    Font = new Font("Segoe UI", 9F, FontStyle.Regular),
+                    Font = new Font("Segoe UI", 9F * UiFontScaleFactor, FontStyle.Regular),
                     Location = new Point(12, 60),
                     ForeColor = Color.Black,
                     BackColor = Color.Transparent
@@ -329,7 +331,7 @@ namespace SapSpcWinForms
                     Name = "operatorValueLabel",
                     AutoSize = true,
                     Text = "(ni prijave)",
-                    Font = new Font("Segoe UI", 10F, FontStyle.Bold),
+                    Font = new Font("Segoe UI", 10F * UiFontScaleFactor, FontStyle.Bold),
                     Location = new Point(12, 80),
                     ForeColor = Color.FromArgb(0, 64, 128),
                     BackColor = Color.Transparent
@@ -346,7 +348,7 @@ namespace SapSpcWinForms
                     Name = "strojiLabel",
                     AutoSize = true,
                     Text = "Stroji",
-                    Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                    Font = new Font("Segoe UI", 9F * UiFontScaleFactor, FontStyle.Bold),
                     Location = new Point(middleX, 10),
                     ForeColor = Color.Black,
                     BackColor = Color.Transparent
@@ -365,7 +367,7 @@ namespace SapSpcWinForms
                     Name = "kodaLabel",
                     AutoSize = true,
                     Text = "Koda",
-                    Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                    Font = new Font("Segoe UI", 9F * UiFontScaleFactor, FontStyle.Bold),
                     Location = new Point(rightX, 10),
                     ForeColor = Color.Black,
                     BackColor = Color.Transparent
@@ -459,10 +461,13 @@ namespace SapSpcWinForms
 
             StylePrimaryButton(SAPButton);
 
+            companyLabel.Font = new Font("Segoe UI", 11.7F, FontStyle.Bold);
             variabilneTitleLabel.BackColor = Color.FromArgb(217, 233, 246);
             variabilneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
+            variabilneTitleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
             atributivneTitleLabel.BackColor = Color.FromArgb(217, 233, 246);
             atributivneTitleLabel.ForeColor = Color.FromArgb(20, 54, 90);
+            atributivneTitleLabel.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
         }
 
         private void StylePrimaryButton(Button button)
@@ -474,10 +479,10 @@ namespace SapSpcWinForms
             button.FlatAppearance.BorderSize = 0;
             button.BackColor = _accentColor;
             button.ForeColor = Color.White;
-            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            button.Height = Math.Max(button.Height, 38);
-            button.Width = 196;
-            button.Padding = new Padding(6);
+            button.Font = new Font("Segoe UI", 11.7F, FontStyle.Bold);
+            button.Height = Math.Max(button.Height, 50);
+            button.Width = 220;
+            button.Padding = new Padding(8);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
             button.Image = null;
@@ -499,10 +504,10 @@ namespace SapSpcWinForms
             button.FlatAppearance.BorderColor = _accentColor;
             button.BackColor = Color.White;
             button.ForeColor = _accentColor;
-            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            button.Height = Math.Max(button.Height, 38);
-            button.Width = 196;
-            button.Padding = new Padding(6);
+            button.Font = new Font("Segoe UI", 11.7F, FontStyle.Bold);
+            button.Height = Math.Max(button.Height, 50);
+            button.Width = 220;
+            button.Padding = new Padding(8);
             button.Cursor = Cursors.Hand;
             button.UseVisualStyleBackColor = false;
             button.Image = null;
@@ -659,7 +664,7 @@ namespace SapSpcWinForms
                 return;
 
             listBox.BorderStyle = BorderStyle.FixedSingle;
-            listBox.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            listBox.Font = new Font("Segoe UI", 12.35F, FontStyle.Regular);
             listBox.IntegralHeight = false;
             listBox.BackColor = Color.White;
         }
@@ -676,16 +681,16 @@ namespace SapSpcWinForms
             grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-            grid.RowTemplate.Height = 30;
-            grid.ColumnHeadersHeight = 34;
+            grid.RowTemplate.Height = 40;
+            grid.ColumnHeadersHeight = 44;
 
             grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(225, 235, 246);
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(28, 58, 88);
-            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11.7F, FontStyle.Bold);
 
             grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(204, 228, 248);
             grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(17, 31, 47);
-            grid.DefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
+            grid.DefaultCellStyle.Font = new Font("Segoe UI", 11.7F, FontStyle.Regular);
             grid.DefaultCellStyle.BackColor = Color.White;
             grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(247, 251, 255);
             grid.RowHeadersVisible = false;
