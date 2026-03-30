@@ -23,6 +23,8 @@ namespace SapSpcWinForms
     public partial class ZacetnaForm : Form
     {
         private const float UiFontScaleFactor = 1.3f;
+        private const float GlobalUiScaleFactor = 1.3f;
+        private bool _uiScaled;
         private int _berMer = 1; // 0 = read measurements
         private bool _isAdmin = false;
         private int? _currentStPost = null;
