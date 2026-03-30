@@ -7,18 +7,21 @@ namespace SapSpcWinForms.Utils
 {
     internal static class UiTheme
     {
+        private const float UiScaleFactor = 1.3f;
         private static readonly Color AccentColor = Color.FromArgb(0, 96, 160);
         private static readonly Color DisabledBackColor = Color.FromArgb(188, 196, 204);
         private static readonly Color DisabledForeColor = Color.FromArgb(90, 98, 106);
         private static readonly Color FormBackColor = Color.FromArgb(236, 243, 248);
         private static readonly Color PanelBackColor = Color.FromArgb(241, 247, 252);
         private static readonly Dictionary<Button, ButtonThemeState> ButtonStates = new Dictionary<Button, ButtonThemeState>();
+        private static readonly HashSet<Control> ScaledRoots = new HashSet<Control>();
 
         public static void ApplyFormTheme(Form form)
         {
             if (form == null)
                 return;
 
+            ApplyUiScale(form);
             form.BackColor = FormBackColor;
             ApplyToControls(form.Controls);
             form.ControlAdded -= Form_ControlAdded;
@@ -30,8 +33,18 @@ namespace SapSpcWinForms.Utils
             if (e?.Control == null)
                 return;
 
+            ApplyUiScale(e.Control);
             ApplyToControl(e.Control);
             ApplyToControls(e.Control.Controls);
+        }
+
+        private static void ApplyUiScale(Control root)
+        {
+            if (root == null || ScaledRoots.Contains(root))
+                return;
+
+            root.Scale(new SizeF(UiScaleFactor, UiScaleFactor));
+            ScaledRoots.Add(root);
         }
 
         private static void ApplyToControls(Control.ControlCollection controls)
@@ -70,10 +83,15 @@ namespace SapSpcWinForms.Utils
 
             button.FlatStyle = FlatStyle.Flat;
             button.FlatAppearance.BorderSize = 0;
-            button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            button.Padding = new Padding(4, 3, 4, 3);
-            var minimumTextHeight = TextRenderer.MeasureText((button.Text ?? string.Empty) + " ", button.Font).Height + button.Padding.Vertical + 10;
-            button.Height = Math.Max(button.Height, Math.Max(36, minimumTextHeight));
+            var scaledButtonFont = Math.Max(button.Font?.SizeInPoints ?? 9F, 9F * UiScaleFactor);
+            button.Font = new Font("Segoe UI", scaledButtonFont, FontStyle.Bold);
+            button.Padding = new Padding(
+                (int)Math.Ceiling(4 * UiScaleFactor),
+                (int)Math.Ceiling(3 * UiScaleFactor),
+                (int)Math.Ceiling(4 * UiScaleFactor),
+                (int)Math.Ceiling(3 * UiScaleFactor));
+            var minimumTextHeight = TextRenderer.MeasureText((button.Text ?? string.Empty) + " ", button.Font).Height + button.Padding.Vertical + (int)Math.Ceiling(10 * UiScaleFactor);
+            button.Height = Math.Max(button.Height, Math.Max((int)Math.Ceiling(36 * UiScaleFactor), minimumTextHeight));
             button.UseVisualStyleBackColor = false;
             button.TextAlign = ContentAlignment.MiddleCenter;
             button.TextImageRelation = TextImageRelation.ImageBeforeText;
