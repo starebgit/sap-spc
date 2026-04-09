@@ -14,6 +14,14 @@ namespace SapSpcWinForms.Services
 {
     public static class PrenosMeritevService
     {
+        public struct CellWriteResult
+        {
+            public bool WroteValue { get; set; }
+            public bool ReachedColumnBottomAfterWrite { get; set; }
+            public int RowIndex { get; set; }
+            public int ColumnIndex { get; set; }
+        }
+
         private static string SanitizeRawForLog(string input, int maxLen = 320)
         {
             if (string.IsNullOrEmpty(input))
@@ -125,6 +133,50 @@ namespace SapSpcWinForms.Services
             grid.EndEdit();
             grid.CommitEdit(DataGridViewDataErrorContexts.Commit);
             MoveToNextVzorecCell(grid, cell.RowIndex, cell.ColumnIndex);
+        }
+
+        public static CellWriteResult WriteMeasurementAndMoveDownOnly(DataGridView grid, string measurement)
+        {
+            var result = new CellWriteResult
+            {
+                WroteValue = false,
+                ReachedColumnBottomAfterWrite = false,
+                RowIndex = -1,
+                ColumnIndex = -1
+            };
+
+            if (grid == null)
+                return result;
+
+            if (!TryGetCurrentVzorecCell(grid, out var cell))
+                return result;
+
+            int row = cell.RowIndex;
+            int col = cell.ColumnIndex;
+            result.RowIndex = row;
+            result.ColumnIndex = col;
+
+            FlushPendingCellEdit(grid);
+            cell.Value = measurement;
+            FlushPendingCellEdit(grid);
+            result.WroteValue = true;
+
+            int nextRow = row + 1;
+            if (nextRow >= grid.Rows.Count)
+            {
+                result.ReachedColumnBottomAfterWrite = true;
+                return result;
+            }
+
+            var targetRow = grid.Rows[nextRow];
+            if (targetRow != null && col >= 0 && col < targetRow.Cells.Count)
+            {
+                grid.CurrentCell = targetRow.Cells[col];
+                grid.Focus();
+                grid.BeginEdit(true);
+            }
+
+            return result;
         }
 
         public static void MoveToNextVzorecCell(DataGridView grid, int row, int curCol)
