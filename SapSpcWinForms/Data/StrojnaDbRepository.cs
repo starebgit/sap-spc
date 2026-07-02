@@ -268,6 +268,69 @@ namespace SapSpcWinForms.Data
             }
         }
 
+        // Resolves the single active konsar record for a code+sarza+post and reports how
+        // many active duplicates exist. A sarza opened more than once on the same post
+        // (each with its own ident and full konplan copy) causes the control-plan rows to
+        // multiply, so we bind the plan to one ident and warn when duplicates are found.
+        public static (int? ident, int activeCount) ResolveActiveKonsar(string koda, string srz, int idpost)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText =
+                    "SELECT ident FROM konsar " +
+                    "WHERE koda = ? AND sarza = ? AND idpost = ? " +
+                    "  AND (koncan IS NULL OR (koncan <> 'Y' AND koncan <> 'X')) " +
+                    "ORDER BY ident DESC";
+
+                cmd.Parameters.AddWithValue("@p1", koda ?? string.Empty);
+                cmd.Parameters.AddWithValue("@p2", srz ?? string.Empty);
+                cmd.Parameters.AddWithValue("@p3", idpost);
+
+                conn.Open();
+                int? newest = null;
+                int count = 0;
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        if (r["ident"] == DBNull.Value) continue;
+                        int id = Convert.ToInt32(r["ident"]);
+                        if (newest == null) newest = id; // ORDER BY ident DESC -> first is newest
+                        count++;
+                    }
+                }
+                return (newest, count);
+            }
+        }
+
+        // Loads the control-plan rows for a single konsar record (by its ident). Unlike the
+        // sarza-based join this cannot fan out across duplicate konsar entries.
+        public static DataTable GetKonplanRowsForIdent(int idsar)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText =
+                    "SELECT kp.[idplan], kp.[idsar], kp.[tip], kp.[pozicija], kp.[naziv], kp.[predpis], kp.[spmeja], kp.[zgmeja], " +
+                    "       kp.[kanal], kp.[stvz], kp.[stkanal], kp.[com], kp.[oznaka], kp.[operacija] " +
+                    "FROM [konplan] kp " +
+                    "WHERE kp.[idsar] = ? " +
+                    "ORDER BY kp.[tip], kp.[pozicija]";
+
+                cmd.Parameters.AddWithValue("@p1", idsar);
+
+                var dt = new DataTable();
+                using (var da = new OleDbDataAdapter(cmd))
+                {
+                    da.Fill(dt);
+                }
+                return dt;
+            }
+        }
+
         public static (int diff, int traj) GetIntervalFromKonsar(string kd, int idpost)
         {
             string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;

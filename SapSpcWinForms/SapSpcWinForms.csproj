@@ -170,6 +170,9 @@
     <Compile Include="Forms\VpisStevDialog.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\ModernMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\ZacetnaForm.cs">
       <SubType>Form</SubType>
     </Compile>

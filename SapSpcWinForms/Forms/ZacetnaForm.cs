@@ -1254,7 +1254,24 @@ namespace SapSpcWinForms
                 _currentSarza = srz;
             }
 
-            var dt = StrojnaDbRepository.GetKonplanRowsForSarza(srz, _currentStPost.Value);
+            // A sarza opened more than once for the same code/post would fan out the konplan
+            // join and double every row. Bind the plan to a single (newest) konsar record and
+            // warn the operator so the duplicate can be closed in the database.
+            var (konsarIdent, activeCount) = StrojnaDbRepository.ResolveActiveKonsar(_currentKodaClean, srz, _currentStPost.Value);
+
+            if (activeCount > 1)
+            {
+                ModernMessageBox.ShowWarning(
+                    this,
+                    "Podvojena šarža",
+                    $"Za to kodo je odprtih {activeCount} enakih šarž ({srz}).\n\n" +
+                    "Program bo uporabil najnovejšo, da se vrstice ne podvojijo. " +
+                    "Prosim, zapri odvečno šaržo v bazi.");
+            }
+
+            var dt = konsarIdent.HasValue
+                ? StrojnaDbRepository.GetKonplanRowsForIdent(konsarIdent.Value)
+                : StrojnaDbRepository.GetKonplanRowsForSarza(srz, _currentStPost.Value);
 
             if (dt.Rows.Count == 0)
             {
