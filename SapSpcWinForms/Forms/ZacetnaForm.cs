@@ -1714,22 +1714,22 @@ namespace SapSpcWinForms
 
             e.CellStyle.BackColor = Color.White;
 
-            // Delphi parity: red for out-of-tolerance, yellow for 3-sigma warning only when Beri meritve is enabled.
+            // Rdeče: vrednost izven tolerančnih mej.
             if (xx < sp || xx > zg)
             {
                 e.CellStyle.BackColor = Color.Red;
                 return;
             }
 
-            if (_berMer == 0)
+            // Oranžno: vrednost znotraj tolerance, a izven kontrolnih mej.
+            // Kontrolna meja je 10 % razpona tolerance navznoter od tolerančne (rdeče) meje.
+            double razpon = zg - sp;
+            if (razpon > 0)
             {
-                double avr = AppUtils.ParseDoubleLoose(row.Cells["Avr"].Value);
-                double std = AppUtils.ParseDoubleLoose(row.Cells["Std"].Value);
-                if (Math.Abs(avr - std) > 0.001)
-                {
-                    if (xx < (avr - 3 * std) || xx > (avr + 3 * std))
-                        e.CellStyle.BackColor = Color.Yellow;
-                }
+                double spodnjaKontrola = sp + 0.10 * razpon;
+                double zgornjaKontrola = zg - 0.10 * razpon;
+                if (xx < spodnjaKontrola || xx > zgornjaKontrola)
+                    e.CellStyle.BackColor = Color.Orange;
             }
         }
 
@@ -2634,10 +2634,10 @@ namespace SapSpcWinForms
 
             var flow = new FlowLayoutPanel
             {
+                Dock = DockStyle.Top,
                 AutoSize = true,
                 FlowDirection = FlowDirection.TopDown,
                 WrapContents = false,
-                Anchor = AnchorStyles.Top,
                 BackColor = rightPanel.BackColor,
                 Margin = new Padding(0)
             };
@@ -2651,7 +2651,18 @@ namespace SapSpcWinForms
                 flow.Controls.Add(c);
             }
 
-            body.Controls.Add(flow, 0, 0);
+            // Drsni kontejner okoli gumbov, da so vsi dosegljivi tudi pri nizki
+            // ločljivosti / majhnem oknu (prikaže navpični drsnik po potrebi).
+            var buttonScroll = new Panel
+            {
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+                BackColor = rightPanel.BackColor,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            buttonScroll.Controls.Add(flow);
+            body.Controls.Add(buttonScroll, 0, 1);
 
             if (SAPButton != null)
             {
@@ -2680,6 +2691,33 @@ namespace SapSpcWinForms
             {
                 MessageBox.Show(err, "SAP zapis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
+            }
+
+            // Preveri status šarže, preden karkoli pišemo v SAP: na zaprto (zaključeno)
+            // šaržo zapis meritev ni dovoljen. PreveriSar vrne false, če šarža ni v
+            // ustreznem statusu (npr. SERS / dokončana).
+            try
+            {
+                Cursor.Current = Cursors.WaitCursor;
+                var sapCheck = new global::SapSpcWinForms.SapService();
+                if (!sapCheck.PreveriSar(p.Sarza))
+                {
+                    MessageBox.Show(
+                        $"Šarža {p.Sarza} je zaprta oz. ni v ustreznem statusu — zapis meritev v SAP ni mogoč.",
+                        "SAP zapis", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Preverjanja statusa šarže ni bilo mogoče izvesti:\n" + ex.Message,
+                    "SAP zapis", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
             }
 
             // Delphi: FvpisOpom.Vpis(evalList);

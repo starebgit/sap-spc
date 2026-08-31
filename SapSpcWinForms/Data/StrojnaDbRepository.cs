@@ -548,6 +548,87 @@ namespace SapSpcWinForms.Data
             return list;
         }
 
+        // Meje (predpis/spodnja/zgornja) + št. vzorcev in opis za karakteristiko dane kode
+        // iz kontrolnega plana. Uporablja se za graf iz tabele meritev, kjer plan ni naložen.
+        public static bool GetGrafLimitsForKodaKarakt(
+            string koda, int idpost, string pozicija,
+            out double predpis, out double spmeja, out double zgmeja, out int stvz, out string naziv)
+        {
+            predpis = spmeja = zgmeja = 0; stvz = 1; naziv = "";
+
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText =
+                    "SELECT TOP 1 kp.predpis, kp.spmeja, kp.zgmeja, kp.stvz, kp.naziv " +
+                    "FROM [konsar] ks INNER JOIN [konplan] kp ON kp.idsar = ks.ident " +
+                    "WHERE LTRIM(RTRIM(ks.koda)) = ? AND ks.idpost = ? AND LTRIM(RTRIM(kp.pozicija)) = ? " +
+                    "ORDER BY ks.ident DESC";
+
+                cmd.Parameters.AddWithValue("@p1", (koda ?? "").Trim());
+                cmd.Parameters.AddWithValue("@p2", idpost);
+                cmd.Parameters.AddWithValue("@p3", (pozicija ?? "").Trim());
+
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    if (!r.Read()) return false;
+                    predpis = r["predpis"] == DBNull.Value ? 0 : Convert.ToDouble(r["predpis"]);
+                    spmeja = r["spmeja"] == DBNull.Value ? 0 : Convert.ToDouble(r["spmeja"]);
+                    zgmeja = r["zgmeja"] == DBNull.Value ? 0 : Convert.ToDouble(r["zgmeja"]);
+                    stvz = r["stvz"] == DBNull.Value ? 1 : Convert.ToInt32(r["stvz"]);
+                    naziv = r["naziv"] == DBNull.Value ? "" : r["naziv"].ToString().Trim();
+                    return true;
+                }
+            }
+        }
+
+        // Točke grafa za izrecno množico meritev (idmer) in karakteristiko —
+        // za graf iz filtriranega nabora v tabeli meritev (spoštuje filtre od–do/koda/šarža/del.nalog,
+        // ker je nabor idmer že prefiltriran v tabeli).
+        public static List<GrafPoint> FetchGrafPointsForIdmerSet(IEnumerable<int> idmerSet, string karakt)
+        {
+            var list = new List<GrafPoint>();
+            var ids = idmerSet?.Distinct().ToList() ?? new List<int>();
+            if (ids.Count == 0) return list;
+
+            // idmer so int-i, varno vključeni neposredno v IN(...)
+            string inClause = string.Join(",", ids);
+
+            string connStr = ConfigurationManager.ConnectionStrings["StrojnaDb"].ConnectionString;
+            using (var conn = new OleDbConnection(connStr))
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText =
+                    "SELECT gm.idmer, gm.datum, AVG(km.vrednost) AS vrednost " +
+                    "FROM Glavmer gm INNER JOIN Karmer km ON km.idmer = gm.idmer " +
+                    "WHERE gm.idmer IN (" + inClause + ") " +
+                    "  AND LTRIM(RTRIM(km.karakt)) = ? " +
+                    "  AND km.vrednost IS NOT NULL " +
+                    "GROUP BY gm.idmer, gm.datum " +
+                    "ORDER BY gm.datum";
+
+                cmd.Parameters.AddWithValue("@p1", (karakt ?? "").Trim());
+
+                conn.Open();
+                using (var r = cmd.ExecuteReader())
+                {
+                    while (r.Read())
+                    {
+                        var dt = Convert.ToDateTime(r["datum"]);
+                        var v = Convert.ToDouble(r["vrednost"]);
+                        list.Add(new GrafPoint { When = dt, Value = v });
+                    }
+                }
+            }
+
+            for (int i = 0; i < list.Count; i++)
+                list[i].Vzorec = i + 1;
+
+            return list;
+        }
+
         public static string GetImeKTFromPostajeOrEmpty(int stpost)
         {
             try

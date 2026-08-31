@@ -141,5 +141,52 @@ namespace SapSpcWinForms.Data
                 }
             }
         }
+
+        // Časovnica delovnih nalogov za stroj: pari (čas začetka, št. del. naloga = st_delnal_ID),
+        // urejeni naraščajoče po času. Uporablja se za sprotno izpeljavo del. naloga posamezne
+        // meritve (glavmer nima shranjenega del. naloga). V Sinaproju ni neposredne povezave
+        // šarža→del.nalog, zato del. nalog izpeljemo po stroju (st_stroj_ID) in času.
+        public static List<(DateTime cas, string delNalog)> GetDelNalogTimeline(long strojId, DateTime from, DateTime to)
+        {
+            var list = new List<(DateTime, string)>();
+            try
+            {
+                string sinaproConnStr = ConfigurationManager.ConnectionStrings["SinaproDb"].ConnectionString;
+                using (var conn = new OleDbConnection(sinaproConnStr))
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText =
+                        "SELECT ss.cas_zacetek AS cas, cv.st_delnal_ID AS dn " +
+                        "FROM ((t_del_stanjestroj ss " +
+                        "    INNER JOIN t_del_stanjeoperacija so ON so.t_delstanjestroj_ID = ss.t_delstanjestroj_ID) " +
+                        "    INNER JOIN t_pod_caslistvsi cv ON cv.st_caslist_ID = so.st_caslist_ID) " +
+                        "WHERE ss.st_stroj_ID = ? AND ss.st_podjetje_ID = '1060' " +
+                        "  AND ss.cas_zacetek >= ? AND ss.cas_zacetek < ? " +
+                        "ORDER BY ss.cas_zacetek";
+
+                    cmd.Parameters.Add("p1", OleDbType.BigInt).Value = strojId;
+                    cmd.Parameters.Add("p2", OleDbType.Date).Value = from;
+                    cmd.Parameters.Add("p3", OleDbType.Date).Value = to;
+
+                    conn.Open();
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        while (r.Read())
+                        {
+                            if (r["cas"] == DBNull.Value) continue;
+                            var cas = Convert.ToDateTime(r["cas"]);
+                            var dn = r["dn"] == DBNull.Value ? "" : r["dn"].ToString().Trim();
+                            if (!string.IsNullOrWhiteSpace(dn))
+                                list.Add((cas, dn));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DiagnosticLog.Warn("SinaproRepository.GetDelNalogTimeline", ex);
+            }
+            return list;
+        }
     }
 }

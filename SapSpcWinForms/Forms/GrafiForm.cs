@@ -95,37 +95,51 @@ namespace SapSpcWinForms
         private void DrawLegend()
         {
             _legend.Image?.Dispose();
-            var bmp = new Bitmap(Math.Max(_legend.Width, 10), Math.Max(_legend.Height, 10));
+            int w = Math.Max(_legend.Width, 10);
+            int h = Math.Max(_legend.Height, 10);
+            var bmp = new Bitmap(w, h);
             using (var g = Graphics.FromImage(bmp))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                 g.Clear(Color.White);
 
-                int y = 18;
+                // Okvir okoli legende za jasnejšo ločitev od grafov.
+                using (var border = new Pen(Color.FromArgb(210, 210, 210), 1))
+                    g.DrawRectangle(border, 0, 0, w - 1, h - 1);
 
-                using (var p = new Pen(Color.Green, 2))
+                using (var titleFont = new Font(Font.FontFamily, Font.Size + 1f, FontStyle.Bold))
+                using (var itemFont = new Font(Font.FontFamily, Font.Size, FontStyle.Regular))
                 {
-                    g.DrawLine(p, 20, 25, 90, 25);
-                    g.DrawString("Predpisana vrednost", Font, Brushes.Black, 95, y);
-                }
+                    g.DrawString("Legenda", titleFont, Brushes.Black, 12, 6);
+                    int titleH = (int)g.MeasureString("Legenda", titleFont).Height;
 
-                using (var p = new Pen(Color.Blue, 2))
-                {
-                    g.DrawLine(p, 250, 25, 320, 25);
-                    g.DrawString("Povprečje", Font, Brushes.Black, 325, y);
-                }
+                    var items = new[]
+                    {
+                        new { Color = Color.Green,                      Text = "Predpisana vrednost" },
+                        new { Color = Color.Blue,                       Text = "Povprečje" },
+                        new { Color = Color.Red,                        Text = "Tolerančne meje" },
+                        new { Color = Color.FromArgb(0x00, 0xC0, 0xC0), Text = "Kontrolne meje (10 % od tolerance)" },
+                    };
 
-                using (var p = new Pen(Color.Red, 2))
-                {
-                    g.DrawLine(p, 470, 25, 540, 25);
-                    g.DrawString("Tolerančne meje", Font, Brushes.Black, 545, y);
-                }
+                    const int swatch = 36;   // dolžina vzorčne črte
+                    const int gap = 10;      // razmik med črto in besedilom
+                    const int colGap = 30;   // razmik med postavkami
+                    int rowY = 6 + titleH + 10;
+                    int lineY = rowY + (int)(itemFont.GetHeight(g) / 2);
+                    int x = 14;
 
-                // Delphi color $0200c0c0 ~ teal-ish; keep close
-                using (var p = new Pen(Color.FromArgb(0x00, 0xC0, 0xC0), 2))
-                {
-                    g.DrawLine(p, 700, 25, 770, 25);
-                    g.DrawString("Kontrolne meje", Font, Brushes.Black, 775, y);
+                    foreach (var it in items)
+                    {
+                        using (var p = new Pen(it.Color, 3))
+                            g.DrawLine(p, x, lineY, x + swatch, lineY);
+
+                        int tx = x + swatch + gap;
+                        g.DrawString(it.Text, itemFont, Brushes.Black, tx, rowY);
+                        int textW = (int)Math.Ceiling(g.MeasureString(it.Text, itemFont).Width);
+
+                        x = tx + textW + colGap;
+                    }
                 }
             }
             _legend.Image = bmp;
@@ -285,11 +299,12 @@ namespace SapSpcWinForms
                 g.DrawLine(p, zx, ya, right, ya);
             }
 
-            // control limits (teal): avr +/- 3*std
+            // control limits (teal): 10% of the tolerance range inset from the red tolerance lines
             using (var p = new Pen(Color.FromArgb(0x00, 0xC0, 0xC0), 2))
             {
-                int yhi = yy(avr + 3 * std);
-                int ylo = yy(avr - 3 * std);
+                double razpon = zg - sp;
+                int yhi = yy(zg - 0.10 * razpon);
+                int ylo = yy(sp + 0.10 * razpon);
                 g.DrawLine(p, zx, yhi, right, yhi);
                 g.DrawLine(p, zx, ylo, right, ylo);
             }

@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Configuration;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
+using SapSpcWinForms.Data;
 using SapSpcWinForms.Services;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms
 {
@@ -34,12 +39,15 @@ namespace SapSpcWinForms
         private DateTime? _filterToInclusive = DateTime.Today; // inclusive UI date
         private string _filterKoda = "";
         private string _filterSarza = "";
+        private string _filterDelNalog = "";
 
         private TextBox _txtKodaFilter;
         private TextBox _txtSarzaFilter;
+        private TextBox _txtDelNalogFilter;
         private DateTimePicker _dtFrom;
         private DateTimePicker _dtTo;
         private Button _btnClear;
+        private Button _btnGraf;
 
         public SqlMeritveForm(bool isAdmin, int idpost, string postajaNaziv)
         {
@@ -98,6 +106,18 @@ namespace SapSpcWinForms
             _btnDelete.Click += BtnDelete_Click;
             top.Controls.Add(_btnDelete);
 
+            _btnGraf = new Button
+            {
+                Text = "Naredi graf",
+                Width = 140,
+                Height = 26,
+                Left = 840,
+                Top = 8,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            _btnGraf.Click += BtnGraf_Click;
+            top.Controls.Add(_btnGraf);
+
             // --- NEW: Filter bar panel ---
             var filter = new Panel { Dock = DockStyle.Fill, Height = 44, BackColor = Color.FromArgb(0xF4, 0xF4, 0xF4) };
             layout.Controls.Add(filter, 0, 1);
@@ -154,8 +174,9 @@ namespace SapSpcWinForms
             // Hide unwanted columns and set headers after data binding
             _gridGlav.DataBindingComplete += (s, e) =>
             {
-                HideColumns(_gridGlav, new[] { "idpost", "dodatno", "orodja" });
+                HideColumns(_gridGlav, new[] { "idpost", "dodatno", "orodja", "idstroj" });
                 SetHeader(_gridGlav, "idmer", TranslationService.Translate("SqlMeritveForm.Col.ZapSt"));
+                SetHeader(_gridGlav, "delnalog", "Del. nalog");
             };
             _gridKar.DataBindingComplete += (s, e) =>
             {
@@ -172,20 +193,22 @@ namespace SapSpcWinForms
             var bar = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                ColumnCount = 10,
+                ColumnCount = 12,
                 RowCount = 1,
                 Padding = new Padding(10, 8, 10, 8)
             };
 
-            // columns: FromLbl, From, ToLbl, To, KodaLbl, Koda, SarzaLbl, Sarza, ClearBtn, (spacer)
+            // columns: FromLbl, From, ToLbl, To, KodaLbl, Koda, SarzaLbl, Sarza, DelNalogLbl, DelNalog, ClearBtn, (spacer)
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
+            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140));
+            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130));
+            bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
             bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
 
@@ -195,12 +218,14 @@ namespace SapSpcWinForms
             var lblTo = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.To"), AutoSize = true, Anchor = AnchorStyles.Left };
             var lblKoda = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.Koda"), AutoSize = true, Anchor = AnchorStyles.Left };
             var lblSarza = new Label { Text = TranslationService.Translate("SqlMeritveForm.Filter.Sarza"), AutoSize = true, Anchor = AnchorStyles.Left };
+            var lblDelNalog = new Label { Text = "Del. nalog:", AutoSize = true, Anchor = AnchorStyles.Left };
 
             _dtFrom = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
             _dtTo = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120 };
 
-            _txtKodaFilter = new TextBox { Width = 140 };
-            _txtSarzaFilter = new TextBox { Width = 140 };
+            _txtKodaFilter = new TextBox { Width = 130 };
+            _txtSarzaFilter = new TextBox { Width = 130 };
+            _txtDelNalogFilter = new TextBox { Width = 120 };
 
             _btnClear = new Button { Text = TranslationService.Translate("SqlMeritveForm.Filter.Clear"), Width = 70, Height = 26 };
 
@@ -209,6 +234,7 @@ namespace SapSpcWinForms
             _dtTo.Value = _filterToInclusive ?? DateTime.Today;
             _txtKodaFilter.Text = _filterKoda ?? "";
             _txtSarzaFilter.Text = _filterSarza ?? "";
+            _txtDelNalogFilter.Text = _filterDelNalog ?? "";
 
             bar.Controls.Add(lblFrom, 0, 0);
             bar.Controls.Add(_dtFrom, 1, 0);
@@ -218,7 +244,9 @@ namespace SapSpcWinForms
             bar.Controls.Add(_txtKodaFilter, 5, 0);
             bar.Controls.Add(lblSarza, 6, 0);
             bar.Controls.Add(_txtSarzaFilter, 7, 0);
-            bar.Controls.Add(_btnClear, 8, 0);
+            bar.Controls.Add(lblDelNalog, 8, 0);
+            bar.Controls.Add(_txtDelNalogFilter, 9, 0);
+            bar.Controls.Add(_btnClear, 10, 0);
 
             // Events: change => reload (lightweight, immediate)
             _dtFrom.ValueChanged += (s, e) => { _filterFrom = _dtFrom.Value.Date; ReloadWithFilters(); };
@@ -236,17 +264,26 @@ namespace SapSpcWinForms
                 ReloadWithFilters();
             };
 
+            // Del. nalog je izpeljan (ni v SQL), zato filtriramo na strani odjemalca.
+            _txtDelNalogFilter.TextChanged += (s, e) =>
+            {
+                _filterDelNalog = (_txtDelNalogFilter.Text ?? "").Trim();
+                ApplyClientFilter();
+            };
+
             _btnClear.Click += (s, e) =>
             {
                 _filterFrom = DateTime.Today.AddDays(-1);
                 _filterToInclusive = DateTime.Today;
                 _filterKoda = "";
                 _filterSarza = "";
+                _filterDelNalog = "";
 
                 _dtFrom.Value = _filterFrom.Value;
                 _dtTo.Value = _filterToInclusive.Value;
                 _txtKodaFilter.Text = "";
                 _txtSarzaFilter.Text = "";
+                _txtDelNalogFilter.Text = "";
 
                 ReloadWithFilters();
             };
@@ -317,12 +354,73 @@ namespace SapSpcWinForms
                 _daGlav.Fill(_dtGlav);
             }
 
-            if (_dtGlav.Rows.Count > 0)
+            PopulateDelNalog();
+            ApplyClientFilter();
+
+            if (_bsGlav.Count > 0)
             {
-                _bsGlav.Position = _dtGlav.Rows.Count - 1;
-                var idmer = Convert.ToInt32(_dtGlav.Rows[_dtGlav.Rows.Count - 1]["idmer"]);
-                LoadKarMeritve(idmer);
+                _bsGlav.Position = _bsGlav.Count - 1;
+                if (_bsGlav.Current is DataRowView drv && drv.Row["idmer"] != DBNull.Value)
+                    LoadKarMeritve(Convert.ToInt32(drv.Row["idmer"]));
             }
+            else
+            {
+                _dtKar.Clear();
+            }
+        }
+
+        // Izpelje št. del. naloga (st_delnal_ID) za vsako vrstico iz Sinaproja po stroju (idstroj)
+        // in času meritve (datum). glavmer tega ne hrani; časovnico nalogov beremo paketno na stroj.
+        private void PopulateDelNalog()
+        {
+            if (!_dtGlav.Columns.Contains("delnalog"))
+                _dtGlav.Columns.Add("delnalog", typeof(string));
+
+            if (_dtGlav.Rows.Count == 0)
+                return;
+
+            var cache = new Dictionary<long, List<(DateTime cas, string delNalog)>>();
+
+            foreach (DataRow row in _dtGlav.Rows)
+            {
+                row["delnalog"] = "";
+
+                if (row["idstroj"] == DBNull.Value || row["datum"] == DBNull.Value)
+                    continue;
+                if (!long.TryParse(Convert.ToString(row["idstroj"]).Trim(), out long strojId))
+                    continue;
+
+                DateTime dat = Convert.ToDateTime(row["datum"]);
+
+                if (!cache.TryGetValue(strojId, out var timeline))
+                {
+                    DateTime from = (_filterFrom ?? dat).AddDays(-60);
+                    DateTime to = (_filterToInclusive ?? DateTime.Today).AddDays(1);
+                    timeline = SinaproRepository.GetDelNalogTimeline(strojId, from, to);
+                    cache[strojId] = timeline;
+                }
+
+                // zadnji nalog, ki se je začel pred/ob času meritve
+                for (int i = timeline.Count - 1; i >= 0; i--)
+                {
+                    if (timeline[i].cas <= dat)
+                    {
+                        row["delnalog"] = timeline[i].delNalog;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void ApplyClientFilter()
+        {
+            if (!_dtGlav.Columns.Contains("delnalog"))
+                return;
+
+            if (string.IsNullOrWhiteSpace(_filterDelNalog))
+                _bsGlav.Filter = null;
+            else
+                _bsGlav.Filter = "delnalog LIKE '%" + _filterDelNalog.Replace("'", "''") + "%'";
         }
 
         private void ReloadWithFilters()
@@ -398,6 +496,80 @@ namespace SapSpcWinForms
             }
 
             LoadGlavMeritve();
+        }
+
+        // Naredi graf iz trenutno filtriranega nabora meritev za karakteristiko izbrane vrstice.
+        // Uporabi isti vir (glavmer/karmer) kot graf v glavnem oknu, le spoštuje filtre te tabele.
+        private void BtnGraf_Click(object sender, EventArgs e)
+        {
+            if (!(_bsGlav.Current is DataRowView drv) || drv.Row["koda"] == DBNull.Value)
+            {
+                MessageBox.Show(this, "Najprej izberi meritev v zgornji tabeli.", "Graf",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string koda = Convert.ToString(drv.Row["koda"]).Trim();
+
+            // Karakteristika iz izbrane vrstice spodnje tabele (karmer).
+            string karakt = null;
+            string naziv = null;
+            if (_bsKar.Current is DataRowView kdrv)
+            {
+                if (kdrv.Row.Table.Columns.Contains("karakt") && kdrv.Row["karakt"] != DBNull.Value)
+                    karakt = Convert.ToString(kdrv.Row["karakt"]).Trim();
+                if (kdrv.Row.Table.Columns.Contains("naziv") && kdrv.Row["naziv"] != DBNull.Value)
+                    naziv = Convert.ToString(kdrv.Row["naziv"]).Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(karakt))
+            {
+                MessageBox.Show(this, "Izberi karakteristiko (poz.) v spodnji tabeli meritev.", "Graf",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // idmer iz trenutno filtriranega nabora (ista koda) -> graf spoštuje vse filtre tabele
+            // (od–do, koda, šarža, del. nalog).
+            var idmerSet = new List<int>();
+            foreach (DataRowView v in (IEnumerable)_bsGlav.List)
+            {
+                if (v.Row["idmer"] == DBNull.Value || v.Row["koda"] == DBNull.Value)
+                    continue;
+                if (!Convert.ToString(v.Row["koda"]).Trim().Equals(koda, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                idmerSet.Add(Convert.ToInt32(v.Row["idmer"]));
+            }
+
+            var points = StrojnaDbRepository.FetchGrafPointsForIdmerSet(idmerSet, karakt);
+            if (points.Count == 0)
+            {
+                MessageBox.Show(this, "Za izbrano karakteristiko v filtriranem naboru ni meritev.", "Graf",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            StrojnaDbRepository.GetGrafLimitsForKodaKarakt(koda, _idpost, karakt,
+                out double sr, out double sp, out double zg, out int stvz, out string planNaziv);
+
+            AppUtils.ComputeStats(points.Select(p => p.Value).ToList(), out double avr, out double std);
+
+            string title = $"{karakt} - {(string.IsNullOrWhiteSpace(naziv) ? planNaziv : naziv)}";
+
+            var req = new GrafRequest
+            {
+                Title = title,
+                StVz = stvz <= 0 ? 1 : stvz,
+                Sr = sr,
+                Sp = sp,
+                Zg = zg,
+                Avr = avr,
+                Std = std,
+                Points = points
+            };
+
+            using (var win = new GrafiForm(new List<GrafRequest> { req }))
+                win.ShowDialog(this);
         }
     }
 }
