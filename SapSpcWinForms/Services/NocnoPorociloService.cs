@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.OleDb;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -48,9 +49,9 @@ namespace SapSpcWinForms.Services
                 var doo = od.AddDays(1);
                 var vrstice = NaloziIzvenMej(od, doo);
 
-                var prejemniki = DolociPrejemnike(DateTime.Today, samoTest);
+                var prejemniki = DolociPrejemnike(samoTest);
                 if (prejemniki.Count == 0)
-                    throw new InvalidOperationException("Ni nastavljenih prejemnikov (Porocilo.Prejemniki).");
+                    throw new InvalidOperationException("Ni nastavljenih prejemnikov (prejemniki.txt).");
 
                 int stVar = vrstice.Count(v => v.Tip == 1);
                 int stAtr = vrstice.Count(v => v.Tip == 2);
@@ -86,23 +87,33 @@ namespace SapSpcWinForms.Services
         }
 
         /// <summary>
-        /// Do vključno datuma Porocilo.TestDo gre poročilo rednim + testnim prejemnikom,
-        /// potem samo rednim.
+        /// Redni prejemniki so v tekstovni datoteki poleg exe (privzeto prejemniki.txt,
+        /// ključ Porocilo.PrejemnikiDatoteka): en e-naslov na vrstico, vrstice z # so komentar.
+        /// Datoteko se ureja brez novega deploya. Če je ni, se uporabi Porocilo.Prejemniki.
+        /// /test pošlje samo na Porocilo.TestniPrejemniki.
         /// </summary>
-        private static List<string> DolociPrejemnike(DateTime danes, bool samoTest)
+        private static List<string> DolociPrejemnike(bool samoTest)
         {
-            var redni = Razdeli(Nastavitev("Porocilo.Prejemniki"));
-            var testni = Razdeli(Nastavitev("Porocilo.TestniPrejemniki"));
-
             if (samoTest)
-                return testni;
+                return Razdeli(Nastavitev("Porocilo.TestniPrejemniki"));
 
-            var result = new List<string>(redni);
-            if (DateTime.TryParseExact(Nastavitev("Porocilo.TestDo"), "yyyy-MM-dd",
-                    CultureInfo.InvariantCulture, DateTimeStyles.None, out var testDo)
-                && danes.Date <= testDo.Date)
+            string pot = Nastavitev("Porocilo.PrejemnikiDatoteka", "prejemniki.txt");
+            if (!Path.IsPathRooted(pot))
+                pot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, pot);
+
+            List<string> result;
+            if (File.Exists(pot))
             {
-                result.AddRange(testni);
+                result = File.ReadAllLines(pot, Encoding.UTF8)
+                    .Select(l => l.Trim())
+                    .Where(l => l.Length > 0 && !l.StartsWith("#"))
+                    .SelectMany(Razdeli)
+                    .ToList();
+            }
+            else
+            {
+                DiagnosticLog.Info(Src, $"Datoteka s prejemniki ne obstaja ({pot}), uporabim Porocilo.Prejemniki.");
+                result = Razdeli(Nastavitev("Porocilo.Prejemniki"));
             }
 
             return result.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
