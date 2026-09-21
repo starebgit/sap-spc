@@ -256,7 +256,7 @@ namespace SapSpcWinForms.Services
         {
             string host = Nastavitev("Porocilo.SmtpStreznik", "mailrelay.bfits.com");
             int port = int.TryParse(Nastavitev("Porocilo.SmtpPort", "25"), out var p) ? p : 25;
-            string od = Nastavitev("Porocilo.Posiljatelj", "beno.stare@egoproducts.com");
+            string od = Nastavitev("Porocilo.Posiljatelj", "it.slovenia@egoproducts.com");
             string odIme = Nastavitev("Porocilo.PosiljateljIme", "SapSpc poročilo");
 
             using (var msg = new MailMessage())
