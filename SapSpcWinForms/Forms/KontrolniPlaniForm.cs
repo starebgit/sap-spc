@@ -416,7 +416,7 @@ namespace SapSpcWinForms
 
                             // Delphi: if predpis = '' then 0 else predpis
                             var predpisStr = (pp.predpis ?? "").ToString().Trim();
-                            cmd.Parameters.AddWithValue("@p5", string.IsNullOrEmpty(predpisStr) ? 0.0 : Convert.ToDouble(predpisStr, CultureInfo.InvariantCulture));
+                            cmd.Parameters.AddWithValue("@p5", string.IsNullOrEmpty(predpisStr) ? 0.0 : Convert.ToDouble(predpisStr.Replace(',', '.'), CultureInfo.InvariantCulture));
 
                             cmd.Parameters.AddWithValue("@p6", ToDbDoubleOrNull(pp.spmeja));
                             cmd.Parameters.AddWithValue("@p7", ToDbDoubleOrNull(pp.zgmeja));
@@ -460,10 +460,10 @@ namespace SapSpcWinForms
         private static object ToDbDoubleOrNull(object value)
         {
             if (value == null || value == DBNull.Value) return DBNull.Value;
-            var s = value.ToString().Trim();
+            // SAP sends "61,00" - with InvariantCulture the comma is a thousands separator (-> 6100)
+            var s = value.ToString().Trim().Replace(',', '.');
             if (string.IsNullOrEmpty(s)) return DBNull.Value;
-            if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var d)) return d;
-            if (double.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out d)) return d;
+            if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var d)) return d;
             return DBNull.Value;
         }
 
