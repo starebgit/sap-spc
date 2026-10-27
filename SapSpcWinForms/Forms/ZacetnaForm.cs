@@ -1405,13 +1405,14 @@ namespace SapSpcWinForms
             KaraktiGrid.RowHeadersVisible = false;
             KaraktiGrid.ColumnHeadersVisible = true; // Ensure headers are visible
 
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Pozicija", HeaderText = "Pozicija", Width = 100 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Predpis", HeaderText = "Predpis", Width = 110 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "SpMeja", HeaderText = "Sp. meja", Width = 110 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "ZgMeja", HeaderText = "Zg. meja", Width = 110 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Merilo", HeaderText = "Merilo", Width = 100 });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "COM", HeaderText = "COM", Width = 80, Visible = false });
+            // Plan data is read-only (Delphi: fixed columns); only Graf and Vzorec N are edited.
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Pozicija", HeaderText = "Pozicija", Width = 100, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Predpis", HeaderText = "Predpis", Width = 110, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "SpMeja", HeaderText = "Sp. meja", Width = 110, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "ZgMeja", HeaderText = "Zg. meja", Width = 110, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Merilo", HeaderText = "Merilo", Width = 100, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "COM", HeaderText = "COM", Width = 80, Visible = false, ReadOnly = true });
             var grafCol = new DataGridViewCheckBoxColumn
             {
                 Name = "Graf",
@@ -1421,11 +1422,11 @@ namespace SapSpcWinForms
                 DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
             };
             KaraktiGrid.Columns.Add(grafCol);
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preračun", Width = 80, Visible = false });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Avr", HeaderText = "Avr", Width = 80, Visible = false });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Std", HeaderText = "Std", Width = 80, Visible = false });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVz", HeaderText = "StVz", Width = 80, Visible = false });
-            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Preracun", HeaderText = "Preračun", Width = 80, Visible = false, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Avr", HeaderText = "Avr", Width = 80, Visible = false, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Std", HeaderText = "Std", Width = 80, Visible = false, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVz", HeaderText = "StVz", Width = 80, Visible = false, ReadOnly = true });
+            KaraktiGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false, ReadOnly = true });
 
             for (int i = 1; i <= stcl; i++)
             {
@@ -1446,9 +1447,10 @@ namespace SapSpcWinForms
             attriGrid.RowHeadersVisible = false;
             attriGrid.ColumnHeadersVisible = true; // Ensure headers are visible
 
-            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Pozicija", HeaderText = "Pozicija", Width = 100 });
-            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250 });
-            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false }); // ADD
+            // Pozicija/Naziv are plan data (read-only); St. vzor. stays editable like Delphi.
+            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Pozicija", HeaderText = "Pozicija", Width = 100, ReadOnly = true });
+            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Naziv", HeaderText = "Naziv", Width = 250, ReadOnly = true });
+            attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "Operacija", HeaderText = "Operacija", Width = 80, Visible = false, ReadOnly = true }); // ADD
             attriGrid.Columns.Add(new DataGridViewTextBoxColumn { Name = "StVzor", HeaderText = "t. vzor.", Width = 100 });
             var vsiDobriCol = new DataGridViewCheckBoxColumn
             {

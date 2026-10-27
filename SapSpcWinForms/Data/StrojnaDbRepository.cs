@@ -464,6 +464,11 @@ namespace SapSpcWinForms.Data
 
                     TimeSpan last = TimeSpan.Zero;
 
+                    // cas is time-of-day only, so ORDER BY cas puts 23:50 after 00:20 in the
+                    // night shift. Pick the latest by time since shift start instead.
+                    var shiftStart = new TimeSpan(izm == 2 ? 14 : izm == 3 ? 22 : 6, 0, 0);
+                    TimeSpan lastOffset = TimeSpan.MinValue;
+
                     using (var r = cmd.ExecuteReader())
                     {
                         while (r.Read())
@@ -471,9 +476,18 @@ namespace SapSpcWinForms.Data
                             var v = r["cas"];
                             if (v == null || v == DBNull.Value) continue;
 
-                            if (v is DateTime dt) last = dt.TimeOfDay;
-                            else if (TimeSpan.TryParse(v.ToString(), out var ts)) last = ts;
-                            else if (DateTime.TryParse(v.ToString(), out var dt2)) last = dt2.TimeOfDay;
+                            TimeSpan t;
+                            if (v is DateTime dt) t = dt.TimeOfDay;
+                            else if (TimeSpan.TryParse(v.ToString(), out var ts)) t = ts;
+                            else if (DateTime.TryParse(v.ToString(), out var dt2)) t = dt2.TimeOfDay;
+                            else continue;
+
+                            var offset = AppUtils.ElapsedSince(shiftStart, t);
+                            if (offset >= lastOffset)
+                            {
+                                lastOffset = offset;
+                                last = t;
+                            }
                         }
                     }
 

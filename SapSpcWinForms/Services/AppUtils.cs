@@ -205,10 +205,19 @@ namespace SapSpcWinForms.Utils
             return false;
         }
 
+        // Time since acas, both time-of-day values. Wraps over midnight, so a base from
+        // before midnight (night shift) or a negative base (shift start minus a long
+        // interval) still gives the real elapsed time. Semafor colour and time both use it.
+        public static TimeSpan ElapsedSince(TimeSpan acas, TimeSpan now)
+        {
+            var elapsed = TimeSpan.FromTicks((now - acas).Ticks % TimeSpan.TicksPerDay);
+            if (elapsed < TimeSpan.Zero) elapsed += TimeSpan.FromDays(1);
+            return elapsed;
+        }
+
         public static int DolociSt(TimeSpan acas, int diff, int traj, TimeSpan now)
         {
-            var ddHours = (now - acas).TotalHours;
-            if (ddHours < 0) ddHours += 24; // wrap over midnight (same as your code)
+            var ddHours = ElapsedSince(acas, now).TotalHours;
 
             int ist = 1;
             if (ddHours > (diff - traj) / 60.0) ist = 2;

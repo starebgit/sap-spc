@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using SapSpcWinForms.Services;
+using SapSpcWinForms.Utils;
 
 namespace SapSpcWinForms
 {
@@ -280,12 +281,15 @@ namespace SapSpcWinForms
         {
             // Delphi does:
             // tt := diff/24/60 - time + acas
-            // then TimeToStr(tt) without seconds
+            // then TimeToStr(tt) without seconds.
+            // Elapsed time wraps over midnight exactly like DolociSt (the colour); without
+            // that a late row after midnight or with a negative base counted down.
             var now = DateTime.Now.TimeOfDay;
 
             // We assume: row.DiffMinutes is the measurement interval (diff)
             // and row.NextBaseTime is the base time (acas) as TimeOfDay.
-            var tt = TimeSpan.FromMinutes(row.DiffMinutes) - now + row.NextBaseTime.TimeOfDay;
+            var elapsed = AppUtils.ElapsedSince(row.NextBaseTime.TimeOfDay, now);
+            var tt = TimeSpan.FromMinutes(row.DiffMinutes) - elapsed;
 
             if (tt < TimeSpan.Zero) tt = tt.Negate(); // show positive duration like “late by”
             // show hh:mm
